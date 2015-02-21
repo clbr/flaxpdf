@@ -77,6 +77,16 @@ static void store(SplashBitmap * const bm, const u32 page) {
 	// Trim margins
 	getmargins(src, w, h, rowsize, &minx, &maxx, &miny, &maxy);
 
+	const u32 trimw = maxx - minx + 1;
+	const u32 trimh = maxy - miny + 1;
+
+	u8 * const trimmed = (u8 *) xcalloc(trimw * trimh * 3, 1);
+	u32 i, j;
+	for (j = miny; j <= maxy; j++) {
+		const u32 destj = j - miny;
+		memcpy(trimmed + destj * trimw * 3, src + j * rowsize, trimw * 3);
+	}
+
 	// Margins found.
 }
 
