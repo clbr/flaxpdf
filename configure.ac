@@ -46,8 +46,9 @@ CXXFLAGS=["$CXXFLAGS $($fltkconfig --cxxflags | sed 's@-I@-isystem @g')"]
 LIBS=["$LIBS $($fltkconfig --ldflags --use-images)"]
 
 # Checks for libraries.
-AC_CHECK_LIB([dl], [dlopen], [], AC_MSG_ERROR([libdl not found]))
-AC_CHECK_LIB([rt], [sched_get_priority_min], [], AC_MSG_ERROR([librt not found]))
+AC_CHECK_LIB([lzo2], [__lzo_init_v2], [], AC_MSG_ERROR([LZO not found]))
+#AC_CHECK_LIB([dl], [dlopen], [], AC_MSG_ERROR([libdl not found]))
+#AC_CHECK_LIB([rt], [sched_get_priority_min], [], AC_MSG_ERROR([librt not found]))
 PKG_CHECK_MODULES([DEPS], [poppler >= 0.31.0])
 
 DEPS_CFLAGS=$(echo $DEPS_CFLAGS | sed 's@-I@-isystem @g')

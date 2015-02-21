@@ -203,6 +203,8 @@ int main(int argc, char **argv) {
 
 	#undef img
 
+	lzo_init();
+
 	win->show();
 
 	if (optind < argc)
