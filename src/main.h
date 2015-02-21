@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "macros.h"
 #include "helpers.h"
 
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -44,14 +45,29 @@ extern Fl_Light_Button *selecting;
 
 void loadfile(const char *);
 
+struct cachedpage {
+	u8 *data;
+	u32 size;
+	u32 uncompressed;
+
+	u32 w, h;
+	u16 left, right, top, bottom;
+
+	bool ready;
+};
+
 struct openfile {
 	float zoom;
 	bool trim;
 	bool page;
 	bool width;
 
+	u32 pages;
+
 	u32 first_visible;
 	u32 last_visible;
+
+	cachedpage *cache;
 };
 
 extern openfile *file;

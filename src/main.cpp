@@ -27,6 +27,8 @@ Fl_Input *pagebox = NULL;
 Fl_Input_Choice *zoombar = (Fl_Input_Choice *) 0;
 Fl_Light_Button *selecting = NULL;
 
+openfile *file = NULL;
+
 static Fl_Menu_Item menu_zoombar[] = {
 	{_("Trim"), 0, 0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
 	{_("Width"), 0, 0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
@@ -91,6 +93,9 @@ int main(int argc, char **argv) {
 	}
 
 	Fl::scheme("gtk+");
+
+	file = (openfile *) xcalloc(1, sizeof(openfile));
+	file->trim = true;
 
 	#define img(a) a, sizeof(a)
 
