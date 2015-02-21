@@ -46,6 +46,8 @@ static void cb_Zoom1(Fl_Button*, void*) {
 
 int main(int argc, char **argv) {
 
+	Fl::scheme("gtk+");
+
 	win = new Fl_Double_Window(705, 700, _("FlaxPDF"));
 	Fl_Pack* o = new Fl_Pack(0, 0, 705, 700);
 	o->type(1);
