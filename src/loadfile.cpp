@@ -81,13 +81,22 @@ static void store(SplashBitmap * const bm, const u32 page) {
 	const u32 trimh = maxy - miny + 1;
 
 	u8 * const trimmed = (u8 *) xcalloc(trimw * trimh * 3, 1);
-	u32 i, j;
+	u32 j;
 	for (j = miny; j <= maxy; j++) {
 		const u32 destj = j - miny;
 		memcpy(trimmed + destj * trimw * 3, src + j * rowsize, trimw * 3);
 	}
 
-	// Margins found.
+	// Trimmed copy done, compress it
+
+	// Store
+	file->cache[page].uncompressed = trimw * trimh * 3;
+	file->cache[page].w = trimw;
+	file->cache[page].h = trimh;
+	file->cache[page].left = minx;
+	file->cache[page].right = w - maxx;
+	file->cache[page].top = miny;
+	file->cache[page].bottom = h -maxy;
 }
 
 static void dopage(const u32 page) {
