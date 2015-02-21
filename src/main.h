@@ -18,9 +18,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MAIN_H
 
 #include "autoconfig.h"
+#include "gettext.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
+#include <FL/Fl.H>
+#include <FL/Fl_Double_Window.H>
+#include <FL/Fl_Pack.H>
+#include <FL/Fl_Button.H>
+#include <FL/Fl_Box.H>
+#include <FL/Fl_Input_Choice.H>
+#include <FL/Fl_Light_Button.H>
+
+extern Fl_Double_Window *win;
+extern Fl_Box *pagectr;
+extern Fl_Input_Choice *zoombar;
 
 #endif

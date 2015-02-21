@@ -1,0 +1,66 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0110 
+i18n_type 1 
+i18n_include i18n_function 
+i18n_function _ 
+header_name {.h} 
+code_name {.cxx}
+Function {window()} {open return_type void
+} {
+  Fl_Window win {
+    label FlaxPDF open
+    xywh {256 162 705 700} type Double resizable size_range {700 700 0 0} visible
+  } {
+    Fl_Pack {} {open
+      xywh {-620 -4 1325 724} type HORIZONTAL resizable
+    } {
+      Fl_Pack buttons {open
+        private xywh {0 -4 64 704}
+      } {
+        Fl_Button {} {
+          label Open
+          callback {hi();}
+          tooltip {Open a new file} xywh {0 0 64 64}
+        }
+        Fl_Box pagectr {
+          label {0 / 0}
+          xywh {0 64 64 64} box ENGRAVED_FRAME align 128
+        }
+        Fl_Input_Choice zoombar {
+          callback {hi();} open
+          tooltip {Preset zoom choices} xywh {0 128 64 32}
+        } {
+          MenuItem {} {
+            label Trimmed
+            xywh {0 0 100 20}
+          }
+          MenuItem {} {
+            label Width
+            xywh {0 0 100 20}
+          }
+          MenuItem {} {
+            label Page
+            xywh {0 0 100 20}
+          }
+        }
+        Fl_Button {} {
+          label {Zoom in}
+          callback {hi();}
+          tooltip {Zoom in} xywh {0 160 64 64}
+        }
+        Fl_Button {} {
+          label {Zoom out}
+          callback {hi();}
+          tooltip {Zoom out} xywh {0 224 64 64}
+        }
+        Fl_Light_Button {} {
+          label {Select text}
+          tooltip {Select text} xywh {0 288 64 64}
+        }
+      }
+      Fl_Box {} {
+        xywh {64 0 641 700} resizable
+      }
+    }
+  }
+} 
