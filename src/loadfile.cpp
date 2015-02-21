@@ -9,6 +9,8 @@ static void dopage(const u32 page) {
 	SplashColor white = { 255, 255, 255 };
 	SplashOutputDev *splash = new SplashOutputDev(splashModeBGR8, 4, false, white);
 
+	file->pdf->displayPage(splash, page, 144, 144, 0, true, false, false);
+
 	SplashBitmap * const bm = splash->takeBitmap();
 	delete bm;
 	delete splash;
