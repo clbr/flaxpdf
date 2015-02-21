@@ -2,11 +2,16 @@
 #include <FL/Fl_File_Chooser.H>
 #include <ErrorCodes.h>
 #include <SplashOutputDev.h>
+#include <splash/SplashBitmap.h>
 
 static void dopage(const u32 page) {
 
 	SplashColor white = { 255, 255, 255 };
 	SplashOutputDev *splash = new SplashOutputDev(splashModeBGR8, 4, false, white);
+
+	SplashBitmap * const bm = splash->takeBitmap();
+	delete bm;
+	delete splash;
 
 	__sync_bool_compare_and_swap(&file->cache[page].ready, 0, 1);
 }
