@@ -12,5 +12,16 @@ void loadfile(const char *file) {
 		}
 	}
 
+	char relative[80];
+	const char * const slash = strrchr(file, '/');
+	if (!slash) {
+		strncpy(relative, file, 80);
+	} else {
+		strncpy(relative, slash + 1, 80);
+	}
+	relative[79] = '\0';
 
+	char tmp[160];
+	snprintf(tmp, 160, "%s - FlaxPDF", relative);
+	win->copy_label(tmp);
 }
