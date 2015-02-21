@@ -12,16 +12,10 @@ static bool nonwhite(const u8 * const pixel) {
 		pixel[2] != 255;
 }
 
-static void store(SplashBitmap * const bm, const u32 page) {
+static void getmargins(const u8 * const src, const u32 w, const u32 h,
+			const u32 rowsize, u32 *minx, u32 *maxx,
+			u32 *miny, u32 *maxy) {
 
-	const u32 w = bm->getWidth();
-	const u32 h = bm->getHeight();
-	const u32 rowsize = bm->getRowSize();
-
-	const u8 * const src = bm->getDataPtr();
-
-	// Trim margins
-	u32 minx = 0, miny = 0, maxx = w - 1, maxy = h - 1;
 	int i, j;
 
 	bool found = false;
@@ -30,18 +24,18 @@ static void store(SplashBitmap * const bm, const u32 page) {
 			const u8 * const pixel = src + j * rowsize + i * 3;
 			if (nonwhite(pixel)) {
 				found = true;
-				minx = i;
+				*minx = i;
 			}
 		}
 	}
 
 	found = false;
 	for (j = 0; j < (int) h && !found; j++) {
-		for (i = minx; i < (int) w && !found; i++) {
+		for (i = *minx; i < (int) w && !found; i++) {
 			const u8 * const pixel = src + j * rowsize + i * 3;
 			if (nonwhite(pixel)) {
 				found = true;
-				miny = j;
+				*miny = j;
 			}
 		}
 	}
@@ -52,7 +46,7 @@ static void store(SplashBitmap * const bm, const u32 page) {
 			const u8 * const pixel = src + j * rowsize + i * 3;
 			if (nonwhite(pixel)) {
 				found = true;
-				maxx = i;
+				*maxx = i;
 			}
 		}
 	}
@@ -63,10 +57,25 @@ static void store(SplashBitmap * const bm, const u32 page) {
 			const u8 * const pixel = src + j * rowsize + i * 3;
 			if (nonwhite(pixel)) {
 				found = true;
-				maxy = j;
+				*maxy = j;
 			}
 		}
 	}
+}
+
+static void store(SplashBitmap * const bm, const u32 page) {
+
+	const u32 w = bm->getWidth();
+	const u32 h = bm->getHeight();
+	const u32 rowsize = bm->getRowSize();
+
+	const u8 * const src = bm->getDataPtr();
+	u32 minx = 0, miny = 0, maxx = w - 1, maxy = h - 1;
+
+	// Trim margins
+	getmargins(src, w, h, rowsize, &minx, &maxx, &miny, &maxy);
+
+	// Margins found.
 }
 
 static void dopage(const u32 page) {
