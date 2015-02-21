@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "autoconfig.h"
 #include "gettext.h"
+#include "lrtypes.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,5 +41,17 @@ extern Fl_Input_Choice *zoombar;
 extern Fl_Light_Button *selecting;
 
 void loadfile(const char *);
+
+struct openfile {
+	float zoom;
+	bool trim;
+	bool page;
+	bool width;
+
+	u32 first_visible;
+	u32 last_visible;
+};
+
+extern openfile *file;
 
 #endif
