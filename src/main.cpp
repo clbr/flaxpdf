@@ -204,7 +204,7 @@ int main(int argc, char **argv) {
 	#undef img
 
 	if (lzo_init() != LZO_E_OK)
-		die(_("LZO init failed"));
+		die(_("LZO init failed\n"));
 
 	win->show();
 

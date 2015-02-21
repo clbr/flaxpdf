@@ -88,6 +88,12 @@ static void store(SplashBitmap * const bm, const u32 page) {
 	}
 
 	// Trimmed copy done, compress it
+	u8 * const tmp = (u8 *) xcalloc(trimw * trimh * 3 * 1.08f, 1);
+	u8 workmem[LZO1X_1_MEM_COMPRESS]; // 64kb, we can afford it
+	lzo_uint outlen;
+	int ret = lzo1x_1_compress(trimmed, trimw * trimh * 3, tmp, &outlen, workmem);
+	if (ret != LZO_E_OK)
+		die(_("Compression failed\n"));
 
 	// Store
 	file->cache[page].uncompressed = trimw * trimh * 3;
