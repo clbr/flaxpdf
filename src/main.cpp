@@ -20,6 +20,7 @@ Fl_Double_Window *win = (Fl_Double_Window *) 0;
 static Fl_Pack *buttons = (Fl_Pack *) 0;
 Fl_Box *pagectr = (Fl_Box *) 0;
 Fl_Input_Choice *zoombar = (Fl_Input_Choice *) 0;
+Fl_Light_Button *selecting = NULL;
 
 static Fl_Menu_Item menu_zoombar[] = {
  {_("Trimmed"), 0,	0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
@@ -56,7 +57,7 @@ int main(int argc, char **argv) {
 			o->tooltip(_("Open a new file"));
 			o->callback((Fl_Callback*)cb_Open);
 		} // Fl_Button* o
-		{ pagectr = new Fl_Box(0, 64, 64, 64, _("0 / 0"));
+		{ pagectr = new Fl_Box(0, 64, 64, 64, _("0 pages"));
 			pagectr->box(FL_ENGRAVED_FRAME);
 			pagectr->align(FL_ALIGN_WRAP);
 		} // Fl_Box* pagectr
@@ -74,8 +75,8 @@ int main(int argc, char **argv) {
 			o->tooltip(_("Zoom out"));
 			o->callback((Fl_Callback*)cb_Zoom1);
 		} // Fl_Button* o
-		{ Fl_Light_Button* o = new Fl_Light_Button(0, 288, 64, 64, _("Select text"));
-			o->tooltip(_("Select text"));
+		{ selecting = new Fl_Light_Button(0, 288, 64, 64, _("Select text"));
+			selecting->tooltip(_("Select text"));
 		} // Fl_Light_Button* o
 		buttons->end();
 		buttons->spacing(4);
