@@ -94,6 +94,12 @@ static void goto_page(Fl_Input *w, void*) {
 
 int main(int argc, char **argv) {
 
+	#if ENABLE_NLS
+	setlocale(LC_MESSAGES, "");
+	bindtextdomain("flaxpdf", LOCALEDIR);
+	textdomain("flaxpdf");
+	#endif
+
 	const struct option opts[] = {
 		{"help", 0, NULL, 'h'},
 		{"version", 0, NULL, 'v'},
