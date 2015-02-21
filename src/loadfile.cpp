@@ -40,9 +40,11 @@ static void getmargins(const u8 * const src, const u32 w, const u32 h,
 		}
 	}
 
+	const int startx = *minx, starty = *miny;
+
 	found = false;
-	for (i = w - 1; i >= 0 && !found; i--) {
-		for (j = h - 1; j >= 0 && !found; j--) {
+	for (i = w - 1; i >= startx && !found; i--) {
+		for (j = h - 1; j >= starty && !found; j--) {
 			const u8 * const pixel = src + j * rowsize + i * 3;
 			if (nonwhite(pixel)) {
 				found = true;
@@ -52,8 +54,8 @@ static void getmargins(const u8 * const src, const u32 w, const u32 h,
 	}
 
 	found = false;
-	for (j = h - 1; j >= 0 && !found; j--) {
-		for (i = w - 1; i >= 0 && !found; i--) {
+	for (j = h - 1; j >= starty && !found; j--) {
+		for (i = *maxx; i >= startx && !found; i--) {
 			const u8 * const pixel = src + j * rowsize + i * 3;
 			if (nonwhite(pixel)) {
 				found = true;
