@@ -27,7 +27,7 @@ static void store(SplashBitmap * const bm, const u32 page) {
 	bool found = false;
 	for (i = 0; i < (int) w && !found; i++) {
 		for (j = 0; j < (int) h && !found; j++) {
-			const u8 * const pixel = src + j * rowsize + w * 3;
+			const u8 * const pixel = src + j * rowsize + i * 3;
 			if (nonwhite(pixel)) {
 				found = true;
 				minx = i;
@@ -38,7 +38,7 @@ static void store(SplashBitmap * const bm, const u32 page) {
 	found = false;
 	for (j = 0; j < (int) h && !found; j++) {
 		for (i = minx; i < (int) w && !found; i++) {
-			const u8 * const pixel = src + j * rowsize + w * 3;
+			const u8 * const pixel = src + j * rowsize + i * 3;
 			if (nonwhite(pixel)) {
 				found = true;
 				miny = j;
@@ -49,7 +49,7 @@ static void store(SplashBitmap * const bm, const u32 page) {
 	found = false;
 	for (i = w - 1; i >= 0 && !found; i--) {
 		for (j = h - 1; j >= 0 && !found; j--) {
-			const u8 * const pixel = src + j * rowsize + w * 3;
+			const u8 * const pixel = src + j * rowsize + i * 3;
 			if (nonwhite(pixel)) {
 				found = true;
 				maxx = i;
@@ -60,7 +60,7 @@ static void store(SplashBitmap * const bm, const u32 page) {
 	found = false;
 	for (j = h - 1; j >= 0 && !found; j--) {
 		for (i = w - 1; i >= 0 && !found; i--) {
-			const u8 * const pixel = src + j * rowsize + w * 3;
+			const u8 * const pixel = src + j * rowsize + i * 3;
 			if (nonwhite(pixel)) {
 				found = true;
 				maxy = j;
