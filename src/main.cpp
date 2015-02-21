@@ -16,6 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "main.h"
 #include "wmicon.h"
+#include "icons.h"
 
 Fl_Double_Window *win = (Fl_Double_Window *) 0;
 static Fl_Pack *buttons = (Fl_Pack *) 0;
@@ -54,13 +55,16 @@ int main(int argc, char **argv) {
 
 	Fl::scheme("gtk+");
 
+	#define img(a) a, sizeof(a)
+
 	win = new Fl_Double_Window(705, 700, _("FlaxPDF"));
 	Fl_Pack* o = new Fl_Pack(0, 0, 705, 700);
 	o->type(1);
 	{ buttons = new Fl_Pack(0, -4, 64, 704);
-		{ Fl_Button* o = new Fl_Button(0, 0, 64, 64, _("Open"));
+		{ Fl_Button* o = new Fl_Button(0, 0, 64, 64);
 			o->tooltip(_("Open a new file"));
 			o->callback((Fl_Callback*)cb_Open);
+			o->image(new Fl_PNG_Image("fileopen.png", img(fileopen_png)));
 		} // Fl_Button* o
 		{ Fl_Input *o = new Fl_Input(0, 64, 64, 32);
 			o->value("0");
@@ -102,8 +106,10 @@ int main(int argc, char **argv) {
 	win->size_range(700, 700);
 	win->end();
 
-	Fl_PNG_Image wmicon("wmicon.png", wmicon_png, sizeof(wmicon_png));
+	Fl_PNG_Image wmicon("wmicon.png", img(wmicon_png));
 	win->icon(&wmicon);
+
+	#undef img
 
 	win->show();
 
