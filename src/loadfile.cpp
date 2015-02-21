@@ -5,8 +5,13 @@
 #include <SplashOutputDev.h>
 #include <splash/SplashBitmap.h>
 
-static void store(const SplashBitmap * const bm) {
+static void store(SplashBitmap * const bm, const u32 page) {
 
+	const u16 w = bm->getWidth();
+	const u16 h = bm->getHeight();
+	const u32 rowsize = bm->getRowSize();
+
+	printf("Storing page %u's render, %ux%u row %u\n", page, w, h, rowsize);
 }
 
 static void dopage(const u32 page) {
@@ -17,9 +22,9 @@ static void dopage(const u32 page) {
 
 	file->pdf->displayPage(splash, page, 144, 144, 0, true, false, false);
 
-	const SplashBitmap * const bm = splash->takeBitmap();
+	SplashBitmap * const bm = splash->takeBitmap();
 
-	store(bm);
+	store(bm, page);
 
 	delete bm;
 	delete splash;
