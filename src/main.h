@@ -77,6 +77,7 @@ struct openfile {
 
 	float zoom;
 	zoommode mode;
+	pthread_t tid;
 };
 
 extern openfile *file;

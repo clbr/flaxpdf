@@ -50,6 +50,21 @@ void loadfile(const char *file) {
 		return;
 	}
 
+	if (::file->cache) {
+		// Free the old one
+		pthread_cancel(::file->tid);
+		pthread_join(::file->tid, NULL);
+
+		u32 i;
+		const u32 max = ::file->pages;
+		for (i = 0; i < max; i++) {
+			if (::file->cache[i].ready)
+				free(::file->cache[i].data);
+		}
+		free(::file->cache);
+		::file->cache = NULL;
+	}
+
 	::file->pdf = pdf;
 	::file->pages = pdf->getNumPages();
 
@@ -59,21 +74,16 @@ void loadfile(const char *file) {
 		return;
 	}
 
-	if (::file->cache)
-		free(::file->cache);
-
 	::file->cache = (cachedpage *) xcalloc(::file->pages, sizeof(cachedpage));
 
 	dopage(0);
 
-	pthread_t tid;
 	pthread_attr_t attr;
 	pthread_attr_init(&attr);
 	const struct sched_param nice = { 15 };
-	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 	pthread_attr_setschedparam(&attr, &nice);
 
-	pthread_create(&tid, &attr, renderer, NULL);
+	pthread_create(&::file->tid, &attr, renderer, NULL);
 
 	// Update title
 	char relative[80];
