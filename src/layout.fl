@@ -12,7 +12,7 @@ Function {window()} {open return_type void
     xywh {256 162 705 700} type Double resizable size_range {700 700 0 0} visible
   } {
     Fl_Pack {} {open
-      xywh {-620 -4 1325 724} type HORIZONTAL resizable
+      xywh {0 0 705 700} type HORIZONTAL resizable
     } {
       Fl_Pack buttons {open
         private xywh {0 -4 64 704}

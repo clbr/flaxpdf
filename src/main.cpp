@@ -47,7 +47,7 @@ static void cb_Zoom1(Fl_Button*, void*) {
 int main(int argc, char **argv) {
 
 	win = new Fl_Double_Window(705, 700, _("FlaxPDF"));
-	Fl_Pack* o = new Fl_Pack(-620, -4, 1325, 724);
+	Fl_Pack* o = new Fl_Pack(0, 0, 705, 700);
 	o->type(1);
 	{ buttons = new Fl_Pack(0, -4, 64, 704);
 		{ Fl_Button* o = new Fl_Button(0, 0, 64, 64, _("Open"));
