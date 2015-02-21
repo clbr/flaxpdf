@@ -3,8 +3,7 @@
 
 static void dopage(const u32 page) {
 
-	#pragma omp atomic
-	file->cache[page].ready = true;
+	__sync_bool_compare_and_swap(&file->cache[page].ready, 0, 1);
 }
 
 static void *renderer(void *) {
