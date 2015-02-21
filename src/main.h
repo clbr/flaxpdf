@@ -20,6 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "autoconfig.h"
 #include "gettext.h"
 #include "lrtypes.h"
+#include "macros.h"
+#include "helpers.h"
 
 #include <stdio.h>
 #include <stdlib.h>
