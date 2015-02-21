@@ -86,4 +86,7 @@ void loadfile(const char *file) {
 	snprintf(tmp, 160, "%s - FlaxPDF", relative);
 	win->copy_label(tmp);
 
+	// Update page count
+	sprintf(tmp, "/ %u", ::file->pages);
+	pagectr->copy_label(tmp);
 }
