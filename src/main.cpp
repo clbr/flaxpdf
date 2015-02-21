@@ -55,33 +55,27 @@ int main(int argc, char **argv) {
 		{ Fl_Button* o = new Fl_Button(0, 0, 64, 64, _("Open"));
 			o->tooltip(_("Open a new file"));
 			o->callback((Fl_Callback*)cb_Open);
-			o->show();
 		} // Fl_Button* o
 		{ pagectr = new Fl_Box(0, 64, 64, 64, _("0 / 0"));
 			pagectr->box(FL_ENGRAVED_FRAME);
 			pagectr->align(FL_ALIGN_WRAP);
-			pagectr->show();
 		} // Fl_Box* pagectr
 		{ zoombar = new Fl_Input_Choice(0, 128, 64, 32);
 			zoombar->tooltip(_("Preset zoom choices"));
 			zoombar->callback((Fl_Callback*)cb_zoombar);
 			zoombar->menu(menu_zoombar);
 			zoombar->value(0);
-			zoombar->show();
 		} // Fl_Input_Choice* zoombar
 		{ Fl_Button* o = new Fl_Button(0, 160, 64, 64, _("Zoom in"));
 			o->tooltip(_("Zoom in"));
 			o->callback((Fl_Callback*)cb_Zoom);
-			o->show();
 		} // Fl_Button* o
 		{ Fl_Button* o = new Fl_Button(0, 224, 64, 64, _("Zoom out"));
 			o->tooltip(_("Zoom out"));
 			o->callback((Fl_Callback*)cb_Zoom1);
-			o->show();
 		} // Fl_Button* o
 		{ Fl_Light_Button* o = new Fl_Light_Button(0, 288, 64, 64, _("Select text"));
 			o->tooltip(_("Select text"));
-			o->show();
 		} // Fl_Light_Button* o
 		buttons->end();
 		buttons->spacing(4);
