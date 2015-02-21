@@ -50,6 +50,8 @@ AC_CHECK_LIB([dl], [dlopen], [], AC_MSG_ERROR([libdl not found]))
 AC_CHECK_LIB([rt], [sched_get_priority_min], [], AC_MSG_ERROR([librt not found]))
 PKG_CHECK_MODULES([DEPS], [cairo >= 1.12.18 libpng poppler >= 0.31.0])
 
+DEPS_CFLAGS=$(echo $DEPS_CFLAGS | sed 's@-I@-isystem @g')
+
 LIBS=["$LIBS $DEPS_LIBS"]
 CXXFLAGS=["$CXXFLAGS $DEPS_CFLAGS"]
 
