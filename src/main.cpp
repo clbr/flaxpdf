@@ -203,7 +203,8 @@ int main(int argc, char **argv) {
 
 	#undef img
 
-	lzo_init();
+	if (lzo_init() != LZO_E_OK)
+		die(_("LZO init failed"));
 
 	win->show();
 
