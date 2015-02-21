@@ -95,6 +95,10 @@ static void store(SplashBitmap * const bm, const u32 page) {
 	if (ret != LZO_E_OK)
 		die(_("Compression failed\n"));
 
+	u8 * const dst = (u8 *) xcalloc(outlen, 1);
+	memcpy(dst, tmp, outlen);
+	free(tmp);
+
 	// Store
 	file->cache[page].uncompressed = trimw * trimh * 3;
 	file->cache[page].w = trimw;
@@ -103,6 +107,9 @@ static void store(SplashBitmap * const bm, const u32 page) {
 	file->cache[page].right = w - maxx;
 	file->cache[page].top = miny;
 	file->cache[page].bottom = h -maxy;
+
+	file->cache[page].size = outlen;
+	file->cache[page].data = dst;
 
 	free(trimmed);
 }
