@@ -60,8 +60,14 @@ static void cb_hide(Fl_Widget*, void*) {
 	}
 }
 
-static void goto_page(Fl_Input*, void*) {
+static void goto_page(Fl_Input *w, void*) {
+	const u32 which = atoi(w->value()) - 1;
+	if (which >= file->pages) {
+		fl_alert(_("Page out of bounds"));
+		return;
+	}
 
+	// TODO
 }
 
 int main(int argc, char **argv) {
