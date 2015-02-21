@@ -37,6 +37,7 @@ static Fl_Menu_Item menu_zoombar[] = {
 };
 
 static void cb_Open(Fl_Button*, void*) {
+	loadfile(NULL);
 }
 
 static void cb_zoombar(Fl_Input_Choice*, void*) {
