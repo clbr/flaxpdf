@@ -139,6 +139,18 @@ static void *renderer(void *) {
 		dopage(i);
 	}
 
+	// Print stats
+	if (1) {
+		u32 total = 0, totalcomp = 0;
+		for (u32 i = 0; i < file->pages; i++) {
+			total += file->cache[i].uncompressed;
+			totalcomp += file->cache[i].size;
+		}
+
+		printf("Compressed mem usage %.2fmb, compressed to %.2f%%\n",
+			totalcomp / 1024 / 1024.0f, 100 * totalcomp / (float) total);
+	}
+
 	return NULL;
 }
 
