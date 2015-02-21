@@ -97,6 +97,8 @@ static void store(SplashBitmap * const bm, const u32 page) {
 	file->cache[page].right = w - maxx;
 	file->cache[page].top = miny;
 	file->cache[page].bottom = h -maxy;
+
+	free(trimmed);
 }
 
 static void dopage(const u32 page) {
