@@ -59,6 +59,13 @@ struct cachedpage {
 	bool ready;
 };
 
+enum zoommode {
+	Z_TRIM = 0,
+	Z_PAGE,
+	Z_WIDTH,
+	Z_CUSTOM
+};
+
 struct openfile {
 	cachedpage *cache;
 	PDFDoc *pdf;
@@ -69,9 +76,7 @@ struct openfile {
 	u32 last_visible;
 
 	float zoom;
-	bool trim;
-	bool page;
-	bool width;
+	zoommode mode;
 };
 
 extern openfile *file;

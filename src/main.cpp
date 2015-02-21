@@ -30,9 +30,9 @@ Fl_Light_Button *selecting = NULL;
 openfile *file = NULL;
 
 static Fl_Menu_Item menu_zoombar[] = {
-	{_("Trim"), 0, 0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
-	{_("Width"), 0, 0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
-	{_("Page"), 0, 0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+	{"Trim", 0, 0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+	{"Width", 0, 0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+	{"Page", 0, 0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
 	{0,0,0,0,0,0,0,0,0}
 };
 
@@ -40,13 +40,35 @@ static void cb_Open(Fl_Button*, void*) {
 	loadfile(NULL);
 }
 
-static void cb_zoombar(Fl_Input_Choice*, void*) {
+static void applyzoom(const float what) {
+	file->zoom = what;
+	file->mode = Z_CUSTOM;
+}
+
+static void cb_zoombar(Fl_Input_Choice *w, void*) {
+	const char * const val = w->value();
+	if (isdigit(val[0])) {
+		const float f = atof(val);
+		applyzoom(f);
+	} else {
+		if (!strcmp(val, menu_zoombar[0].text)) {
+			file->mode = Z_TRIM;
+		} else if (!strcmp(val, menu_zoombar[1].text)) {
+			file->mode = Z_WIDTH;
+		} else if (!strcmp(val, menu_zoombar[2].text)) {
+			file->mode = Z_PAGE;
+		} else {
+			fl_alert(_("Unrecognized zoom level"));
+		}
+	}
 }
 
 static void cb_Zoomin(Fl_Button*, void*) {
+	// TODO
 }
 
 static void cb_Zoomout(Fl_Button*, void*) {
+	// TODO
 }
 
 static void cb_hide(Fl_Widget*, void*) {
@@ -102,7 +124,6 @@ int main(int argc, char **argv) {
 	Fl::scheme("gtk+");
 
 	file = (openfile *) xcalloc(1, sizeof(openfile));
-	file->trim = true;
 
 	#define img(a) a, sizeof(a)
 
