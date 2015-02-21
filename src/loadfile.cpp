@@ -59,6 +59,9 @@ void loadfile(const char *file) {
 		return;
 	}
 
+	if (::file->cache)
+		free(::file->cache);
+
 	::file->cache = (cachedpage *) xcalloc(::file->pages, sizeof(cachedpage));
 
 	dopage(0);
