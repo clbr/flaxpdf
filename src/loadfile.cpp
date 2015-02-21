@@ -75,7 +75,7 @@ static void dopage(const u32 page) {
 	SplashOutputDev *splash = new SplashOutputDev(splashModeBGR8, 4, false, white);
 	splash->startDoc(file->pdf);
 
-	file->pdf->displayPage(splash, page, 144, 144, 0, true, false, false);
+	file->pdf->displayPage(splash, page + 1, 144, 144, 0, true, false, false);
 
 	SplashBitmap * const bm = splash->takeBitmap();
 
