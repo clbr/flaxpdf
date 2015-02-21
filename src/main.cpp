@@ -88,13 +88,15 @@ int main(int argc, char **argv) {
 			zoombar->menu(menu_zoombar);
 			zoombar->value(0);
 		} // Fl_Input_Choice* zoombar
-		{ Fl_Button* o = new Fl_Button(0, 160, 64, 64, _("Zoom in"));
+		{ Fl_Button* o = new Fl_Button(0, 160, 64, 64);
 			o->tooltip(_("Zoom in"));
 			o->callback((Fl_Callback*)cb_Zoomin);
+			o->image(new Fl_PNG_Image("zoomin.png", img(zoomin_png)));
 		} // Fl_Button* o
-		{ Fl_Button* o = new Fl_Button(0, 224, 64, 64, _("Zoom out"));
+		{ Fl_Button* o = new Fl_Button(0, 224, 64, 64);
 			o->tooltip(_("Zoom out"));
 			o->callback((Fl_Callback*)cb_Zoomout);
+			o->image(new Fl_PNG_Image("zoomout.png", img(zoomout_png)));
 		} // Fl_Button* o
 		{ selecting = new Fl_Light_Button(0, 288, 64, 64, _("Select text"));
 			selecting->tooltip(_("Select text"));
