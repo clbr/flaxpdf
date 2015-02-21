@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+TryExec=flaxpdf
+Encoding=UTF-8
+Name=FlaxPDF
+GenericName=PDF viewer
+Exec=flaxpdf %u
+Terminal=false
+Categories=Application;FLTK;Viewer;Office;
+Icon=flaxpdf.png
+MimeType=application/pdf;
+Comment=PDF viewer
+Type=Application
