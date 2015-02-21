@@ -64,6 +64,7 @@ int main(int argc, char **argv) {
 			zoombar->tooltip(_("Preset zoom choices"));
 			zoombar->callback((Fl_Callback*)cb_zoombar);
 			zoombar->menu(menu_zoombar);
+			zoombar->value(0);
 			zoombar->show();
 		} // Fl_Input_Choice* zoombar
 		{ Fl_Button* o = new Fl_Button(0, 160, 64, 64, _("Zoom in"));
@@ -81,6 +82,7 @@ int main(int argc, char **argv) {
 			o->show();
 		} // Fl_Light_Button* o
 		buttons->end();
+		buttons->spacing(4);
 		buttons->show();
 	} // Fl_Pack* buttons
 	{ Fl_Box* o = new Fl_Box(64, 0, 641, 700);
