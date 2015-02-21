@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "main.h"
 #include "wmicon.h"
 #include "icons.h"
+#include <getopt.h>
 
 Fl_Double_Window *win = (Fl_Double_Window *) 0;
 static Fl_Pack *buttons = (Fl_Pack *) 0;
@@ -27,10 +28,10 @@ Fl_Input_Choice *zoombar = (Fl_Input_Choice *) 0;
 Fl_Light_Button *selecting = NULL;
 
 static Fl_Menu_Item menu_zoombar[] = {
- {_("Trimmed"), 0,	0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {_("Width"), 0,	0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {_("Page"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {0,0,0,0,0,0,0,0,0}
+	{_("Trimmed"), 0, 0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+	{_("Width"), 0, 0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+	{_("Page"), 0, 0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+	{0,0,0,0,0,0,0,0,0}
 };
 
 static void cb_Open(Fl_Button*, void*) {
@@ -61,6 +62,33 @@ static void goto_page(Fl_Input*, void*) {
 }
 
 int main(int argc, char **argv) {
+
+	const struct option opts[] = {
+		{"help", 0, NULL, 'h'},
+		{"version", 0, NULL, 'v'},
+		{NULL, 0, NULL, 0}
+	};
+
+	while (1) {
+		const int c = getopt_long(argc, argv, "hv", opts, NULL);
+		if (c == -1)
+			break;
+
+		switch (c) {
+			case 'v':
+				printf("%s\n", PACKAGE_STRING);
+				return 0;
+			break;
+			case 'h':
+			default:
+				printf("Usage: %s [options] file.pdf\n\n"
+					"	-h --help	This help\n"
+					"	-v --version	Print version\n",
+					argv[0]);
+				return 0;
+			break;
+		}
+	}
 
 	Fl::scheme("gtk+");
 
