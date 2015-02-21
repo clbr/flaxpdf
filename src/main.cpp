@@ -58,7 +58,7 @@ static void cb_zoombar(Fl_Input_Choice *w, void*) {
 		} else if (!strcmp(val, menu_zoombar[2].text)) {
 			file->mode = Z_PAGE;
 		} else {
-			fl_alert(_("Unrecognized zoom level"));
+			//fl_alert(_("Unrecognized zoom level"));
 		}
 	}
 }
