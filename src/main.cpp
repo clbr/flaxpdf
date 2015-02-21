@@ -98,8 +98,10 @@ int main(int argc, char **argv) {
 			o->callback((Fl_Callback*)cb_Zoomout);
 			o->image(new Fl_PNG_Image("zoomout.png", img(zoomout_png)));
 		} // Fl_Button* o
-		{ selecting = new Fl_Light_Button(0, 288, 64, 64, _("Select text"));
+		{ selecting = new Fl_Light_Button(0, 288, 64, 64);
 			selecting->tooltip(_("Select text"));
+			selecting->align(FL_ALIGN_CENTER);
+			selecting->image(new Fl_PNG_Image("text.png", img(text_png)));
 		} // Fl_Light_Button* o
 		{ Fl_Button* o = new Fl_Button(0, 224, 64, 64);
 			o->tooltip(_("Hide toolbar"));
