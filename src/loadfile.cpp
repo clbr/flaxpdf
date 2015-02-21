@@ -26,6 +26,26 @@ void loadfile(const char *file) {
 		}
 	}
 
+	// Parse info
+
+	// Start threaded magic
+	if (::file->pages < 1) {
+		fl_alert(_("Couldn't open %s, perhaps it's corrupted?"), file);
+		return;
+	}
+
+	dopage(0);
+
+	pthread_t tid;
+	pthread_attr_t attr;
+	pthread_attr_init(&attr);
+	const struct sched_param nice = { 15 };
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+	pthread_attr_setschedparam(&attr, &nice);
+
+	pthread_create(&tid, &attr, renderer, NULL);
+
+	// Update title
 	char relative[80];
 	const char * const slash = strrchr(file, '/');
 	if (!slash) {
@@ -39,17 +59,4 @@ void loadfile(const char *file) {
 	snprintf(tmp, 160, "%s - FlaxPDF", relative);
 	win->copy_label(tmp);
 
-	// Parse info
-
-	// Start threaded magic
-	dopage(0);
-
-	pthread_t tid;
-	pthread_attr_t attr;
-	pthread_attr_init(&attr);
-	const struct sched_param nice = { 15 };
-	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-	pthread_attr_setschedparam(&attr, &nice);
-
-	pthread_create(&tid, &attr, renderer, NULL);
 }
