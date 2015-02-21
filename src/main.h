@@ -39,4 +39,6 @@ extern Fl_Input *pagebox;
 extern Fl_Input_Choice *zoombar;
 extern Fl_Light_Button *selecting;
 
+void loadfile(const char *);
+
 #endif

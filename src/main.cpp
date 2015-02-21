@@ -163,5 +163,10 @@ int main(int argc, char **argv) {
 
 	win->show();
 
+	if (optind < argc)
+		loadfile(argv[optind]);
+	else
+		loadfile(NULL);
+
 	return Fl::run();
 }
