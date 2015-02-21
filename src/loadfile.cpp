@@ -157,7 +157,8 @@ static void *renderer(void *) {
 		gettimeofday(&end, NULL);
 		const u32 us = usecs(start, end);
 
-		printf(_("Processing the file took %u us\n"), us);
+		printf(_("Processing the file took %u us (%.2f s)\n"), us,
+			us / 1000000.0f);
 	}
 
 	return NULL;
