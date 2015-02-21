@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Fl_Double_Window *win = (Fl_Double_Window *) 0;
 static Fl_Pack *buttons = (Fl_Pack *) 0;
+static Fl_Button *showbtn = NULL;
 Fl_Box *pagectr = (Fl_Box *) 0;
 Fl_Input_Choice *zoombar = (Fl_Input_Choice *) 0;
 Fl_Light_Button *selecting = NULL;
@@ -41,6 +42,17 @@ static void cb_Zoomin(Fl_Button*, void*) {
 }
 
 static void cb_Zoomout(Fl_Button*, void*) {
+}
+
+static void cb_hide(Fl_Widget*, void*) {
+
+	if (buttons->visible()) {
+		buttons->hide();
+		showbtn->show();
+	} else {
+		showbtn->hide();
+		buttons->show();
+	}
 }
 
 static void goto_page(Fl_Input*, void*) {
@@ -87,10 +99,18 @@ int main(int argc, char **argv) {
 		{ selecting = new Fl_Light_Button(0, 288, 64, 64, _("Select text"));
 			selecting->tooltip(_("Select text"));
 		} // Fl_Light_Button* o
+		{ Fl_Button* o = new Fl_Button(0, 224, 64, 64, _("Hide"));
+			o->tooltip(_("Hide toolbar"));
+			o->callback(cb_hide);
+		} // Fl_Button* o
 		buttons->end();
 		buttons->spacing(4);
 		buttons->show();
 	} // Fl_Pack* buttons
+	{ showbtn = new Fl_Button(0, 0, 6, 700);
+		showbtn->hide();
+		showbtn->callback(cb_hide);
+	}
 	{ Fl_Box* o = new Fl_Box(64, 0, 641, 700);
 		Fl_Group::current()->resizable(o);
 		o->show();
