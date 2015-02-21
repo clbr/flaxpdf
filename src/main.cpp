@@ -32,19 +32,15 @@ static Fl_Menu_Item menu_zoombar[] = {
 };
 
 static void cb_Open(Fl_Button*, void*) {
-//	hi();
 }
 
 static void cb_zoombar(Fl_Input_Choice*, void*) {
-//	hi();
 }
 
-static void cb_Zoom(Fl_Button*, void*) {
-//	hi();
+static void cb_Zoomin(Fl_Button*, void*) {
 }
 
 static void cb_Zoomout(Fl_Button*, void*) {
-//	hi();
 }
 
 static void goto_page(Fl_Input*, void*) {
@@ -82,7 +78,7 @@ int main(int argc, char **argv) {
 		} // Fl_Input_Choice* zoombar
 		{ Fl_Button* o = new Fl_Button(0, 160, 64, 64, _("Zoom in"));
 			o->tooltip(_("Zoom in"));
-			o->callback((Fl_Callback*)cb_Zoom);
+			o->callback((Fl_Callback*)cb_Zoomin);
 		} // Fl_Button* o
 		{ Fl_Button* o = new Fl_Button(0, 224, 64, 64, _("Zoom out"));
 			o->tooltip(_("Zoom out"));
