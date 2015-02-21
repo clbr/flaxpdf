@@ -15,6 +15,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "main.h"
+#include "wmicon.h"
 
 Fl_Double_Window *win = (Fl_Double_Window *) 0;
 static Fl_Pack *buttons = (Fl_Pack *) 0;
@@ -92,6 +93,10 @@ int main(int argc, char **argv) {
 
 	win->size_range(700, 700);
 	win->end();
+
+	Fl_PNG_Image wmicon("wmicon.png", wmicon_png, sizeof(wmicon_png));
+	win->icon(&wmicon);
+
 	win->show();
 
 	return Fl::run();
