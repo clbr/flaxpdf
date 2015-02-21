@@ -134,6 +134,10 @@ static void dopage(const u32 page) {
 
 static void *renderer(void *) {
 
+	// Optional timing
+	struct timeval start, end;
+	gettimeofday(&start, NULL);
+
 	#pragma omp parallel for schedule(guided)
 	for (u32 i = 1; i < file->pages; i++) {
 		dopage(i);
@@ -149,6 +153,11 @@ static void *renderer(void *) {
 
 		printf("Compressed mem usage %.2fmb, compressed to %.2f%%\n",
 			totalcomp / 1024 / 1024.0f, 100 * totalcomp / (float) total);
+
+		gettimeofday(&end, NULL);
+		const u32 us = usecs(start, end);
+
+		printf("Processing the file took %u us\n", us);
 	}
 
 	return NULL;
