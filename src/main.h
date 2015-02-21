@@ -35,6 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 extern Fl_Double_Window *win;
 extern Fl_Box *pagectr;
+extern Fl_Input *pagebox;
 extern Fl_Input_Choice *zoombar;
 extern Fl_Light_Button *selecting;
 

@@ -22,6 +22,7 @@ Fl_Double_Window *win = (Fl_Double_Window *) 0;
 static Fl_Pack *buttons = (Fl_Pack *) 0;
 static Fl_Button *showbtn = NULL;
 Fl_Box *pagectr = (Fl_Box *) 0;
+Fl_Input *pagebox = NULL;
 Fl_Input_Choice *zoombar = (Fl_Input_Choice *) 0;
 Fl_Light_Button *selecting = NULL;
 
@@ -74,9 +75,9 @@ int main(int argc, char **argv) {
 			o->callback((Fl_Callback*)cb_Open);
 			o->image(new Fl_PNG_Image("fileopen.png", img(fileopen_png)));
 		} // Fl_Button* o
-		{ Fl_Input *o = new Fl_Input(0, 64, 64, 32);
-			o->value("0");
-			o->callback((Fl_Callback*)goto_page);
+		{ pagebox = new Fl_Input(0, 64, 64, 32);
+			pagebox->value("0");
+			pagebox->callback((Fl_Callback*)goto_page);
 		} // Fl_Box* pagectr
 		{ pagectr = new Fl_Box(0, 64, 64, 32, "/ 0");
 			pagectr->box(FL_ENGRAVED_FRAME);
