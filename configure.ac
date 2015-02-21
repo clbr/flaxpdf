@@ -73,8 +73,17 @@ CXXFLAGS=["$CXXFLAGS $DEPS_CFLAGS"]
 # Random other things
 CFLAGS=["$CFLAGS -Wall -Wextra"]
 CXXFLAGS=["$CXXFLAGS -Wall -Wextra"]
-CXXFLAGS=["$CXXFLAGS -ffunction-sections -fdata-sections"]
 LDFLAGS=["$LDFLAGS -Wl,-O1"]
+
+AX_CHECK_COMPILE_FLAG([-ffunction-sections],
+	[CXXFLAGS="$CXXFLAGS -ffunction-sections -fdata-sections"
+	LDFLAGS="$LDFLAGS -Wl,-gc-sections"
+	ac_cv_sections_supported=yes],
+	[ac_cv_sections_supported=no],
+	[])
+
+AX_CHECK_LINK_FLAG([-Wl,-as-needed], [LDFLAGS="$LDFLAGS -Wl,-as-needed"],
+	[], [])
 
 AC_CONFIG_COMMANDS([atag],[
 echo -e "\n\n\t\t*********\n"
