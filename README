@@ -1,0 +1,20 @@
+FlaxPDF
+=======
+
+FlaxPDF is a fast, nice PDF viewer for the desktop.
+
+Light on dependencies, trimming borders, and aggressive caching are
+its major points. Okular and Evince are nice but heavy; and the point
+for starting this project, ePDFview, is dead.
+
+EPDFview was nice and light, but lacking in a couple ways:
+- no caching, if you wanted to backtrack one page, it reloaded slowly
+- no automatic zoom to content/trim
+
+Now with my main PDF viewer being dead, why not build a fresh one with
+those two itches scratched?
+
+Requirements
+------------
+
+Poppler, LZO, and FLTK 1.3.
