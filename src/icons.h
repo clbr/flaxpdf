@@ -1,4 +1,5 @@
-// The following icons from the Crystal set, under the LGPL
+// The following icons from the Crystal set, under the LGPL.
+// The text icon is from Crystal X Cursors by Marco Martin, also LGPL.
 
 #ifndef FILEOPEN_PNG_H
 #define FILEOPEN_PNG_H
