@@ -7,11 +7,21 @@
 
 static void store(SplashBitmap * const bm, const u32 page) {
 
-	const u16 w = bm->getWidth();
-	const u16 h = bm->getHeight();
+	const u32 w = bm->getWidth();
+	const u32 h = bm->getHeight();
 	const u32 rowsize = bm->getRowSize();
 
-	printf("Storing page %u's render, %ux%u row %u\n", page, w, h, rowsize);
+	const u8 *src = bm->getDataPtr();
+	const u8 * const origsrc = src;
+	if (rowsize == w * 3) {
+		// Yay, memcpy-able
+	} else {
+		src = (u8 *) xcalloc(w * h * 3, 1);
+		u32 i;
+		for (i = 0; i < h; i++) {
+			memcpy((u8 *) src + i * w * 3, origsrc + rowsize * i, w * 3);
+		}
+	}
 }
 
 static void dopage(const u32 page) {
