@@ -120,9 +120,9 @@ int main(int argc, char **argv) {
 			break;
 			case 'h':
 			default:
-				printf("Usage: %s [options] file.pdf\n\n"
+				printf(_("Usage: %s [options] file.pdf\n\n"
 					"	-h --help	This help\n"
-					"	-v --version	Print version\n",
+					"	-v --version	Print version\n"),
 					argv[0]);
 				return 0;
 			break;
