@@ -64,11 +64,13 @@ static void cb_zoombar(Fl_Input_Choice *w, void*) {
 }
 
 static void cb_Zoomin(Fl_Button*, void*) {
-	// TODO
+	file->zoom *= 1.2f;
+	file->mode = Z_CUSTOM;
 }
 
 static void cb_Zoomout(Fl_Button*, void*) {
-	// TODO
+	file->zoom *= 0.833333;
+	file->mode = Z_CUSTOM;
 }
 
 static void cb_hide(Fl_Widget*, void*) {
