@@ -78,5 +78,5 @@ echo Configure finished
 echo -e "\n\t\t*********\n\n"],
 [distributable=$distributable])
 
-AC_CONFIG_FILES([Makefile src/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile po/Makefile.in])
 AC_OUTPUT

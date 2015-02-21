@@ -1,10 +1,10 @@
-SUBDIRS = src
+SUBDIRS = po src
 
-#ACLOCAL_AMFLAGS = -I m4
+ACLOCAL_AMFLAGS = -I m4
 
 dist_pkgdata_DATA = icon64.png icon128.png icon256.png
 
-EXTRA_DIST = flaxpdf.desktop
+EXTRA_DIST = config/config.rpath flaxpdf.desktop
 
 install-data-hook: iconsdir = $(DESTDIR)$(datadir)/icons/hicolor
 install-data-hook:
