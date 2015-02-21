@@ -144,20 +144,20 @@ static void *renderer(void *) {
 	}
 
 	// Print stats
-	if (1) {
+	if (details) {
 		u32 total = 0, totalcomp = 0;
 		for (u32 i = 0; i < file->pages; i++) {
 			total += file->cache[i].uncompressed;
 			totalcomp += file->cache[i].size;
 		}
 
-		printf("Compressed mem usage %.2fmb, compressed to %.2f%%\n",
+		printf(_("Compressed mem usage %.2fmb, compressed to %.2f%%\n"),
 			totalcomp / 1024 / 1024.0f, 100 * totalcomp / (float) total);
 
 		gettimeofday(&end, NULL);
 		const u32 us = usecs(start, end);
 
-		printf("Processing the file took %u us\n", us);
+		printf(_("Processing the file took %u us\n"), us);
 	}
 
 	return NULL;

@@ -27,6 +27,7 @@ Fl_Input *pagebox = NULL;
 Fl_Input_Choice *zoombar = (Fl_Input_Choice *) 0;
 Fl_Light_Button *selecting = NULL;
 
+bool details = false;
 openfile *file = NULL;
 
 static Fl_Menu_Item menu_zoombar[] = {
@@ -103,17 +104,21 @@ int main(int argc, char **argv) {
 	#endif
 
 	const struct option opts[] = {
+		{"details", 0, NULL, 'd'},
 		{"help", 0, NULL, 'h'},
 		{"version", 0, NULL, 'v'},
 		{NULL, 0, NULL, 0}
 	};
 
 	while (1) {
-		const int c = getopt_long(argc, argv, "hv", opts, NULL);
+		const int c = getopt_long(argc, argv, "dhv", opts, NULL);
 		if (c == -1)
 			break;
 
 		switch (c) {
+			case 'd':
+				details = true;
+			break;
 			case 'v':
 				printf("%s\n", PACKAGE_STRING);
 				return 0;
@@ -121,6 +126,7 @@ int main(int argc, char **argv) {
 			case 'h':
 			default:
 				printf(_("Usage: %s [options] file.pdf\n\n"
+					"	-d --details	Print RAM, timing details\n"
 					"	-h --help	This help\n"
 					"	-v --version	Print version\n"),
 					argv[0]);
