@@ -101,9 +101,10 @@ int main(int argc, char **argv) {
 		{ selecting = new Fl_Light_Button(0, 288, 64, 64, _("Select text"));
 			selecting->tooltip(_("Select text"));
 		} // Fl_Light_Button* o
-		{ Fl_Button* o = new Fl_Button(0, 224, 64, 64, _("Hide"));
+		{ Fl_Button* o = new Fl_Button(0, 224, 64, 64);
 			o->tooltip(_("Hide toolbar"));
 			o->callback(cb_hide);
+			o->image(new Fl_PNG_Image("back.png", img(back_png)));
 		} // Fl_Button* o
 		buttons->end();
 		buttons->spacing(4);
