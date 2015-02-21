@@ -1,5 +1,6 @@
 #include "main.h"
 #include <FL/Fl_File_Chooser.H>
+#include <ErrorCodes.h>
 
 static void dopage(const u32 page) {
 
@@ -26,6 +27,28 @@ void loadfile(const char *file) {
 	}
 
 	// Parse info
+	GooString gooname(file);
+	PDFDoc *pdf = new PDFDoc(&gooname);
+	if (!pdf->isOk()) {
+		const int err = pdf->getErrorCode();
+		const char *msg = _("Unknown");
+
+		switch (err) {
+			case errOpenFile:
+			case errFileIO:
+				msg = _("Couldn't open file");
+			break;
+			case errBadCatalog:
+			case errDamaged:
+			case errPermission:
+				msg = _("Damaged PDF file");
+			break;
+		}
+
+		fl_alert(_("Error %d, %s"), err, msg);
+
+		return;
+	}
 
 	// Start threaded magic
 	if (::file->pages < 1) {

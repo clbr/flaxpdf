@@ -37,6 +37,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <FL/Fl_Light_Button.H>
 #include <FL/Fl_PNG_Image.H>
 
+#include <PDFDoc.h>
+
 extern Fl_Double_Window *win;
 extern Fl_Box *pagectr;
 extern Fl_Input *pagebox;
