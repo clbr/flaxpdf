@@ -1,6 +1,7 @@
 #include "main.h"
 #include <FL/Fl_File_Chooser.H>
 #include <ErrorCodes.h>
+#include <GlobalParams.h>
 #include <SplashOutputDev.h>
 #include <splash/SplashBitmap.h>
 
@@ -8,6 +9,7 @@ static void dopage(const u32 page) {
 
 	SplashColor white = { 255, 255, 255 };
 	SplashOutputDev *splash = new SplashOutputDev(splashModeBGR8, 4, false, white);
+	splash->startDoc(file->pdf);
 
 	file->pdf->displayPage(splash, page, 144, 144, 0, true, false, false);
 
@@ -86,6 +88,9 @@ void loadfile(const char *file) {
 	}
 
 	::file->cache = (cachedpage *) xcalloc(::file->pages, sizeof(cachedpage));
+
+	if (!globalParams)
+		globalParams = new GlobalParams;
 
 	dopage(0);
 
