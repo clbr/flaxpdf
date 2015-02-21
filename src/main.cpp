@@ -46,45 +46,54 @@ static void cb_Zoom1(Fl_Button*, void*) {
 
 int main(int argc, char **argv) {
 
-	{ win = new Fl_Double_Window(705, 700, _("FlaxPDF"));
-		{ Fl_Pack* o = new Fl_Pack(-620, -4, 1325, 724);
-			o->type(1);
-			{ buttons = new Fl_Pack(0, -4, 64, 704);
-				{ Fl_Button* o = new Fl_Button(0, 0, 64, 64, _("Open"));
-					o->tooltip(_("Open a new file"));
-					o->callback((Fl_Callback*)cb_Open);
-				} // Fl_Button* o
-				{ pagectr = new Fl_Box(0, 64, 64, 64, _("0 / 0"));
-					pagectr->box(FL_ENGRAVED_FRAME);
-					pagectr->align(FL_ALIGN_WRAP);
-				} // Fl_Box* pagectr
-				{ zoombar = new Fl_Input_Choice(0, 128, 64, 32);
-					zoombar->tooltip(_("Preset zoom choices"));
-					zoombar->callback((Fl_Callback*)cb_zoombar);
-					zoombar->menu(menu_zoombar);
-				} // Fl_Input_Choice* zoombar
-				{ Fl_Button* o = new Fl_Button(0, 160, 64, 64, _("Zoom in"));
-					o->tooltip(_("Zoom in"));
-					o->callback((Fl_Callback*)cb_Zoom);
-				} // Fl_Button* o
-				{ Fl_Button* o = new Fl_Button(0, 224, 64, 64, _("Zoom out"));
-					o->tooltip(_("Zoom out"));
-					o->callback((Fl_Callback*)cb_Zoom1);
-				} // Fl_Button* o
-				{ Fl_Light_Button* o = new Fl_Light_Button(0, 288, 64, 64, _("Select text"));
-					o->tooltip(_("Select text"));
-				} // Fl_Light_Button* o
-				buttons->end();
-			} // Fl_Pack* buttons
-			{ Fl_Box* o = new Fl_Box(64, 0, 641, 700);
-				Fl_Group::current()->resizable(o);
-			} // Fl_Box* o
-			o->end();
-			Fl_Group::current()->resizable(o);
-		} // Fl_Pack* o
-		win->size_range(700, 700);
-		win->end();
-	} // Fl_Double_Window* win
+	win = new Fl_Double_Window(705, 700, _("FlaxPDF"));
+	Fl_Pack* o = new Fl_Pack(-620, -4, 1325, 724);
+	o->type(1);
+	{ buttons = new Fl_Pack(0, -4, 64, 704);
+		{ Fl_Button* o = new Fl_Button(0, 0, 64, 64, _("Open"));
+			o->tooltip(_("Open a new file"));
+			o->callback((Fl_Callback*)cb_Open);
+			o->show();
+		} // Fl_Button* o
+		{ pagectr = new Fl_Box(0, 64, 64, 64, _("0 / 0"));
+			pagectr->box(FL_ENGRAVED_FRAME);
+			pagectr->align(FL_ALIGN_WRAP);
+			pagectr->show();
+		} // Fl_Box* pagectr
+		{ zoombar = new Fl_Input_Choice(0, 128, 64, 32);
+			zoombar->tooltip(_("Preset zoom choices"));
+			zoombar->callback((Fl_Callback*)cb_zoombar);
+			zoombar->menu(menu_zoombar);
+			zoombar->show();
+		} // Fl_Input_Choice* zoombar
+		{ Fl_Button* o = new Fl_Button(0, 160, 64, 64, _("Zoom in"));
+			o->tooltip(_("Zoom in"));
+			o->callback((Fl_Callback*)cb_Zoom);
+			o->show();
+		} // Fl_Button* o
+		{ Fl_Button* o = new Fl_Button(0, 224, 64, 64, _("Zoom out"));
+			o->tooltip(_("Zoom out"));
+			o->callback((Fl_Callback*)cb_Zoom1);
+			o->show();
+		} // Fl_Button* o
+		{ Fl_Light_Button* o = new Fl_Light_Button(0, 288, 64, 64, _("Select text"));
+			o->tooltip(_("Select text"));
+			o->show();
+		} // Fl_Light_Button* o
+		buttons->end();
+		buttons->show();
+	} // Fl_Pack* buttons
+	{ Fl_Box* o = new Fl_Box(64, 0, 641, 700);
+		Fl_Group::current()->resizable(o);
+		o->show();
+	} // Fl_Box* o
+	o->end();
+	o->show();
+	Fl_Group::current()->resizable(o);
 
-	return 0;
+	win->size_range(700, 700);
+	win->end();
+	win->show();
+
+	return Fl::run();
 }
