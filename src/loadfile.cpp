@@ -5,21 +5,66 @@
 #include <SplashOutputDev.h>
 #include <splash/SplashBitmap.h>
 
+static bool nonwhite(const u8 * const pixel) {
+
+	return pixel[0] != 255 ||
+		pixel[1] != 255 ||
+		pixel[2] != 255;
+}
+
 static void store(SplashBitmap * const bm, const u32 page) {
 
 	const u32 w = bm->getWidth();
 	const u32 h = bm->getHeight();
 	const u32 rowsize = bm->getRowSize();
 
-	const u8 *src = bm->getDataPtr();
-	const u8 * const origsrc = src;
-	if (rowsize == w * 3) {
-		// Yay, memcpy-able
-	} else {
-		src = (u8 *) xcalloc(w * h * 3, 1);
-		u32 i;
-		for (i = 0; i < h; i++) {
-			memcpy((u8 *) src + i * w * 3, origsrc + rowsize * i, w * 3);
+	const u8 * const src = bm->getDataPtr();
+
+	// Trim margins
+	u32 minx = 0, miny = 0, maxx = w - 1, maxy = h - 1;
+	int i, j;
+
+	bool found = false;
+	for (i = 0; i < (int) w && !found; i++) {
+		for (j = 0; j < (int) h && !found; j++) {
+			const u8 * const pixel = src + j * rowsize + w * 3;
+			if (nonwhite(pixel)) {
+				found = true;
+				minx = i;
+			}
+		}
+	}
+
+	found = false;
+	for (j = 0; j < (int) h && !found; j++) {
+		for (i = minx; i < (int) w && !found; i++) {
+			const u8 * const pixel = src + j * rowsize + w * 3;
+			if (nonwhite(pixel)) {
+				found = true;
+				miny = j;
+			}
+		}
+	}
+
+	found = false;
+	for (i = w - 1; i >= 0 && !found; i--) {
+		for (j = h - 1; j >= 0 && !found; j--) {
+			const u8 * const pixel = src + j * rowsize + w * 3;
+			if (nonwhite(pixel)) {
+				found = true;
+				maxx = i;
+			}
+		}
+	}
+
+	found = false;
+	for (j = h - 1; j >= 0 && !found; j--) {
+		for (i = w - 1; i >= 0 && !found; i--) {
+			const u8 * const pixel = src + j * rowsize + w * 3;
+			if (nonwhite(pixel)) {
+				found = true;
+				maxy = j;
+			}
 		}
 	}
 }
