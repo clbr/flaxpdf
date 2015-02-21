@@ -116,7 +116,6 @@ int main(int argc, char **argv) {
 			zoombar->callback((Fl_Callback*)cb_zoombar);
 			zoombar->menu(menu_zoombar);
 			zoombar->value(0);
-			zoombar->textsize(8);
 		} // Fl_Input_Choice* zoombar
 		{ Fl_Button* o = new Fl_Button(0, 160, 64, 64);
 			o->tooltip(_("Zoom in"));
