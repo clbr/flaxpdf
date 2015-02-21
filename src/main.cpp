@@ -28,7 +28,7 @@ Fl_Input_Choice *zoombar = (Fl_Input_Choice *) 0;
 Fl_Light_Button *selecting = NULL;
 
 static Fl_Menu_Item menu_zoombar[] = {
-	{_("Trimmed"), 0, 0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+	{_("Trim"), 0, 0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
 	{_("Width"), 0, 0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
 	{_("Page"), 0, 0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
 	{0,0,0,0,0,0,0,0,0}
