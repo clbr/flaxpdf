@@ -59,17 +59,18 @@ struct cachedpage {
 };
 
 struct openfile {
-	float zoom;
-	bool trim;
-	bool page;
-	bool width;
+	cachedpage *cache;
+	PDFDoc *pdf;
 
 	u32 pages;
 
 	u32 first_visible;
 	u32 last_visible;
 
-	cachedpage *cache;
+	float zoom;
+	bool trim;
+	bool page;
+	bool width;
 };
 
 extern openfile *file;

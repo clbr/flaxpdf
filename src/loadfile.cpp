@@ -50,11 +50,16 @@ void loadfile(const char *file) {
 		return;
 	}
 
+	::file->pdf = pdf;
+	::file->pages = pdf->getNumPages();
+
 	// Start threaded magic
 	if (::file->pages < 1) {
 		fl_alert(_("Couldn't open %s, perhaps it's corrupted?"), file);
 		return;
 	}
+
+	::file->cache = (cachedpage *) xcalloc(::file->pages, sizeof(cachedpage));
 
 	dopage(0);
 
