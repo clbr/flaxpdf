@@ -75,7 +75,6 @@ LDFLAGS=["$LDFLAGS -Wl,-O1"]
 AC_CONFIG_COMMANDS([atag],[
 echo -e "\n\n\t\t*********\n"
 echo Configure finished
-echo
 echo -e "\n\t\t*********\n\n"],
 [distributable=$distributable])
 
