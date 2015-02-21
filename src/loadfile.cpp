@@ -5,6 +5,10 @@
 #include <SplashOutputDev.h>
 #include <splash/SplashBitmap.h>
 
+static void store(const SplashBitmap * const bm) {
+
+}
+
 static void dopage(const u32 page) {
 
 	SplashColor white = { 255, 255, 255 };
@@ -13,7 +17,10 @@ static void dopage(const u32 page) {
 
 	file->pdf->displayPage(splash, page, 144, 144, 0, true, false, false);
 
-	SplashBitmap * const bm = splash->takeBitmap();
+	const SplashBitmap * const bm = splash->takeBitmap();
+
+	store(bm);
+
 	delete bm;
 	delete splash;
 
@@ -26,6 +33,8 @@ static void *renderer(void *) {
 	for (u32 i = 1; i < file->pages; i++) {
 		dopage(i);
 	}
+
+	return NULL;
 }
 
 void loadfile(const char *file) {
