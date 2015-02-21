@@ -7,7 +7,7 @@ void loadfile(const char *file) {
 		file = fl_file_chooser(_("Open PDF"), "*.pdf", NULL, 0);
 
 		if (!file) {
-			if (fl_ask(_("Quit?")))
+			if (fl_choice(_("Quit?"), _("No"), _("Yes"), NULL))
 				exit(0);
 		}
 	}
