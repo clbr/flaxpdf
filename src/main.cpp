@@ -42,8 +42,12 @@ static void cb_Zoom(Fl_Button*, void*) {
 //	hi();
 }
 
-static void cb_Zoom1(Fl_Button*, void*) {
+static void cb_Zoomout(Fl_Button*, void*) {
 //	hi();
+}
+
+static void goto_page(Fl_Input*, void*) {
+
 }
 
 int main(int argc, char **argv) {
@@ -58,7 +62,11 @@ int main(int argc, char **argv) {
 			o->tooltip(_("Open a new file"));
 			o->callback((Fl_Callback*)cb_Open);
 		} // Fl_Button* o
-		{ pagectr = new Fl_Box(0, 64, 64, 64, _("0 pages"));
+		{ Fl_Input *o = new Fl_Input(0, 64, 64, 32);
+			o->value("0");
+			o->callback((Fl_Callback*)goto_page);
+		} // Fl_Box* pagectr
+		{ pagectr = new Fl_Box(0, 64, 64, 32, "/ 0");
 			pagectr->box(FL_ENGRAVED_FRAME);
 			pagectr->align(FL_ALIGN_WRAP);
 		} // Fl_Box* pagectr
@@ -74,7 +82,7 @@ int main(int argc, char **argv) {
 		} // Fl_Button* o
 		{ Fl_Button* o = new Fl_Button(0, 224, 64, 64, _("Zoom out"));
 			o->tooltip(_("Zoom out"));
-			o->callback((Fl_Callback*)cb_Zoom1);
+			o->callback((Fl_Callback*)cb_Zoomout);
 		} // Fl_Button* o
 		{ selecting = new Fl_Light_Button(0, 288, 64, 64, _("Select text"));
 			selecting->tooltip(_("Select text"));
