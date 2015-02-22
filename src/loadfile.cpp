@@ -37,7 +37,7 @@ static void getmargins(const u8 * const src, const u32 w, const u32 h,
 	bool found = false;
 	for (i = 0; i < (int) w && !found; i++) {
 		for (j = 0; j < (int) h && !found; j++) {
-			const u8 * const pixel = src + j * rowsize + i * 3;
+			const u8 * const pixel = src + j * rowsize + i * 4;
 			if (nonwhite(pixel)) {
 				found = true;
 				*minx = i;
@@ -48,7 +48,7 @@ static void getmargins(const u8 * const src, const u32 w, const u32 h,
 	found = false;
 	for (j = 0; j < (int) h && !found; j++) {
 		for (i = *minx; i < (int) w && !found; i++) {
-			const u8 * const pixel = src + j * rowsize + i * 3;
+			const u8 * const pixel = src + j * rowsize + i * 4;
 			if (nonwhite(pixel)) {
 				found = true;
 				*miny = j;
@@ -61,7 +61,7 @@ static void getmargins(const u8 * const src, const u32 w, const u32 h,
 	found = false;
 	for (i = w - 1; i >= startx && !found; i--) {
 		for (j = h - 1; j >= starty && !found; j--) {
-			const u8 * const pixel = src + j * rowsize + i * 3;
+			const u8 * const pixel = src + j * rowsize + i * 4;
 			if (nonwhite(pixel)) {
 				found = true;
 				*maxx = i;
@@ -72,7 +72,7 @@ static void getmargins(const u8 * const src, const u32 w, const u32 h,
 	found = false;
 	for (j = h - 1; j >= starty && !found; j--) {
 		for (i = *maxx; i >= startx && !found; i--) {
-			const u8 * const pixel = src + j * rowsize + i * 3;
+			const u8 * const pixel = src + j * rowsize + i * 4;
 			if (nonwhite(pixel)) {
 				found = true;
 				*maxy = j;
@@ -96,18 +96,18 @@ static void store(SplashBitmap * const bm, const u32 page) {
 	const u32 trimw = maxx - minx + 1;
 	const u32 trimh = maxy - miny + 1;
 
-	u8 * const trimmed = (u8 *) xcalloc(trimw * trimh * 3, 1);
+	u8 * const trimmed = (u8 *) xcalloc(trimw * trimh * 4, 1);
 	u32 j;
 	for (j = miny; j <= maxy; j++) {
 		const u32 destj = j - miny;
-		memcpy(trimmed + destj * trimw * 3, src + j * rowsize + minx * 3, trimw * 3);
+		memcpy(trimmed + destj * trimw * 4, src + j * rowsize + minx * 4, trimw * 4);
 	}
 
 	// Trimmed copy done, compress it
-	u8 * const tmp = (u8 *) xcalloc(trimw * trimh * 3 * 1.08f, 1);
+	u8 * const tmp = (u8 *) xcalloc(trimw * trimh * 4 * 1.08f, 1);
 	u8 workmem[LZO1X_1_MEM_COMPRESS]; // 64kb, we can afford it
 	lzo_uint outlen;
-	int ret = lzo1x_1_compress(trimmed, trimw * trimh * 3, tmp, &outlen, workmem);
+	int ret = lzo1x_1_compress(trimmed, trimw * trimh * 4, tmp, &outlen, workmem);
 	if (ret != LZO_E_OK)
 		die(_("Compression failed\n"));
 
@@ -118,7 +118,7 @@ static void store(SplashBitmap * const bm, const u32 page) {
 	free(tmp);
 
 	// Store
-	file->cache[page].uncompressed = trimw * trimh * 3;
+	file->cache[page].uncompressed = trimw * trimh * 4;
 	file->cache[page].w = trimw;
 	file->cache[page].h = trimh;
 	file->cache[page].left = minx;
@@ -136,7 +136,7 @@ static void dopage(const u32 page) {
 	gettimeofday(&start, NULL);
 
 	SplashColor white = { 255, 255, 255 };
-	SplashOutputDev *splash = new SplashOutputDev(splashModeBGR8, 4, false, white);
+	SplashOutputDev *splash = new SplashOutputDev(splashModeXBGR8, 4, false, white);
 	splash->startDoc(file->pdf);
 
 	file->pdf->displayPage(splash, page + 1, 144, 144, 0, true, false, false);
