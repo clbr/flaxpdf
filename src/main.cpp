@@ -76,12 +76,12 @@ static void cb_zoombar(Fl_Input_Choice *w, void*) {
 	view->redraw();
 }
 
-static void cb_Zoomin(Fl_Button*, void*) {
+void cb_Zoomin(Fl_Button*, void*) {
 	file->zoom *= 1.2f;
 	applyzoom(file->zoom);
 }
 
-static void cb_Zoomout(Fl_Button*, void*) {
+void cb_Zoomout(Fl_Button*, void*) {
 	file->zoom *= 0.833333;
 	applyzoom(file->zoom);
 }

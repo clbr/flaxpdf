@@ -98,4 +98,7 @@ struct openfile {
 
 extern openfile *file;
 
+void cb_Zoomin(Fl_Button*, void*);
+void cb_Zoomout(Fl_Button*, void*);
+
 #endif

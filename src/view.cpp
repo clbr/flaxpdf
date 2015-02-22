@@ -220,9 +220,16 @@ int pdfview::handle(int e) {
 		}
 		break;
 		case FL_MOUSEWHEEL:
-			yoff += move * Fl::event_dy();
-			if (yoff < 0)
-				yoff = 0;
+			if (Fl::event_ctrl()) {
+				if (Fl::event_dy() > 0)
+					cb_Zoomout(NULL, NULL);
+				else
+					cb_Zoomin(NULL, NULL);
+			} else {
+				yoff += move * Fl::event_dy();
+				if (yoff < 0)
+					yoff = 0;
+			}
 
 			if (file->cache)
 				updatevisible(yoff, w(), h(), false);
