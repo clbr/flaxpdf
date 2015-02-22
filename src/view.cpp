@@ -49,17 +49,17 @@ static void updatevisible(const float yoff, const u32 w, const u32 h) {
 	u32 usedh = fullh;
 	switch (file->mode) {
 		case Z_TRIM:
-			file->zoom = w / maxwmargin;
+			file->zoom = w / (float) maxwmargin;
 			usedh = maxh;
 		break;
 		case Z_WIDTH:
-			file->zoom = w / fullw;
+			file->zoom = w / (float) fullw;
 		break;
 		case Z_PAGE:
 			if (fullw > fullh) {
-				file->zoom = w / fullw;
+				file->zoom = w / (float) fullw;
 			} else {
-				file->zoom = h / fullh;
+				file->zoom = h / (float) fullh;
 			}
 		break;
 		case Z_CUSTOM:
@@ -79,9 +79,6 @@ static void updatevisible(const float yoff, const u32 w, const u32 h) {
 }
 
 void pdfview::draw() {
-
-	if (file->zoom < 0.02f)
-		return;
 
 	updatevisible(yoff, w(), h());
 
