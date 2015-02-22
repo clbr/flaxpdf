@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MARGIN 36
 
 pdfview::pdfview(int x, int y, int w, int h): Fl_Widget(x, y, w, h),
-		xoff(0), yoff(0) {
+		yoff(0) {
 
 	cachedsize = 7 * 1024 * 1024;
 
@@ -32,7 +32,7 @@ pdfview::pdfview(int x, int y, int w, int h): Fl_Widget(x, y, w, h),
 }
 
 void pdfview::reset() {
-	xoff = yoff = 0;
+	yoff = 0;
 
 	u32 i;
 	for (i = 0; i < CACHE_MAX; i++) {
@@ -123,9 +123,6 @@ void pdfview::draw() {
 
 	fl_rectf(X, Y, W, H, FL_GRAY + 1);
 
-	if (file->mode != Z_CUSTOM)
-		xoff = 0;
-
 	struct cachedpage *cur = &file->cache[file->first_visible];
 	if (!cur->ready)
 		return;
@@ -135,7 +132,7 @@ void pdfview::draw() {
 	Y = 0;
 	H = (cur->h + cur->top + cur->bottom) * visible * file->zoom;
 	if (file->mode == Z_CUSTOM) {
-		X = x() + (cur->w + cur->left + cur->right) * file->zoom * xoff;
+		X = x() + (cur->w + cur->left + cur->right) * file->zoom;
 		W = (cur->w + cur->left + cur->right) * file->zoom;
 	} else {
 		X = x();
@@ -156,7 +153,7 @@ void pdfview::draw() {
 
 		H = (cur->h + cur->top + cur->bottom) * file->zoom;
 		if (file->mode == Z_CUSTOM) {
-			X = x() + (cur->w + cur->left + cur->right) * file->zoom * xoff;
+			X = x() + (cur->w + cur->left + cur->right) * file->zoom;
 			W = (cur->w + cur->left + cur->right) * file->zoom;
 		} else {
 			X = x();
@@ -170,12 +167,10 @@ void pdfview::draw() {
 	}
 }
 
-#define MAXXOFF 0.1
-
 int pdfview::handle(int e) {
 
 	const float move = 0.05f;
-	static int lastx, lasty;
+	static int lasty;
 
 	switch (e) {
 		case FL_PUSH:
@@ -189,25 +184,17 @@ int pdfview::handle(int e) {
 		case FL_DRAG: {
 			fl_cursor(FL_CURSOR_MOVE);
 
-			const int mx = Fl::event_x();
 			const int my = Fl::event_y();
 
-			const int movedx = mx - lastx;
 			const int movedy = my - lasty;
 
-			xoff += movedx / (float) w();
 			yoff -= movedy / (float) h();
 
 			if (yoff < 0)
 				yoff = 0;
 			if (yoff > file->pages)
 				yoff = file->pages;
-			if (xoff < 0)
-				xoff = 0;
-			if (xoff > MAXXOFF)
-				xoff = MAXXOFF;
 
-			lastx = mx;
 			lasty = my;
 
 			if (file->cache)
@@ -227,18 +214,6 @@ int pdfview::handle(int e) {
 		case FL_KEYDOWN:
 		case FL_SHORTCUT:
 			switch (Fl::event_key()) {
-				case FL_Left:
-					xoff += move;
-					if (xoff > MAXXOFF)
-						xoff = MAXXOFF;
-					redraw();
-				break;
-				case FL_Right:
-					xoff -= move;
-					if (xoff < 0)
-						xoff = 0;
-					redraw();
-				break;
 				case FL_Up:
 					yoff -= move;
 					if (yoff < 0)

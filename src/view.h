@@ -33,7 +33,7 @@ private:
 	u8 iscached(const u32 page) const;
 	void docache(const u32 page);
 
-	float xoff, yoff;
+	float yoff;
 	u32 cachedsize;
 	u8 *cache[CACHE_MAX];
 	u16 cachedpage[CACHE_MAX];
