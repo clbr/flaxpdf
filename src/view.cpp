@@ -189,10 +189,11 @@ int pdfview::handle(int e) {
 				updatevisible(yoff, w(), h(), false);
 		break;
 		case FL_MOUSEWHEEL:
-			// TODO
+			yoff += move * Fl::event_dy();
 
 			if (file->cache)
 				updatevisible(yoff, w(), h(), false);
+			redraw();
 		break;
 		case FL_KEYDOWN:
 		case FL_SHORTCUT:
