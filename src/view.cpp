@@ -119,10 +119,11 @@ void pdfview::draw() {
 		W = w();
 
 		if (file->mode == Z_TRIM)
-			H = cur->;
+			H = cur->h * visible * file->zoom;
 		else
-			H = 
+			H = (cur->h + cur->top + cur->bottom) * visible * file->zoom;
 	}
+	fl_rectf(X, Y, W, H, pagecol);
 
 	u32 i;
 	const u32 max = file->last_visible;
