@@ -181,7 +181,7 @@ void pdfview::draw() {
 			break;
 		fl_rectf(X, Y, W, H, pagecol);
 
-		const bool trimmed = hasmargins(i);
+		const bool trimmed = hasmargins(i) && file->mode == Z_TRIM;
 		if (trimmed) {
 			// If the page was trimmed, have the real one a bit smaller
 			X += zoomedmarginhalf;
