@@ -133,17 +133,17 @@ void pdfview::draw() {
 		if (!cur->ready)
 			continue;
 
+		H = (cur->h + cur->top + cur->bottom) * file->zoom;
 		if (file->mode == Z_CUSTOM) {
 			X = x() + (cur->w + cur->left + cur->right) * file->zoom *
 				(1 - xoff);
+			W = (cur->w + cur->left + cur->right) * file->zoom;
 		} else {
 			X = x();
 			W = w();
 
 			if (file->mode == Z_TRIM)
 				H = cur->h * file->zoom;
-			else
-				H = (cur->h + cur->top + cur->bottom) * file->zoom;
 		}
 
 		fl_rectf(X, Y, W, H, pagecol);
