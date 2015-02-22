@@ -106,7 +106,7 @@ void pdfview::draw() {
 	if (file->mode != Z_CUSTOM)
 		xoff = 0;
 
-	cachedpage *cur = &file->cache[file->first_visible];
+	struct cachedpage *cur = &file->cache[file->first_visible];
 	if (!cur->ready)
 		return;
 
