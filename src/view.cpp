@@ -26,4 +26,5 @@ void pdfview::draw() {
 
 int pdfview::handle(int e) {
 
+	return Fl_Widget::handle(e);
 }
