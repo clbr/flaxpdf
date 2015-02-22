@@ -15,6 +15,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "view.h"
+#include <sys/ipc.h>
+#include <sys/shm.h>
 
 // Quarter inch in double resolution
 #define MARGIN 36
@@ -432,12 +434,22 @@ void pdfview::content(const u32 page, const s32 X, const s32 Y,
 	Pixmap pix = XCreatePixmap(fl_display, fl_window, cur->w, cur->h, 24);
 	if (pix == None)
 		return;
-	XImage *xi = XCreateImage(fl_display, fl_visual->visual, 24, ZPixmap, 0,
-					(char *) cache[c],
-					cur->w, cur->h, 32, 0);
+	XShmSegmentInfo shminfo;
+
+	XImage *xi = XShmCreateImage(fl_display, fl_visual->visual, 24, ZPixmap,
+					NULL, &shminfo,
+					cur->w, cur->h);
 	if (xi == NULL) die("xi null\n");
 
-	XPutImage(fl_display, pix, fl_gc, xi, 0, 0, 0, 0, cur->w, cur->h);
+	shminfo.shmid = shmget(IPC_PRIVATE,
+				cur->w * cur->h * 4, IPC_CREAT|0777);
+	shminfo.shmaddr = xi->data = (char *) shmat(shminfo.shmid, NULL, 0);
+	shminfo.readOnly = False;
+	if (!XShmAttach(fl_display, &shminfo))
+		die("shmattach\n");
+	shmctl(shminfo.shmid, IPC_RMID, 0);
+
+	XShmPutImage(fl_display, pix, fl_gc, xi, 0, 0, 0, 0, cur->w, cur->h, False);
 
 //	fl_draw_image(cache[c], X, Y, W, H, 3, file->cache[page].w * 3);
 
