@@ -186,8 +186,8 @@ void pdfview::draw() {
 			// If the page was trimmed, have the real one a bit smaller
 			X += zoomedmarginhalf;
 			Y += zoomedmarginhalf;
-			W -= zoomedmarginhalf;
-			H -= zoomedmarginhalf;
+			W -= zoomedmargin;
+			H -= zoomedmargin;
 		}
 
 		// Render real content TODO
@@ -197,8 +197,8 @@ void pdfview::draw() {
 			// And undo.
 			X -= zoomedmarginhalf;
 			Y -= zoomedmarginhalf;
-			W += zoomedmarginhalf;
-			H += zoomedmarginhalf;
+			W += zoomedmargin;
+			H += zoomedmargin;
 		}
 
 		Y -= zoomedmarginhalf;
