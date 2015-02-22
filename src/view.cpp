@@ -29,10 +29,6 @@ pdfview::pdfview(int x, int y, int w, int h): Fl_Widget(x, y, w, h),
 }
 
 void pdfview::draw() {
-	int X, Y, W, H;
-	fl_clip_box(x(), y(), w(), h(), X, Y, W, H);
-	fl_rectf(X, Y, W, H, FL_GRAY + 1);
-
 	const Fl_Color pagecol = FL_WHITE;
 
 	// From the current zoom mode and view offset, update the visible page info
@@ -82,6 +78,13 @@ void pdfview::draw() {
 		i++;
 	}
 	file->last_visible = i;
+
+	int X, Y, W, H;
+	fl_clip_box(x(), y(), w(), h(), X, Y, W, H);
+	if (!W)
+		return;
+
+	fl_rectf(X, Y, W, H, FL_GRAY + 1);
 }
 
 int pdfview::handle(int e) {
