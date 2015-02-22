@@ -113,8 +113,6 @@ void pdfview::draw() {
 
 	fl_rectf(X, Y, W, H, FL_GRAY + 1);
 
-	const float visible = 1 - (yoff - floorf(yoff));
-
 	if (file->mode != Z_CUSTOM)
 		xoff = 0;
 
@@ -123,6 +121,7 @@ void pdfview::draw() {
 		return;
 
 	// Fill each page rect
+	const float visible = 1 - (yoff - floorf(yoff));
 	Y = 0;
 	H = (cur->h + cur->top + cur->bottom) * visible * file->zoom;
 	if (file->mode == Z_CUSTOM) {
