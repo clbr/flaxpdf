@@ -113,13 +113,13 @@ void pdfview::draw() {
 	// Fill each page rect
 	if (file->mode == Z_CUSTOM) {
 		X = x() + (cur->w + cur->left + cur->right) * file->zoom * (1 - xoff);
-	} else {
+	} else {
 		X = x();
 		Y = 0;
 		W = w();
 
 		if (file->mode == Z_TRIM)
-			H = ;
+			H = cur->;
 		else
 			H = 
 	}
@@ -129,7 +129,7 @@ void pdfview::draw() {
 	for (i = file->first_visible + 1; i <= max; i++) {
 		if (file->mode == Z_CUSTOM) {
 			// TODO
-		} else {
+		} else {
 			
 		}
 	}
