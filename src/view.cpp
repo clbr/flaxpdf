@@ -53,7 +53,7 @@ static bool hasmargins(const u32 page) {
 		file->cache[page].bottom > MARGIN;
 }
 
-static void updatevisible(const float yoff, const u32 w, const u32 h) {
+static void updatevisible(const float yoff, const u32 w, const u32 h, const bool fromdraw) {
 	// From the current zoom mode and view offset, update the visible page info
 	const u32 prev = file->first_visible;
 	file->first_visible = yoff < 0 ? 0 : yoff;
@@ -102,8 +102,9 @@ static void updatevisible(const float yoff, const u32 w, const u32 h) {
 		char buf[10];
 		snprintf(buf, 10, "%u", file->first_visible + 1);
 		pagebox->value(buf);
-		pagebox->redraw();
-		puts("pagebox redraw");
+
+		if (!fromdraw)
+			pagebox->redraw();
 	}
 }
 
@@ -112,7 +113,7 @@ void pdfview::draw() {
 	if (!file->cache)
 		return;
 
-	updatevisible(yoff, w(), h());
+	updatevisible(yoff, w(), h(), true);
 
 	const Fl_Color pagecol = FL_WHITE;
 	int X, Y, W, H;
@@ -183,9 +184,15 @@ int pdfview::handle(int e) {
 		case FL_DRAG:
 			fl_cursor(FL_CURSOR_MOVE);
 			// TODO
+
+			if (file->cache)
+				updatevisible(yoff, w(), h(), false);
 		break;
 		case FL_MOUSEWHEEL:
 			// TODO
+
+			if (file->cache)
+				updatevisible(yoff, w(), h(), false);
 		break;
 		case FL_KEYDOWN:
 		case FL_SHORTCUT:
@@ -217,6 +224,10 @@ int pdfview::handle(int e) {
 				default:
 					return 0;
 			}
+
+			if (file->cache)
+				updatevisible(yoff, w(), h(), false);
+
 			return 1;
 		break;
 		case FL_MOVE:
