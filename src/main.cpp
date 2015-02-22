@@ -96,7 +96,7 @@ static void goto_page(Fl_Input *w, void*) {
 		return;
 	}
 
-	// TODO
+	view->go(which);
 }
 
 static void reader(FL_SOCKET fd, void*) {
@@ -107,7 +107,7 @@ static void reader(FL_SOCKET fd, void*) {
 
 	switch (buf) {
 		case MSG_REFRESH:
-			// TODO
+			view->redraw();
 		break;
 		case MSG_READY:
 			fl_cursor(FL_CURSOR_DEFAULT);

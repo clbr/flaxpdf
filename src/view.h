@@ -27,6 +27,7 @@ public:
 	void draw();
 	int handle(int e);
 
+	void go(const u32 page);
 private:
 	u8 iscached(const u32 page) const;
 	void docache(const u32 page);

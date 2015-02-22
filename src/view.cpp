@@ -115,3 +115,7 @@ void pdfview::docache(const u32 page) {
 
 	cachedpage[dst] = page;
 }
+
+void pdfview::go(const u32 page) {
+	yoff = page;
+}
