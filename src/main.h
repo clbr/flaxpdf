@@ -49,6 +49,8 @@ extern Fl_Input_Choice *zoombar;
 extern Fl_Light_Button *selecting;
 extern u8 details;
 
+extern int readpipe, writepipe;
+
 void loadfile(const char *);
 
 struct cachedpage {

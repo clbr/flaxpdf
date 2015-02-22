@@ -27,6 +27,8 @@ Fl_Input *pagebox = NULL;
 Fl_Input_Choice *zoombar = (Fl_Input_Choice *) 0;
 Fl_Light_Button *selecting = NULL;
 
+int readpipe, writepipe;
+
 u8 details = 0;
 openfile *file = NULL;
 
@@ -138,6 +140,11 @@ int main(int argc, char **argv) {
 	Fl::scheme("gtk+");
 
 	file = (openfile *) xcalloc(1, sizeof(openfile));
+	int ptmp[2];
+	if (pipe(ptmp))
+		die(_("Failed in pipe()\n"));
+	readpipe = ptmp[0];
+	writepipe = ptmp[1];
 
 	#define img(a) a, sizeof(a)
 
