@@ -72,6 +72,8 @@ static void cb_zoombar(Fl_Input_Choice *w, void*) {
 			//fl_alert(_("Unrecognized zoom level"));
 		}
 	}
+
+	view->redraw();
 }
 
 static void cb_Zoomin(Fl_Button*, void*) {
