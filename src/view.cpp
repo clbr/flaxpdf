@@ -160,8 +160,12 @@ void pdfview::draw() {
 				H = (cur->h + MARGIN) * file->zoom;
 		}
 
+		// XYWH is now the full area including grey margins.
+
 		Y += zoomedmarginhalf;
 		H -= zoomedmargin;
+
+		// XYWH is now the page's area.
 		if (Y >= y() + h())
 			break;
 		fl_rectf(X, Y, W, H, pagecol);
