@@ -59,7 +59,7 @@ static void applyzoom(const float what) {
 static void cb_zoombar(Fl_Input_Choice *w, void*) {
 	const char * const val = w->value();
 	if (isdigit(val[0])) {
-		const float f = atof(val);
+		const float f = atof(val) / 100;
 		applyzoom(f);
 	} else {
 		if (!strcmp(val, menu_zoombar[0].text)) {
