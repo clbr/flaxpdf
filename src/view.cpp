@@ -28,9 +28,7 @@ pdfview::pdfview(int x, int y, int w, int h): Fl_Widget(x, y, w, h),
 	}
 }
 
-void pdfview::draw() {
-	const Fl_Color pagecol = FL_WHITE;
-
+static void update(const float yoff, const u32 w, const u32 h) {
 	// From the current zoom mode and view offset, update the visible page info
 	file->first_visible = yoff;
 	u32 i;
@@ -51,17 +49,17 @@ void pdfview::draw() {
 	u32 usedh = fullh;
 	switch (file->mode) {
 		case Z_TRIM:
-			file->zoom = w() / maxwmargin;
+			file->zoom = w / maxwmargin;
 			usedh = maxh;
 		break;
 		case Z_WIDTH:
-			file->zoom = w() / fullw;
+			file->zoom = w / fullw;
 		break;
 		case Z_PAGE:
 			if (fullw > fullh) {
-				file->zoom = w() / fullw;
+				file->zoom = w / fullw;
 			} else {
-				file->zoom = h() / fullh;
+				file->zoom = h / fullh;
 			}
 		break;
 		case Z_CUSTOM:
@@ -72,13 +70,19 @@ void pdfview::draw() {
 	i = file->first_visible;
 	u32 tmp = visible * usedh * file->zoom;
 	tmp += zoomedmargin;
-	while (tmp < (u32) h()) {
+	while (tmp < h) {
 		tmp += usedh * file->zoom;
 		tmp += zoomedmargin;
 		i++;
 	}
 	file->last_visible = i;
+}
 
+void pdfview::draw() {
+
+	update(yoff, w(), h());
+
+	const Fl_Color pagecol = FL_WHITE;
 	int X, Y, W, H;
 	fl_clip_box(x(), y(), w(), h(), X, Y, W, H);
 	if (!W)
