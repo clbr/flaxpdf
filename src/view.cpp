@@ -432,6 +432,18 @@ void pdfview::content(const u32 page, const s32 X, const s32 Y,
 	Pixmap pix = XCreatePixmap(fl_display, fl_window, cur->w, cur->h, 24);
 	if (pix == None)
 		return;
+	XImage xi;
+	memset(&xi, 0, sizeof(XImage));
+	xi.format = ZPixmap;
+	xi.byte_order = ImageByteOrder(fl_display);
+	xi.depth = 24;
+	xi.bits_per_pixel = 24;
+	xi.width = cur->w;
+	xi.height = cur->h;
+	xi.data = (char *) cache[c];
+	xi.bytes_per_line = cur->w * 3;
+
+	XPutImage(fl_display, pix, fl_gc, &xi, 0, 0, 0, 0, cur->w, cur->h);
 
 //	fl_draw_image(cache[c], X, Y, W, H, 3, file->cache[page].w * 3);
 
