@@ -308,4 +308,5 @@ void loadfile(const char *file) {
 	sprintf(tmp, "/ %u", ::file->pages);
 	pagectr->copy_label(tmp);
 	pagebox->value("1");
+	view->reset();
 }

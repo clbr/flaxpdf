@@ -28,6 +28,15 @@ pdfview::pdfview(int x, int y, int w, int h): Fl_Widget(x, y, w, h),
 	}
 }
 
+void pdfview::reset() {
+	xoff = yoff = 0;
+
+	u32 i;
+	for (i = 0; i < CACHE_MAX; i++) {
+		cachedpage[i] = USHRT_MAX;
+	}
+}
+
 static void updatevisible(const float yoff, const u32 w, const u32 h) {
 	// From the current zoom mode and view offset, update the visible page info
 	file->first_visible = yoff;

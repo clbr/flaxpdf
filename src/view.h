@@ -28,6 +28,7 @@ public:
 	int handle(int e);
 
 	void go(const u32 page);
+	void reset();
 private:
 	u8 iscached(const u32 page) const;
 	void docache(const u32 page);
@@ -37,5 +38,7 @@ private:
 	u8 *cache[CACHE_MAX];
 	u16 cachedpage[CACHE_MAX];
 };
+
+extern pdfview *view;
 
 #endif
