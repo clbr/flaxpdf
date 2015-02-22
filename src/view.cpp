@@ -195,7 +195,7 @@ float pdfview::maxyoff() const {
 	if (!file->cache[last].ready)
 		return last + 0.5f;
 
-	const s32 sh = (file->cache[last].h + MARGIN) * file->zoom;
+	const s32 sh = (fullh(last) + MARGIN) * file->zoom;
 
 	const s32 hidden = sh - h();
 
@@ -299,7 +299,7 @@ int pdfview::handle(int e) {
 					} else {
 						const u32 page = yoff;
 						if (file->cache[page].ready) {
-							const s32 sh = (file->cache[page].h +
+							const s32 sh = (fullh(page) +
 									MARGIN)
 									* file->zoom;
 							if (sh > h()) {
