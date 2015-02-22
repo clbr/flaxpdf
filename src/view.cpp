@@ -464,6 +464,9 @@ void pdfview::content(const u32 page, const s32 X, const s32 Y,
 
 //	fl_draw_image(cache[c], X, Y, W, H, 4, file->cache[page].w * 4);
 
+	XRenderFreePicture(fl_display, src);
+	XRenderFreePicture(fl_display, dst);
+
 	XShmDetach(fl_display, &shminfo);
 	shmdt(shminfo.shmaddr);
 	xi->data = NULL;
