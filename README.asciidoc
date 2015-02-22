@@ -1,7 +1,9 @@
 FlaxPDF
 =======
 
-FlaxPDF is a fast, nice PDF viewer for the desktop.
+FlaxPDF is a fast, nice multithreaded PDF viewer for the desktop.
+
+As long as there are more pages than cores, every core will get a workout.
 
 Light on dependencies, trimming borders, and aggressive caching are
 its major points. Okular and Evince are nice but heavy; and the point
