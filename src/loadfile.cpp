@@ -307,4 +307,5 @@ void loadfile(const char *file) {
 	// Update page count
 	sprintf(tmp, "/ %u", ::file->pages);
 	pagectr->copy_label(tmp);
+	pagebox->value("1");
 }
