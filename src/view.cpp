@@ -182,6 +182,22 @@ void pdfview::draw() {
 	fl_pop_clip();
 }
 
+float pdfview::maxyoff() const {
+
+	const u32 last = file->pages - 1;
+	if (!file->cache[last].ready)
+		return last + 0.5f;
+
+	const u32 sh = (file->cache[last].h + MARGIN) * file->zoom;
+
+	const u32 hidden = sh - h();
+
+	float f = last;
+	f += hidden / (float) sh;
+
+	return f;
+}
+
 int pdfview::handle(int e) {
 
 	const float move = 0.05f;
@@ -280,7 +296,7 @@ int pdfview::handle(int e) {
 									MARGIN)
 									* file->zoom;
 							if (sh > (u32) h()) {
-								u32 hidden = sh - h();
+								const u32 hidden = sh - h();
 
 								yoff = floorf(yoff);
 								yoff += hidden / (float) sh;
