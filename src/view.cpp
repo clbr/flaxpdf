@@ -89,6 +89,9 @@ static void updatevisible(const float yoff, const u32 w, const u32 h) {
 
 void pdfview::draw() {
 
+	if (!file->cache)
+		return;
+
 	updatevisible(yoff, w(), h());
 
 	const Fl_Color pagecol = FL_WHITE;
