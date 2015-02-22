@@ -80,7 +80,7 @@ enum msg {
 struct openfile {
 	cachedpage *cache;
 	PDFDoc *pdf;
-	u32 maxw;
+	u32 maxw, maxh;
 
 	u32 pages;
 

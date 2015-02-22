@@ -198,12 +198,15 @@ static void *renderer(void *) {
 			us / 1000000.0f);
 	}
 
-	u32 maxw = 0;
+	u32 maxw = 0, maxh = 0;
 	for (u32 i = 0; i < file->pages; i++) {
 		if (file->cache[i].w > maxw)
 			maxw = file->cache[i].w;
+		if (file->cache[i].h > maxh)
+			maxh = file->cache[i].h;
 	}
 	file->maxw = maxw;
+	file->maxh = maxh;
 
 	// Set normal cursor
 	const u8 msg = MSG_READY;
