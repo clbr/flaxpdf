@@ -232,8 +232,8 @@ int pdfview::handle(int e) {
 
 			if (yoff < 0)
 				yoff = 0;
-			if (yoff >= file->pages)
-				yoff = file->pages - 0.01f;
+			if (yoff >= maxyoff())
+				yoff = maxyoff();
 
 			lasty = my;
 
@@ -269,8 +269,8 @@ int pdfview::handle(int e) {
 				break;
 				case FL_Down:
 					yoff += move;
-					if (yoff >= file->pages)
-						yoff = file->pages - 0.01f;
+					if (yoff >= maxyoff())
+						yoff = maxyoff();
 					redraw();
 				break;
 				case FL_Page_Up:
@@ -281,8 +281,8 @@ int pdfview::handle(int e) {
 				break;
 				case FL_Page_Down:
 					yoff += 1;
-					if (yoff >= file->pages)
-						yoff = file->pages - 0.01f;
+					if (yoff >= maxyoff())
+						yoff = maxyoff();
 					redraw();
 				break;
 				case FL_Home:
@@ -302,7 +302,7 @@ int pdfview::handle(int e) {
 							const s32 sh = (file->cache[page].h +
 									MARGIN)
 									* file->zoom;
-							if (sh > (u32) h()) {
+							if (sh > h()) {
 								const s32 hidden = sh - h();
 
 								yoff = floorf(yoff);
