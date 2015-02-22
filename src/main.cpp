@@ -125,6 +125,10 @@ static void reader(FL_SOCKET fd, void*) {
 	}
 }
 
+static void checkX() {
+	// Make sure everything's cool
+}
+
 int main(int argc, char **argv) {
 
 	srand(time(NULL));
@@ -251,6 +255,8 @@ int main(int argc, char **argv) {
 		die(_("LZO init failed\n"));
 
 	win->show();
+
+	checkX();
 
 	if (optind < argc)
 		loadfile(argv[optind]);

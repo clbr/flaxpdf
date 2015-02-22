@@ -49,7 +49,7 @@ LIBS=["$LIBS $($fltkconfig --ldflags --use-images)"]
 AC_CHECK_LIB([lzo2], [__lzo_init_v2], [], AC_MSG_ERROR([LZO not found]))
 #AC_CHECK_LIB([dl], [dlopen], [], AC_MSG_ERROR([libdl not found]))
 #AC_CHECK_LIB([rt], [sched_get_priority_min], [], AC_MSG_ERROR([librt not found]))
-PKG_CHECK_MODULES([DEPS], [poppler >= 0.31.0])
+PKG_CHECK_MODULES([DEPS], [poppler >= 0.31.0 xrender])
 
 DEPS_CFLAGS=$(echo $DEPS_CFLAGS | sed 's@-I@-isystem @g')
 

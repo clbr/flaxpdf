@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdlib.h>
 #include <unistd.h>
 #include <lzo/lzo1x.h>
+#include <X11/Xlib.h>
+#include <X11/extensions/Xrender.h>
 
 #include <FL/Fl.H>
 #include <FL/fl_ask.H>
@@ -34,6 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <FL/Fl_Input_Choice.H>
 #include <FL/Fl_Light_Button.H>
 #include <FL/Fl_PNG_Image.H>
+#include <FL/x.H>
 
 #include <PDFDoc.h>
 
