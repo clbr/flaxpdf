@@ -15,8 +15,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "view.h"
-#include <sys/ipc.h>
-#include <sys/shm.h>
 
 // Quarter inch in double resolution
 #define MARGIN 36
@@ -434,39 +432,13 @@ void pdfview::content(const u32 page, const s32 X, const s32 Y,
 	Pixmap pix = XCreatePixmap(fl_display, fl_window, cur->w, cur->h, 24);
 	if (pix == None)
 		return;
-	XShmSegmentInfo shminfo;
 
-	XImage *xi = XShmCreateImage(fl_display, fl_visual->visual, 24, ZPixmap,
-					NULL, &shminfo,
-					cur->w, cur->h);
+	XImage *xi = XCreateImage(fl_display, fl_visual->visual, 24, ZPixmap, 0,
+					(char *) cache[c], cur->w, cur->h,
+					32, 0);
 	if (xi == NULL) die("xi null\n");
 
-	shminfo.shmid = shmget(IPC_PRIVATE,
-				cur->w * cur->h * 4, IPC_CREAT|0777);
-	shminfo.shmaddr = xi->data = (char *) shmat(shminfo.shmid, NULL, 0);
-	shminfo.readOnly = False;
-	if (!XShmAttach(fl_display, &shminfo))
-		die("shmattach\n");
-	shmctl(shminfo.shmid, IPC_RMID, 0);
-
-	memcpy(xi->data, cache[c], cur->w * cur->h * 4);
-
-	XShmPutImage(fl_display, pix, fl_gc, xi, 0, 0, 0, 0, cur->w, cur->h, True);
-	XSync(fl_display, False);
-
-	// Need to wait for completion event
-	while (XPending(fl_display) || 1) {
-		XEvent ev;
-		XNextEvent(fl_display, &ev);
-		if (ev.type == XShmGetEventBase(fl_display) + ShmCompletion) {
-/*			XShmCompletionEvent *shm = (XShmCompletionEvent *) &ev;
-			printf("Got completion event, send_event %u, drawable %u (pix %u),"
-				" offset %u\n", shm->send_event, shm->drawable, pix,
-				shm->offset);*/
-			break;
-		}
-		fl_handle(ev);
-	}
+	XPutImage(fl_display, pix, fl_gc, xi, 0, 0, 0, 0, cur->w, cur->h);
 
 	XRenderPictureAttributes srcattr;
 	memset(&srcattr, 0, sizeof(XRenderPictureAttributes));
@@ -488,8 +460,6 @@ void pdfview::content(const u32 page, const s32 X, const s32 Y,
 	XRenderFreePicture(fl_display, src);
 	XRenderFreePicture(fl_display, dst);
 
-	XShmDetach(fl_display, &shminfo);
-	shmdt(shminfo.shmaddr);
 	xi->data = NULL;
 	XDestroyImage(xi);
 	XFreePixmap(fl_display, pix);
