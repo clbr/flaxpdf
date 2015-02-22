@@ -250,6 +250,18 @@ int pdfview::handle(int e) {
 						yoff = file->pages - 0.01f;
 					redraw();
 				break;
+				case FL_Page_Up:
+					yoff -= 1;
+					if (yoff < 0)
+						yoff = 0;
+					redraw();
+				break;
+				case FL_Page_Down:
+					yoff += 1;
+					if (yoff >= file->pages)
+						yoff = file->pages - 0.01f;
+					redraw();
+				break;
 				default:
 					return 0;
 			}
