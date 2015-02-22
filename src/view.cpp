@@ -274,7 +274,20 @@ int pdfview::handle(int e) {
 					if (Fl::event_ctrl()) {
 						yoff = file->pages - 0.001f;
 					} else {
-						yoff = ceilf(yoff) - 0.001f;
+						const u32 page = yoff;
+						if (file->cache[page].ready) {
+							const u32 sh = (file->cache[page].h +
+									MARGIN)
+									* file->zoom;
+							if (sh > (u32) h()) {
+								u32 hidden = sh - h();
+
+								yoff = floorf(yoff);
+								yoff += hidden / (float) sh;
+							}
+						} else {
+							yoff = ceilf(yoff) - 0.4f;
+						}
 					}
 					redraw();
 				break;
