@@ -84,7 +84,7 @@ static void store(SplashBitmap * const bm, const u32 page) {
 	u32 j;
 	for (j = miny; j <= maxy; j++) {
 		const u32 destj = j - miny;
-		memcpy(trimmed + destj * trimw * 3, src + j * rowsize, trimw * 3);
+		memcpy(trimmed + destj * trimw * 3, src + j * rowsize + minx * 3, trimw * 3);
 	}
 
 	// Trimmed copy done, compress it
