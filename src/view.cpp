@@ -182,18 +182,26 @@ int pdfview::handle(int e) {
 			switch (Fl::event_key()) {
 				case FL_Left:
 					xoff -= move;
+					if (xoff < 0)
+						xoff = 0;
 					redraw();
 				break;
 				case FL_Right:
 					xoff += move;
+					if (xoff > 1)
+						xoff = 1;
 					redraw();
 				break;
 				case FL_Up:
 					yoff -= move;
+					if (yoff < 0)
+						yoff = 0;
 					redraw();
 				break;
 				case FL_Down:
 					yoff += move;
+					if (yoff > file->pages)
+						yoff = file->pages;
 					redraw();
 				break;
 			}
