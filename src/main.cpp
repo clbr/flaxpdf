@@ -48,6 +48,12 @@ static void cb_Open(Fl_Button*, void*) {
 static void applyzoom(const float what) {
 	file->zoom = what;
 	file->mode = Z_CUSTOM;
+
+	char tmp[10];
+	snprintf(tmp, 10, "%.0f%%", what * 100);
+	zoombar->value(tmp);
+
+	view->redraw();
 }
 
 static void cb_zoombar(Fl_Input_Choice *w, void*) {
@@ -70,12 +76,12 @@ static void cb_zoombar(Fl_Input_Choice *w, void*) {
 
 static void cb_Zoomin(Fl_Button*, void*) {
 	file->zoom *= 1.2f;
-	file->mode = Z_CUSTOM;
+	applyzoom(file->zoom);
 }
 
 static void cb_Zoomout(Fl_Button*, void*) {
 	file->zoom *= 0.833333;
-	file->mode = Z_CUSTOM;
+	applyzoom(file->zoom);
 }
 
 static void cb_hide(Fl_Widget*, void*) {
