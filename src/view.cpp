@@ -16,6 +16,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "view.h"
 
+// Quarter inch in double resolution
+#define MARGIN 36
+
 pdfview::pdfview(int x, int y, int w, int h): Fl_Widget(x, y, w, h),
 		xoff(0), yoff(0) {
 
@@ -37,19 +40,27 @@ void pdfview::reset() {
 	}
 }
 
+static bool hasmargins(const u32 page) {
+	if (!file->cache[page].ready)
+		return file->cache[0].left > MARGIN ||
+			file->cache[0].right > MARGIN ||
+			file->cache[0].top > MARGIN ||
+			file->cache[0].bottom > MARGIN;
+
+	return file->cache[page].left > MARGIN ||
+		file->cache[page].right > MARGIN ||
+		file->cache[page].top > MARGIN ||
+		file->cache[page].bottom > MARGIN;
+}
+
 static void updatevisible(const float yoff, const u32 w, const u32 h) {
 	// From the current zoom mode and view offset, update the visible page info
 	file->first_visible = yoff;
 	u32 i;
 
-	const u32 MARGIN = 36; // Quarter inch in double resolution
 	const u32 maxw = file->maxw ? file->maxw : file->cache[0].w;
 	const u32 maxh = file->maxh ? file->maxh : file->cache[0].h;
-	const bool hasmargins = file->cache[0].left > MARGIN ||
-				file->cache[0].right > MARGIN ||
-				file->cache[0].top > MARGIN ||
-				file->cache[0].bottom > MARGIN;
-	const u32 maxwmargin = hasmargins ? maxw + MARGIN * 2 : maxw;
+	const u32 maxwmargin = hasmargins(yoff) ? maxw + MARGIN * 2 : maxw;
 	const u32 fullw = file->cache[0].w + file->cache[0].left + file->cache[0].right;
 	const u32 fullh = file->cache[0].h + file->cache[0].top + file->cache[0].bottom;
 
@@ -102,12 +113,7 @@ void pdfview::draw() {
 
 	fl_rectf(X, Y, W, H, FL_GRAY + 1);
 
-	const u32 MARGIN = 36; // Quarter inch in double resolution
 	const u32 maxw = file->maxw ? file->maxw : file->cache[0].w;
-	const bool hasmargins = file->cache[0].left > MARGIN ||
-				file->cache[0].right > MARGIN ||
-				file->cache[0].top > MARGIN ||
-				file->cache[0].bottom > MARGIN;
 
 	const float visible = 1 - (yoff - floorf(yoff));
 
