@@ -131,6 +131,10 @@ static void checkX() {
 		fl_visual->green_mask != 0xff00 ||
 		fl_visual->blue_mask != 0xff)
 		die(_("Visual doesn't match our expectations\n"));
+
+	int a, b;
+	if (!XRenderQueryExtension(fl_display, &a, &b))
+		die(_("No XRender on this server\n"));
 }
 
 int main(int argc, char **argv) {
