@@ -295,7 +295,7 @@ int pdfview::handle(int e) {
 				break;
 				case FL_End:
 					if (Fl::event_ctrl()) {
-						yoff = file->pages - 0.001f;
+						yoff = maxyoff();
 					} else {
 						const u32 page = yoff;
 						if (file->cache[page].ready) {
