@@ -451,8 +451,22 @@ void pdfview::content(const u32 page, const s32 X, const s32 Y,
 
 	memcpy(xi->data, cache[c], cur->w * cur->h * 4);
 
-	XShmPutImage(fl_display, pix, fl_gc, xi, 0, 0, 0, 0, cur->w, cur->h, False);
+	XShmPutImage(fl_display, pix, fl_gc, xi, 0, 0, 0, 0, cur->w, cur->h, True);
 	XSync(fl_display, False);
+
+	// Need to wait for completion event
+	while (XPending(fl_display) || 1) {
+		XEvent ev;
+		XNextEvent(fl_display, &ev);
+		if (ev.type == XShmGetEventBase(fl_display) + ShmCompletion) {
+/*			XShmCompletionEvent *shm = (XShmCompletionEvent *) &ev;
+			printf("Got completion event, send_event %u, drawable %u (pix %u),"
+				" offset %u\n", shm->send_event, shm->drawable, pix,
+				shm->offset);*/
+			break;
+		}
+		fl_handle(ev);
+	}
 
 	XRenderPictureAttributes srcattr;
 	memset(&srcattr, 0, sizeof(XRenderPictureAttributes));
