@@ -138,7 +138,7 @@ void pdfview::draw() {
 	u32 i;
 	const u32 max = file->last_visible;
 	const float visible = yoff - floorf(yoff);
-	Y = y() + zoomedmarginhalf - visible * cur->h * file->zoom;
+	Y = y() - visible * cur->h * file->zoom;
 	for (i = file->first_visible; i <= max; i++) {
 		cur = &file->cache[i];
 		if (!cur->ready)
@@ -156,7 +156,9 @@ void pdfview::draw() {
 				H = cur->h * file->zoom;
 		}
 
+		Y += zoomedmarginhalf;
 		fl_rectf(X, Y, W, H, pagecol);
+		Y -= zoomedmarginhalf;
 
 		Y += H + zoomedmargin;
 	}
