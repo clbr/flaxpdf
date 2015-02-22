@@ -302,12 +302,12 @@ int pdfview::handle(int e) {
 							const s32 sh = (fullh(page) +
 									MARGIN)
 									* file->zoom;
-							if (sh > h()) {
-								const s32 hidden = sh - h();
+							const s32 hidden = sh - h();
 
-								yoff = floorf(yoff);
-								yoff += hidden / (float) sh;
-							}
+							yoff = floorf(yoff);
+							yoff += hidden / (float) sh;
+							if (yoff < 0)
+								yoff = 0;
 						} else {
 							yoff = ceilf(yoff) - 0.4f;
 						}
