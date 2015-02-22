@@ -190,8 +190,8 @@ void pdfview::draw() {
 			H -= zoomedmargin;
 		}
 
-		// Render real content TODO
-		fl_rectf(X, Y, W, H, FL_BLACK);
+		// Render real content
+		content(i, X, Y, W, H);
 
 		if (trimmed) {
 			// And undo.
@@ -405,4 +405,10 @@ void pdfview::docache(const u32 page) {
 void pdfview::go(const u32 page) {
 	yoff = page;
 	redraw();
+}
+
+void pdfview::content(const u32 page, const s32 X, const s32 y,
+			const u32 w, const u32 h) {
+
+	// Do a gpu-accelerated bilinear blit
 }
