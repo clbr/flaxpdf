@@ -203,6 +203,7 @@ int main(int argc, char **argv) {
 		{ pagebox = new Fl_Input(0, 64, 64, 32);
 			pagebox->value("0");
 			pagebox->callback((Fl_Callback*)goto_page);
+			pagebox->when(FL_WHEN_ENTER_KEY | FL_WHEN_NOT_CHANGED);
 		} // Fl_Box* pagectr
 		{ pagectr = new Fl_Box(0, 64, 64, 32, "/ 0");
 			pagectr->box(FL_ENGRAVED_FRAME);
