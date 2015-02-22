@@ -96,6 +96,9 @@ static void updatevisible(const float yoff, const u32 w, const u32 h, const bool
 		tmp += zoomedmargin;
 		i++;
 	}
+	// Be conservative
+	if (i < file->pages - 1)
+		i++;
 	file->last_visible = i;
 
 	if (prev != file->first_visible) {
