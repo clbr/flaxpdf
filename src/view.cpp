@@ -183,8 +183,8 @@ int pdfview::handle(int e) {
 
 			if (yoff < 0)
 				yoff = 0;
-			if (yoff > file->pages)
-				yoff = file->pages;
+			if (yoff >= file->pages)
+				yoff = file->pages - 1;
 
 			lasty = my;
 
@@ -213,8 +213,8 @@ int pdfview::handle(int e) {
 				break;
 				case FL_Down:
 					yoff += move;
-					if (yoff > file->pages)
-						yoff = file->pages;
+					if (yoff >= file->pages)
+						yoff = file->pages - 1;
 					redraw();
 				break;
 				default:
