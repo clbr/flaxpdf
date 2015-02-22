@@ -46,7 +46,7 @@ extern Fl_Box *pagectr;
 extern Fl_Input *pagebox;
 extern Fl_Input_Choice *zoombar;
 extern Fl_Light_Button *selecting;
-extern bool details;
+extern u8 details;
 
 void loadfile(const char *);
 

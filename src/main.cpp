@@ -27,7 +27,7 @@ Fl_Input *pagebox = NULL;
 Fl_Input_Choice *zoombar = (Fl_Input_Choice *) 0;
 Fl_Light_Button *selecting = NULL;
 
-bool details = false;
+u8 details = 0;
 openfile *file = NULL;
 
 static Fl_Menu_Item menu_zoombar[] = {
@@ -117,7 +117,7 @@ int main(int argc, char **argv) {
 
 		switch (c) {
 			case 'd':
-				details = true;
+				details++;
 			break;
 			case 'v':
 				printf("%s\n", PACKAGE_STRING);
@@ -126,7 +126,7 @@ int main(int argc, char **argv) {
 			case 'h':
 			default:
 				printf(_("Usage: %s [options] file.pdf\n\n"
-					"	-d --details	Print RAM, timing details\n"
+					"	-d --details	Print RAM, timing details (use twice for more)\n"
 					"	-h --help	This help\n"
 					"	-v --version	Print version\n"),
 					argv[0]);
