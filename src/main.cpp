@@ -27,6 +27,7 @@ Fl_Box *pagectr = (Fl_Box *) 0;
 Fl_Input *pagebox = NULL;
 Fl_Input_Choice *zoombar = (Fl_Input_Choice *) 0;
 Fl_Light_Button *selecting = NULL;
+static pdfview *view = NULL;
 
 int writepipe;
 

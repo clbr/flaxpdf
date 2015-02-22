@@ -16,14 +16,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "view.h"
 
-view::view(int x, int y, int w, int h): Fl_Widget(x, y, w, h) {
+pdfview::pdfview(int x, int y, int w, int h): Fl_Widget(x, y, w, h) {
 
 }
 
-void view::draw() {
+void pdfview::draw() {
 
 }
 
-int view::handle(int e) {
+int pdfview::handle(int e) {
 
 }

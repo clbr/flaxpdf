@@ -17,12 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef MAIN_H
 #define MAIN_H
 
-#include "autoconfig.h"
-#include "gettext.h"
-#include "lrtypes.h"
-#include "macros.h"
-#include "helpers.h"
-
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,6 +35,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <FL/Fl_PNG_Image.H>
 
 #include <PDFDoc.h>
+
+#include "autoconfig.h"
+#include "gettext.h"
+#include "lrtypes.h"
+#include "macros.h"
+#include "helpers.h"
+#include "view.h"
 
 extern Fl_Double_Window *win;
 extern Fl_Box *pagectr;

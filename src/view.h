@@ -19,9 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "main.h"
 
-class view: public Fl_Widget {
+class pdfview: public Fl_Widget {
 public:
-	view(int x, int y, int w, int h);
+	pdfview(int x, int y, int w, int h);
 	void draw();
 	int handle(int e);
 private:
