@@ -454,7 +454,7 @@ void pdfview::content(const u32 page, const s32 X, const s32 Y,
 	XRenderSetPictureTransform(fl_display, src, &xf);
 
 	XRenderComposite(fl_display, PictOpSrc, src, None, dst, 0, 0, 0, 0, X, Y, W, H);
-
+//	XCopyArea(fl_display, pix, fl_window, fl_gc, 0, 0, W, H, X, Y);
 //	fl_draw_image(cache[c], X, Y, W, H, 4, file->cache[page].w * 4);
 
 	XRenderFreePicture(fl_display, src);
