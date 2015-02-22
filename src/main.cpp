@@ -27,7 +27,7 @@ Fl_Input *pagebox = NULL;
 Fl_Input_Choice *zoombar = (Fl_Input_Choice *) 0;
 Fl_Light_Button *selecting = NULL;
 
-int readpipe, writepipe;
+int writepipe;
 
 u8 details = 0;
 openfile *file = NULL;
@@ -97,6 +97,24 @@ static void goto_page(Fl_Input *w, void*) {
 	// TODO
 }
 
+static void reader(FL_SOCKET fd, void*) {
+
+	// A thread has something to say to the main thread.
+	u8 buf;
+	sread(fd, &buf, 1);
+
+	switch (buf) {
+		case MSG_REFRESH:
+			// TODO
+		break;
+		case MSG_READY:
+			fl_cursor(FL_CURSOR_DEFAULT);
+		break;
+		default:
+			die(_("Unrecognized thread message\n"));
+	}
+}
+
 int main(int argc, char **argv) {
 
 	#if ENABLE_NLS
@@ -143,8 +161,9 @@ int main(int argc, char **argv) {
 	int ptmp[2];
 	if (pipe(ptmp))
 		die(_("Failed in pipe()\n"));
-	readpipe = ptmp[0];
 	writepipe = ptmp[1];
+
+	Fl::add_fd(ptmp[0], FL_READ, reader);
 
 	#define img(a) a, sizeof(a)
 

@@ -49,7 +49,7 @@ extern Fl_Input_Choice *zoombar;
 extern Fl_Light_Button *selecting;
 extern u8 details;
 
-extern int readpipe, writepipe;
+extern int writepipe;
 
 void loadfile(const char *);
 
@@ -69,6 +69,11 @@ enum zoommode {
 	Z_PAGE,
 	Z_WIDTH,
 	Z_CUSTOM
+};
+
+enum msg {
+	MSG_REFRESH = 0,
+	MSG_READY
 };
 
 struct openfile {

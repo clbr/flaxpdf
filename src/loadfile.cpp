@@ -183,7 +183,9 @@ static void *renderer(void *) {
 	}
 	file->maxw = maxw;
 
-	// Set normal cursor TODO
+	// Set normal cursor
+	const u8 msg = MSG_READY;
+	swrite(writepipe, &msg, 1);
 
 	return NULL;
 }
