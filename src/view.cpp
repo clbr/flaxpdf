@@ -191,6 +191,7 @@ int pdfview::handle(int e) {
 		case FL_PUSH:
 			take_focus();
 			lasty = Fl::event_y();
+			// Fall-through
 		case FL_FOCUS:
 		case FL_ENTER:
 			return 1;
