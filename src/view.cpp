@@ -130,8 +130,8 @@ void pdfview::draw() {
 	fl_push_clip(X, Y, W, H);
 
 	// Fill each page rect
-	const u32 zoomedmargin = file->zoom * MARGIN;
-	const u32 zoomedmarginhalf = zoomedmargin / 2;
+	const int zoomedmargin = file->zoom * MARGIN;
+	const int zoomedmarginhalf = zoomedmargin / 2;
 	u32 i;
 	const u32 max = file->last_visible;
 	const float visible = yoff - floorf(yoff);
