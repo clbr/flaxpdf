@@ -113,8 +113,6 @@ void pdfview::draw() {
 
 	fl_rectf(X, Y, W, H, FL_GRAY + 1);
 
-	const u32 maxw = file->maxw ? file->maxw : file->cache[0].w;
-
 	const float visible = 1 - (yoff - floorf(yoff));
 
 	if (file->mode != Z_CUSTOM)
