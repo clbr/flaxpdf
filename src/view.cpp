@@ -262,6 +262,22 @@ int pdfview::handle(int e) {
 						yoff = file->pages - 0.01f;
 					redraw();
 				break;
+				case FL_Home:
+					if (Fl::event_ctrl()) {
+						yoff = 0;
+					} else {
+						yoff = floorf(yoff);
+					}
+					redraw();
+				break;
+				case FL_End:
+					if (Fl::event_ctrl()) {
+						yoff = file->pages - 0.001f;
+					} else {
+						yoff = ceilf(yoff) - 0.001f;
+					}
+					redraw();
+				break;
 				default:
 					return 0;
 			}
