@@ -89,6 +89,50 @@ void pdfview::draw() {
 		return;
 
 	fl_rectf(X, Y, W, H, FL_GRAY + 1);
+
+	const u32 MARGIN = 36; // Quarter inch in double resolution
+	const u32 maxw = file->maxw ? file->maxw : file->cache[0].w;
+	const u32 maxh = file->maxh ? file->maxh : file->cache[0].h;
+	const bool hasmargins = file->cache[0].left > MARGIN ||
+				file->cache[0].right > MARGIN ||
+				file->cache[0].top > MARGIN ||
+				file->cache[0].bottom > MARGIN;
+	const u32 maxwmargin = hasmargins ? maxw + MARGIN * 2 : maxw;
+	const u32 fullw = file->cache[0].w + file->cache[0].left + file->cache[0].right;
+	const u32 fullh = file->cache[0].h + file->cache[0].top + file->cache[0].bottom;
+
+	const float visible = 1 - (yoff - floorf(yoff));
+
+	if (file->mode != Z_CUSTOM)
+		xoff = 0;
+
+	cachedpage *cur = &file->cache[file->first_visible];
+	if (!cur->ready)
+		return;
+
+	// Fill each page rect
+	if (file->mode == Z_CUSTOM) {
+		X = x() + (cur->w + cur->left + cur->right) * file->zoom * (1 - xoff);
+	} else {
+		X = x();
+		Y = 0;
+		W = w();
+
+		if (file->mode == Z_TRIM)
+			H = ;
+		else
+			H = 
+	}
+
+	u32 i;
+	const u32 max = file->last_visible;
+	for (i = file->first_visible + 1; i <= max; i++) {
+		if (file->mode == Z_CUSTOM) {
+			// TODO
+		} else {
+			
+		}
+	}
 }
 
 int pdfview::handle(int e) {
