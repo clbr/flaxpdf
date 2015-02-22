@@ -127,8 +127,8 @@ void pdfview::draw() {
 
 	u32 i;
 	const u32 max = file->last_visible;
-	Y = H + MARGIN * file->zoom;
 	for (i = file->first_visible + 1; i <= max; i++) {
+		Y += H + MARGIN * file->zoom;
 		cur = &file->cache[i];
 		if (!cur->ready)
 			continue;
