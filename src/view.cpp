@@ -98,11 +98,12 @@ static void updatevisible(const float yoff, const u32 w, const u32 h) {
 	}
 	file->last_visible = i;
 
-	if (prev != i) {
+	if (prev != file->first_visible) {
 		char buf[10];
-		snprintf(buf, 10, "%u", i + 1);
+		snprintf(buf, 10, "%u", file->first_visible + 1);
 		pagebox->value(buf);
 		pagebox->redraw();
+		puts("pagebox redraw");
 	}
 }
 
