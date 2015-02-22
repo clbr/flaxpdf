@@ -452,7 +452,7 @@ void pdfview::content(const u32 page, const s32 X, const s32 Y,
 	XShmPutImage(fl_display, pix, fl_gc, xi, 0, 0, 0, 0, cur->w, cur->h, False);
 	XSync(fl_display, False);
 
-//	fl_draw_image(cache[c], X, Y, W, H, 3, file->cache[page].w * 3);
+//	fl_draw_image(cache[c], X, Y, W, H, 4, file->cache[page].w * 4);
 
 	XShmDetach(fl_display, &shminfo);
 	shmdt(shminfo.shmaddr);
