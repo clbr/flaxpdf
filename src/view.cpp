@@ -55,6 +55,7 @@ static bool hasmargins(const u32 page) {
 
 static void updatevisible(const float yoff, const u32 w, const u32 h) {
 	// From the current zoom mode and view offset, update the visible page info
+	const u32 prev = file->first_visible;
 	file->first_visible = yoff < 0 ? 0 : yoff;
 	u32 i;
 
@@ -96,6 +97,13 @@ static void updatevisible(const float yoff, const u32 w, const u32 h) {
 		i++;
 	}
 	file->last_visible = i;
+
+	if (prev != i) {
+		char buf[10];
+		snprintf(buf, 10, "%u", i + 1);
+		pagebox->value(buf);
+		pagebox->redraw();
+	}
 }
 
 void pdfview::draw() {
@@ -166,6 +174,7 @@ int pdfview::handle(int e) {
 
 	switch (e) {
 		case FL_PUSH:
+			take_focus();
 		case FL_FOCUS:
 		case FL_ENTER:
 			return 1;
@@ -204,7 +213,10 @@ int pdfview::handle(int e) {
 						yoff = file->pages;
 					redraw();
 				break;
+				default:
+					return 0;
 			}
+			return 1;
 		break;
 		case FL_MOVE:
 			// Set the cursor appropriately
