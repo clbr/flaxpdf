@@ -188,7 +188,6 @@ int pdfview::handle(int e) {
 			fl_cursor(FL_CURSOR_MOVE);
 
 			const int my = Fl::event_y();
-
 			const int movedy = my - lasty;
 
 			yoff -= movedy / (float) h();
