@@ -449,8 +449,18 @@ void pdfview::content(const u32 page, const s32 X, const s32 Y,
 		die("shmattach\n");
 	shmctl(shminfo.shmid, IPC_RMID, 0);
 
+	memcpy(xi->data, cache[c], cur->w * cur->h * 4);
+
 	XShmPutImage(fl_display, pix, fl_gc, xi, 0, 0, 0, 0, cur->w, cur->h, False);
 	XSync(fl_display, False);
+
+	XRenderPictureAttributes srcattr;
+	memset(&srcattr, 0, sizeof(XRenderPictureAttributes));
+	XRenderPictFormat *fmt = XRenderFindStandardFormat(fl_display, PictStandardRGB24);
+	Picture src = XRenderCreatePicture(fl_display, pix, fmt, 0, &srcattr);
+	Picture dst = XRenderCreatePicture(fl_display, fl_window, fmt, 0, &srcattr);
+
+	XRenderComposite(fl_display, PictOpSrc, src, None, dst, 0, 0, 0, 0, X, Y, W, H);
 
 //	fl_draw_image(cache[c], X, Y, W, H, 4, file->cache[page].w * 4);
 
