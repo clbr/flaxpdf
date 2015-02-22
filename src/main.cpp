@@ -202,6 +202,7 @@ int main(int argc, char **argv) {
 			zoombar->menu(menu_zoombar);
 			zoombar->value(0);
 			zoombar->textsize(11);
+			zoombar->input()->when(FL_WHEN_ENTER_KEY | FL_WHEN_NOT_CHANGED);
 		} // Fl_Input_Choice* zoombar
 		{ Fl_Button* o = new Fl_Button(0, 160, 64, 64);
 			o->tooltip(_("Zoom in"));
