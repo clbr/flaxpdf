@@ -119,6 +119,8 @@ static void reader(FL_SOCKET fd, void*) {
 
 int main(int argc, char **argv) {
 
+	srand(time(NULL));
+
 	#if ENABLE_NLS
 	setlocale(LC_MESSAGES, "");
 	bindtextdomain("flaxpdf", LOCALEDIR);
