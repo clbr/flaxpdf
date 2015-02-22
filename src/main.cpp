@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "wmicon.h"
 #include "icons.h"
 #include <getopt.h>
+#include <ctype.h>
 
 Fl_Double_Window *win = (Fl_Double_Window *) 0;
 static Fl_Pack *buttons = (Fl_Pack *) 0;
