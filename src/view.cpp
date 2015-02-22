@@ -127,12 +127,26 @@ void pdfview::draw() {
 
 	u32 i;
 	const u32 max = file->last_visible;
+	Y = H + MARGIN * file->zoom;
 	for (i = file->first_visible + 1; i <= max; i++) {
+		cur = &file->cache[i];
+		if (!cur->ready)
+			continue;
+
 		if (file->mode == Z_CUSTOM) {
-			// TODO
+			X = x() + (cur->w + cur->left + cur->right) * file->zoom *
+				(1 - xoff);
 		} else {
-			
+			X = x();
+			W = w();
+
+			if (file->mode == Z_TRIM)
+				H = cur->h * file->zoom;
+			else
+				H = (cur->h + cur->top + cur->bottom) * file->zoom;
 		}
+
+		fl_rectf(X, Y, W, H, pagecol);
 	}
 }
 
