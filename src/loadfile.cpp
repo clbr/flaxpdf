@@ -95,6 +95,8 @@ static void store(SplashBitmap * const bm, const u32 page) {
 	if (ret != LZO_E_OK)
 		die(_("Compression failed\n"));
 
+	free(trimmed);
+
 	u8 * const dst = (u8 *) xcalloc(outlen, 1);
 	memcpy(dst, tmp, outlen);
 	free(tmp);
@@ -110,8 +112,6 @@ static void store(SplashBitmap * const bm, const u32 page) {
 
 	file->cache[page].size = outlen;
 	file->cache[page].data = dst;
-
-	free(trimmed);
 }
 
 static void dopage(const u32 page) {
