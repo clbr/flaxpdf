@@ -28,7 +28,7 @@ pdfview::pdfview(int x, int y, int w, int h): Fl_Widget(x, y, w, h),
 	}
 }
 
-static void update(const float yoff, const u32 w, const u32 h) {
+static void updatevisible(const float yoff, const u32 w, const u32 h) {
 	// From the current zoom mode and view offset, update the visible page info
 	file->first_visible = yoff;
 	u32 i;
@@ -80,7 +80,7 @@ static void update(const float yoff, const u32 w, const u32 h) {
 
 void pdfview::draw() {
 
-	update(yoff, w(), h());
+	updatevisible(yoff, w(), h());
 
 	const Fl_Color pagecol = FL_WHITE;
 	int X, Y, W, H;
