@@ -190,7 +190,7 @@ int pdfview::handle(int e) {
 			const int my = Fl::event_y();
 			const int movedy = my - lasty;
 
-			yoff -= movedy / (float) h();
+			yoff -= (movedy / (float) h()) / file->zoom;
 
 			if (yoff < 0)
 				yoff = 0;
