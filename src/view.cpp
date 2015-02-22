@@ -132,8 +132,8 @@ void pdfview::draw() {
 	Y = 0;
 	H = (cur->h + cur->top + cur->bottom) * visible * file->zoom;
 	if (file->mode == Z_CUSTOM) {
-		X = x() + (cur->w + cur->left + cur->right) * file->zoom;
 		W = (cur->w + cur->left + cur->right) * file->zoom;
+		X = (w() - W) / 2;
 	} else {
 		X = x();
 		W = w();
@@ -153,8 +153,8 @@ void pdfview::draw() {
 
 		H = (cur->h + cur->top + cur->bottom) * file->zoom;
 		if (file->mode == Z_CUSTOM) {
-			X = x() + (cur->w + cur->left + cur->right) * file->zoom;
 			W = (cur->w + cur->left + cur->right) * file->zoom;
+			X = (w() - W) / 2;
 		} else {
 			X = x();
 			W = w();
