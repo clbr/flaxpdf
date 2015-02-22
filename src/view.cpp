@@ -57,6 +57,8 @@ static void updatevisible(const float yoff, const u32 w, const u32 h, const bool
 	// From the current zoom mode and view offset, update the visible page info
 	const u32 prev = file->first_visible;
 	file->first_visible = yoff < 0 ? 0 : yoff;
+	if (file->first_visible > file->pages - 1)
+		file->first_visible = file->pages - 1;
 	u32 i;
 
 	const u32 maxw = file->maxw ? file->maxw : file->cache[0].w;
@@ -99,6 +101,8 @@ static void updatevisible(const float yoff, const u32 w, const u32 h, const bool
 	// Be conservative
 	if (i < file->pages - 1)
 		i++;
+	if (i > file->pages - 1)
+		i = file->pages - 1;
 	file->last_visible = i;
 
 	if (prev != file->first_visible) {
