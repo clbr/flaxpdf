@@ -26,5 +26,22 @@ void pdfview::draw() {
 
 int pdfview::handle(int e) {
 
+	switch (e) {
+		case FL_PUSH:
+		case FL_FOCUS:
+			return 1;
+		break;
+		case FL_DRAG:
+			// TODO
+		break;
+		case FL_MOUSEWHEEL:
+			// TODO
+		break;
+		case FL_KEYDOWN:
+		case FL_SHORTCUT:
+			// TODO
+		break;
+	}
+
 	return Fl_Widget::handle(e);
 }
