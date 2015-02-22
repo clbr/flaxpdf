@@ -427,5 +427,13 @@ void pdfview::content(const u32 page, const s32 X, const s32 Y,
 		docache(page);
 	c = iscached(page);
 
-	fl_draw_image(cache[c], X, Y, W, H, 3, file->cache[page].w * 3);
+	const struct cachedpage * const cur = &file->cache[page];
+
+	Pixmap pix = XCreatePixmap(fl_display, fl_window, cur->w, cur->h, 24);
+	if (pix == None)
+		return;
+
+//	fl_draw_image(cache[c], X, Y, W, H, 3, file->cache[page].w * 3);
+
+	XFreePixmap(fl_display, pix);
 }
