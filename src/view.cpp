@@ -181,13 +181,20 @@ void pdfview::draw() {
 			break;
 		fl_rectf(X, Y, W, H, pagecol);
 
-		const bool trimmed = hasmargins(i) && file->mode == Z_TRIM;
+		const bool margins = hasmargins(i);
+		const bool trimmed = margins && file->mode == Z_TRIM;
 		if (trimmed) {
 			// If the page was trimmed, have the real one a bit smaller
 			X += zoomedmarginhalf;
 			Y += zoomedmarginhalf;
 			W -= zoomedmargin;
 			H -= zoomedmargin;
+		} else if (margins) {
+			// Restore the full size with empty borders
+			X += cur->left * file->zoom;
+			Y += cur->top * file->zoom;
+			W -= (cur->left + cur->right) * file->zoom;
+			H -= (cur->top + cur->bottom) * file->zoom;
 		}
 
 		// Render real content
@@ -195,10 +202,14 @@ void pdfview::draw() {
 
 		if (trimmed) {
 			// And undo.
-			X -= zoomedmarginhalf;
 			Y -= zoomedmarginhalf;
 			W += zoomedmargin;
 			H += zoomedmargin;
+		} else if (margins) {
+			// And undo.
+			Y -= cur->top * file->zoom;
+			W += (cur->left + cur->right) * file->zoom;
+			H += (cur->top + cur->bottom) * file->zoom;
 		}
 
 		Y -= zoomedmarginhalf;
