@@ -130,28 +130,15 @@ void pdfview::draw() {
 	fl_push_clip(X, Y, W, H);
 
 	// Fill each page rect
-	const float visible = yoff < 0 ? 0 : 1 - (yoff - floorf(yoff));
-	Y = 0;
-	H = (cur->h + cur->top + cur->bottom) * visible * file->zoom;
-	if (file->mode == Z_CUSTOM) {
-		W = (cur->w + cur->left + cur->right) * file->zoom;
-		X = x() + (w() - W) / 2;
-	} else {
-		X = x();
-		W = w();
-
-		if (file->mode == Z_TRIM)
-			H = cur->h * visible * file->zoom;
-	}
-	fl_rectf(X, Y, W, H, pagecol);
-
+	const u32 zoomedmargin = file->zoom * MARGIN;
+	const u32 zoomedmarginhalf = zoomedmargin / 2;
 	u32 i;
 	const u32 max = file->last_visible;
-	for (i = file->first_visible + 1; i <= max; i++) {
-		Y += H + MARGIN * file->zoom;
+	Y = y() + zoomedmarginhalf;
+	for (i = file->first_visible; i <= max; i++) {
 		cur = &file->cache[i];
 		if (!cur->ready)
-			continue;
+			break;
 
 		H = (cur->h + cur->top + cur->bottom) * file->zoom;
 		if (file->mode == Z_CUSTOM) {
@@ -166,6 +153,8 @@ void pdfview::draw() {
 		}
 
 		fl_rectf(X, Y, W, H, pagecol);
+
+		Y += H + zoomedmargin;
 	}
 
 	fl_pop_clip();
