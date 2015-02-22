@@ -172,7 +172,7 @@ void pdfview::draw() {
 
 int pdfview::handle(int e) {
 
-	const float move = 0.1f;
+	const float move = 0.05f;
 
 	switch (e) {
 		case FL_PUSH:
@@ -198,15 +198,15 @@ int pdfview::handle(int e) {
 		case FL_SHORTCUT:
 			switch (Fl::event_key()) {
 				case FL_Left:
-					xoff -= move;
-					if (xoff < 0)
-						xoff = 0;
-					redraw();
-				break;
-				case FL_Right:
 					xoff += move;
 					if (xoff > 1)
 						xoff = 1;
+					redraw();
+				break;
+				case FL_Right:
+					xoff -= move;
+					if (xoff < 0)
+						xoff = 0;
 					redraw();
 				break;
 				case FL_Up:
