@@ -38,6 +38,9 @@ void pdfview::draw() {
 	// From the current zoom mode and view offset, update the visible page info
 	u32 i;
 
+	const u32 maxw = file->maxw ? file->maxw : file->cache[0].w;
+	const u32 maxh = file->maxh ? file->maxh : file->cache[0].h;
+
 	switch (file->mode) {
 		case Z_TRIM:
 		break;
