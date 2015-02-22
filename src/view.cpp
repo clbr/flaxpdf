@@ -104,14 +104,10 @@ void pdfview::draw() {
 
 	const u32 MARGIN = 36; // Quarter inch in double resolution
 	const u32 maxw = file->maxw ? file->maxw : file->cache[0].w;
-	const u32 maxh = file->maxh ? file->maxh : file->cache[0].h;
 	const bool hasmargins = file->cache[0].left > MARGIN ||
 				file->cache[0].right > MARGIN ||
 				file->cache[0].top > MARGIN ||
 				file->cache[0].bottom > MARGIN;
-	const u32 maxwmargin = hasmargins ? maxw + MARGIN * 2 : maxw;
-	const u32 fullw = file->cache[0].w + file->cache[0].left + file->cache[0].right;
-	const u32 fullh = file->cache[0].h + file->cache[0].top + file->cache[0].bottom;
 
 	const float visible = 1 - (yoff - floorf(yoff));
 
