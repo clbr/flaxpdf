@@ -127,6 +127,10 @@ static void reader(FL_SOCKET fd, void*) {
 
 static void checkX() {
 	// Make sure everything's cool
+	if (fl_visual->red_mask != 0xff0000 ||
+		fl_visual->green_mask != 0xff00 ||
+		fl_visual->blue_mask != 0xff)
+		die(_("Visual doesn't match our expectations\n"));
 }
 
 int main(int argc, char **argv) {
