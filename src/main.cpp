@@ -221,9 +221,8 @@ int main(int argc, char **argv) {
 		showbtn->hide();
 		showbtn->callback(cb_hide);
 	}
-	{ Fl_Box* o = new Fl_Box(64, 0, 641, 700);
-		Fl_Group::current()->resizable(o);
-		o->show();
+	{ view = new pdfview(64, 0, 641, 700);
+		Fl_Group::current()->resizable(view);
 	} // Fl_Box* o
 	o->end();
 	o->show();
