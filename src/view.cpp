@@ -450,9 +450,12 @@ void pdfview::content(const u32 page, const s32 X, const s32 Y,
 	shmctl(shminfo.shmid, IPC_RMID, 0);
 
 	XShmPutImage(fl_display, pix, fl_gc, xi, 0, 0, 0, 0, cur->w, cur->h, False);
+	XSync(fl_display, False);
 
 //	fl_draw_image(cache[c], X, Y, W, H, 3, file->cache[page].w * 3);
 
+	XShmDetach(fl_display, &shminfo);
+	shmdt(shminfo.shmaddr);
 	xi->data = NULL;
 	XDestroyImage(xi);
 	XFreePixmap(fl_display, pix);
