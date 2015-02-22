@@ -36,7 +36,18 @@ void pdfview::draw() {
 	const Fl_Color pagecol = FL_WHITE;
 
 	// From the current zoom mode and view offset, update the visible page info
+	u32 i;
 
+	switch (file->mode) {
+		case Z_TRIM:
+		break;
+		case Z_WIDTH:
+		break;
+		case Z_PAGE:
+		break;
+		case Z_CUSTOM:
+		break;
+	}
 }
 
 int pdfview::handle(int e) {
