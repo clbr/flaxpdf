@@ -202,6 +202,7 @@ void pdfview::draw() {
 		}
 
 		Y -= zoomedmarginhalf;
+		H += zoomedmargin;
 		Y += H;
 	}
 
