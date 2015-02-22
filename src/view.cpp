@@ -157,6 +157,8 @@ void pdfview::draw() {
 		}
 
 		Y += zoomedmarginhalf;
+		if (Y >= y() + h())
+			break;
 		fl_rectf(X, Y, W, H, pagecol);
 		Y -= zoomedmarginhalf;
 
