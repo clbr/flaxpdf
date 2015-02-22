@@ -145,6 +145,12 @@ static void dopage(const u32 page) {
 	delete splash;
 
 	__sync_bool_compare_and_swap(&file->cache[page].ready, 0, 1);
+
+	// If this page was visible, tell the app to refresh
+	if (page >= file->first_visible && page <= file->last_visible) {
+		const u8 msg = MSG_REFRESH;
+		swrite(writepipe, &msg, 1);
+	}
 }
 
 static void *renderer(void *) {
