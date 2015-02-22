@@ -40,6 +40,18 @@ void pdfview::reset() {
 	}
 }
 
+static u32 fullh(u32 page) {
+	if (!file->cache[page].ready)
+		page = 0;
+
+	if (file->mode == Z_TRIM)
+		return file->cache[page].h;
+
+	return file->cache[page].h +
+		file->cache[page].top +
+		file->cache[page].bottom;
+}
+
 static bool hasmargins(const u32 page) {
 	if (!file->cache[page].ready)
 		return file->cache[0].left > MARGIN ||
@@ -65,7 +77,7 @@ static void updatevisible(const float yoff, const u32 w, const u32 h, const bool
 	const u32 maxh = file->maxh ? file->maxh : file->cache[0].h;
 	const u32 maxwmargin = hasmargins(file->first_visible) ? maxw + MARGIN * 2 : maxw;
 	const u32 fullw = file->cache[0].w + file->cache[0].left + file->cache[0].right;
-	const u32 fullh = file->cache[0].h + file->cache[0].top + file->cache[0].bottom;
+	const u32 fullh = ::fullh(0);
 
 	const float visible = yoff < 0 ? 0 : 1 - (yoff - floorf(yoff));
 
@@ -142,9 +154,7 @@ void pdfview::draw() {
 	u32 i;
 	const u32 max = file->last_visible;
 	const float visible = yoff - floorf(yoff);
-	H = (cur->h + cur->top + cur->bottom + MARGIN) * file->zoom;
-	if (file->mode == Z_TRIM)
-		H = (cur->h + MARGIN) * file->zoom;
+	H = (fullh(file->first_visible) + MARGIN) * file->zoom;
 	Y = y() - visible * H;
 
 	for (i = file->first_visible; i <= max; i++) {
@@ -152,16 +162,13 @@ void pdfview::draw() {
 		if (!cur->ready)
 			break;
 
-		H = (cur->h + cur->top + cur->bottom + MARGIN) * file->zoom;
+		H = (fullh(file->first_visible) + MARGIN) * file->zoom;
 		if (file->mode == Z_CUSTOM) {
 			W = (cur->w + cur->left + cur->right) * file->zoom;
 			X = x() + (w() - W) / 2;
 		} else {
 			X = x();
 			W = w();
-
-			if (file->mode == Z_TRIM)
-				H = (cur->h + MARGIN) * file->zoom;
 		}
 
 		// XYWH is now the full area including grey margins.
