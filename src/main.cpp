@@ -248,5 +248,7 @@ int main(int argc, char **argv) {
 	else
 		loadfile(NULL);
 
+	view->take_focus();
+
 	return Fl::run();
 }
