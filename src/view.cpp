@@ -58,9 +58,11 @@ int pdfview::handle(int e) {
 	switch (e) {
 		case FL_PUSH:
 		case FL_FOCUS:
+		case FL_ENTER:
 			return 1;
 		break;
 		case FL_DRAG:
+			fl_cursor(FL_CURSOR_MOVE);
 			// TODO
 		break;
 		case FL_MOUSEWHEEL:
@@ -69,6 +71,15 @@ int pdfview::handle(int e) {
 		case FL_KEYDOWN:
 		case FL_SHORTCUT:
 			// TODO
+		break;
+		case FL_MOVE:
+			// Set the cursor appropriately
+			if (!file->maxw)
+				fl_cursor(FL_CURSOR_WAIT);
+			else if (selecting->value())
+				fl_cursor(FL_CURSOR_INSERT);
+			else
+				fl_cursor(FL_CURSOR_DEFAULT);
 		break;
 	}
 
