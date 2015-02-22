@@ -116,15 +116,30 @@ static void store(SplashBitmap * const bm, const u32 page) {
 
 static void dopage(const u32 page) {
 
+	struct timeval start, end;
+	gettimeofday(&start, NULL);
+
 	SplashColor white = { 255, 255, 255 };
 	SplashOutputDev *splash = new SplashOutputDev(splashModeBGR8, 4, false, white);
 	splash->startDoc(file->pdf);
 
 	file->pdf->displayPage(splash, page + 1, 144, 144, 0, true, false, false);
 
+	gettimeofday(&end, NULL);
+	if (details > 1) {
+		printf("%u: rendering %u us\n", page, usecs(start, end));
+		start = end;
+	}
+
 	SplashBitmap * const bm = splash->takeBitmap();
 
 	store(bm, page);
+
+	gettimeofday(&end, NULL);
+	if (details > 1) {
+		printf("%u: storing %u us\n", page, usecs(start, end));
+		start = end;
+	}
 
 	delete bm;
 	delete splash;
