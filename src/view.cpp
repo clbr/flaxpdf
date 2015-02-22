@@ -175,7 +175,6 @@ int pdfview::handle(int e) {
 	switch (e) {
 		case FL_PUSH:
 			take_focus();
-			lastx = Fl::event_x();
 			lasty = Fl::event_y();
 		case FL_FOCUS:
 		case FL_ENTER:
