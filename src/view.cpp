@@ -55,16 +55,16 @@ static bool hasmargins(const u32 page) {
 
 static void updatevisible(const float yoff, const u32 w, const u32 h) {
 	// From the current zoom mode and view offset, update the visible page info
-	file->first_visible = yoff;
+	file->first_visible = yoff < 0 ? 0 : yoff;
 	u32 i;
 
 	const u32 maxw = file->maxw ? file->maxw : file->cache[0].w;
 	const u32 maxh = file->maxh ? file->maxh : file->cache[0].h;
-	const u32 maxwmargin = hasmargins(yoff) ? maxw + MARGIN * 2 : maxw;
+	const u32 maxwmargin = hasmargins(file->first_visible) ? maxw + MARGIN * 2 : maxw;
 	const u32 fullw = file->cache[0].w + file->cache[0].left + file->cache[0].right;
 	const u32 fullh = file->cache[0].h + file->cache[0].top + file->cache[0].bottom;
 
-	const float visible = 1 - (yoff - floorf(yoff));
+	const float visible = yoff < 0 ? 0 : 1 - (yoff - floorf(yoff));
 
 	u32 usedh = fullh;
 	switch (file->mode) {
@@ -121,7 +121,7 @@ void pdfview::draw() {
 		return;
 
 	// Fill each page rect
-	const float visible = 1 - (yoff - floorf(yoff));
+	const float visible = yoff < 0 ? 0 : 1 - (yoff - floorf(yoff));
 	Y = 0;
 	H = (cur->h + cur->top + cur->bottom) * visible * file->zoom;
 	if (file->mode == Z_CUSTOM) {
@@ -162,6 +162,8 @@ void pdfview::draw() {
 
 int pdfview::handle(int e) {
 
+	const float move = 0.1f;
+
 	switch (e) {
 		case FL_PUSH:
 		case FL_FOCUS:
@@ -177,7 +179,24 @@ int pdfview::handle(int e) {
 		break;
 		case FL_KEYDOWN:
 		case FL_SHORTCUT:
-			// TODO
+			switch (Fl::event_key()) {
+				case FL_Left:
+					xoff -= move;
+					redraw();
+				break;
+				case FL_Right:
+					xoff += move;
+					redraw();
+				break;
+				case FL_Up:
+					yoff -= move;
+					redraw();
+				break;
+				case FL_Down:
+					yoff += move;
+					redraw();
+				break;
+			}
 		break;
 		case FL_MOVE:
 			// Set the cursor appropriately
