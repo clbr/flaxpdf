@@ -135,9 +135,6 @@ static void checkX() {
 	int a, b;
 	if (!XRenderQueryExtension(fl_display, &a, &b))
 		die(_("No XRender on this server\n"));
-
-	if (!XShmQueryExtension(fl_display))
-		die(_("No XSHM on this server\n"));
 }
 
 int main(int argc, char **argv) {

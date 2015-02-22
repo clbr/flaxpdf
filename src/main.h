@@ -25,7 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <lzo/lzo1x.h>
 #include <X11/Xlib.h>
 #include <X11/extensions/Xrender.h>
-#include <X11/extensions/XShm.h>
 
 #include <FL/Fl.H>
 #include <FL/fl_ask.H>
