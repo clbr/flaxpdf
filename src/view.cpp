@@ -36,6 +36,7 @@ void pdfview::draw() {
 	const Fl_Color pagecol = FL_WHITE;
 
 	// From the current zoom mode and view offset, update the visible page info
+	file->first_visible = yoff;
 	u32 i;
 
 	const u32 MARGIN = 36; // Quarter inch in double resolution
@@ -49,9 +50,13 @@ void pdfview::draw() {
 	const u32 fullw = file->cache[0].w + file->cache[0].left + file->cache[0].right;
 	const u32 fullh = file->cache[0].h + file->cache[0].top + file->cache[0].bottom;
 
+	const float visible = 1 - (yoff - floorf(yoff));
+
+	u32 usedh = fullh;
 	switch (file->mode) {
 		case Z_TRIM:
 			file->zoom = w() / maxwmargin;
+			usedh = maxh;
 		break;
 		case Z_WIDTH:
 			file->zoom = w() / fullw;
@@ -66,6 +71,17 @@ void pdfview::draw() {
 		case Z_CUSTOM:
 		break;
 	}
+
+	const u32 zoomedmargin = MARGIN * file->zoom;
+	i = file->first_visible;
+	u32 tmp = visible * usedh * file->zoom;
+	tmp += zoomedmargin;
+	while (tmp < (u32) h()) {
+		tmp += usedh * file->zoom;
+		tmp += zoomedmargin;
+		i++;
+	}
+	file->last_visible = i;
 }
 
 int pdfview::handle(int e) {
