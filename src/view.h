@@ -19,12 +19,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "main.h"
 
+#define CACHE_MAX 3
+
 class pdfview: public Fl_Widget {
 public:
 	pdfview(int x, int y, int w, int h);
 	void draw();
 	int handle(int e);
+
 private:
+	u8 iscached(const u32 page) const;
+	void docache(const u32 page);
+
+	float xoff, yoff;
+	u32 cachedsize;
+	u8 *cache[CACHE_MAX];
+	u16 cachedpage[CACHE_MAX];
 };
 
 #endif
