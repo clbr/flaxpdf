@@ -170,26 +170,55 @@ void pdfview::draw() {
 	}
 }
 
+#define MAXXOFF 0.1
+
 int pdfview::handle(int e) {
 
 	const float move = 0.05f;
+	static int lastx, lasty;
 
 	switch (e) {
 		case FL_PUSH:
 			take_focus();
+			lastx = Fl::event_x();
+			lasty = Fl::event_y();
 		case FL_FOCUS:
 		case FL_ENTER:
 			return 1;
 		break;
-		case FL_DRAG:
+		case FL_DRAG: {
 			fl_cursor(FL_CURSOR_MOVE);
-			// TODO
+
+			const int mx = Fl::event_x();
+			const int my = Fl::event_y();
+
+			const int movedx = mx - lastx;
+			const int movedy = my - lasty;
+
+			xoff += movedx / (float) w();
+			yoff -= movedy / (float) h();
+
+			if (yoff < 0)
+				yoff = 0;
+			if (yoff > file->pages)
+				yoff = file->pages;
+			if (xoff < 0)
+				xoff = 0;
+			if (xoff > MAXXOFF)
+				xoff = MAXXOFF;
+
+			lastx = mx;
+			lasty = my;
 
 			if (file->cache)
 				updatevisible(yoff, w(), h(), false);
+			redraw();
+		}
 		break;
 		case FL_MOUSEWHEEL:
 			yoff += move * Fl::event_dy();
+			if (yoff < 0)
+				yoff = 0;
 
 			if (file->cache)
 				updatevisible(yoff, w(), h(), false);
@@ -200,8 +229,8 @@ int pdfview::handle(int e) {
 			switch (Fl::event_key()) {
 				case FL_Left:
 					xoff += move;
-					if (xoff > 1)
-						xoff = 1;
+					if (xoff > MAXXOFF)
+						xoff = MAXXOFF;
 					redraw();
 				break;
 				case FL_Right:
