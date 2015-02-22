@@ -407,8 +407,14 @@ void pdfview::go(const u32 page) {
 	redraw();
 }
 
-void pdfview::content(const u32 page, const s32 X, const s32 y,
-			const u32 w, const u32 h) {
+void pdfview::content(const u32 page, const s32 X, const s32 Y,
+			const u32 W, const u32 H) {
 
 	// Do a gpu-accelerated bilinear blit
+	u8 c = iscached(page);
+	if (c == UCHAR_MAX)
+		docache(page);
+	c = iscached(page);
+
+	fl_draw_image(cache[c], X, Y, W, H, 3, file->cache[page].w * 3);
 }
