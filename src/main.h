@@ -32,6 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <FL/Fl.H>
 #include <FL/fl_ask.H>
 #include <FL/Fl_Double_Window.H>
+#include <FL/fl_draw.H>
 #include <FL/Fl_Pack.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Box.H>
@@ -71,6 +72,7 @@ enum zoommode {
 struct openfile {
 	cachedpage *cache;
 	PDFDoc *pdf;
+	u32 maxw;
 
 	u32 pages;
 

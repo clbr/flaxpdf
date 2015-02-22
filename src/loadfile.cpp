@@ -176,6 +176,15 @@ static void *renderer(void *) {
 			us / 1000000.0f);
 	}
 
+	u32 maxw = 0;
+	for (u32 i = 0; i < file->pages; i++) {
+		if (file->cache[i].w > maxw)
+			maxw = file->cache[i].w;
+	}
+	file->maxw = maxw;
+
+	// Set normal cursor TODO
+
 	return NULL;
 }
 
@@ -237,6 +246,8 @@ void loadfile(const char *file) {
 		fl_alert(_("Couldn't open %s, perhaps it's corrupted?"), file);
 		return;
 	}
+
+	fl_cursor(FL_CURSOR_WAIT);
 
 	::file->cache = (cachedpage *) xcalloc(::file->pages, sizeof(cachedpage));
 
