@@ -180,9 +180,28 @@ void pdfview::draw() {
 		if (Y >= y() + h())
 			break;
 		fl_rectf(X, Y, W, H, pagecol);
-		H += zoomedmargin;
-		Y -= zoomedmarginhalf;
 
+		const bool trimmed = hasmargins(i);
+		if (trimmed) {
+			// If the page was trimmed, have the real one a bit smaller
+			X += zoomedmarginhalf;
+			Y += zoomedmarginhalf;
+			W -= zoomedmarginhalf;
+			H -= zoomedmarginhalf;
+		}
+
+		// Render real content TODO
+		fl_rectf(X, Y, W, H, FL_BLACK);
+
+		if (trimmed) {
+			// And undo.
+			X -= zoomedmarginhalf;
+			Y -= zoomedmarginhalf;
+			W += zoomedmarginhalf;
+			H += zoomedmarginhalf;
+		}
+
+		Y -= zoomedmarginhalf;
 		Y += H;
 	}
 
