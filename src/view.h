@@ -40,6 +40,7 @@ private:
 	u32 cachedsize;
 	u8 *cache[CACHE_MAX];
 	u16 cachedpage[CACHE_MAX];
+	Pixmap pix[CACHE_MAX];
 };
 
 extern pdfview *view;

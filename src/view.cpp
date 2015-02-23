@@ -28,6 +28,7 @@ pdfview::pdfview(int x, int y, int w, int h): Fl_Widget(x, y, w, h),
 	for (i = 0; i < CACHE_MAX; i++) {
 		cache[i] = (u8 *) xcalloc(cachedsize, 1);
 		cachedpage[i] = USHRT_MAX;
+		pix[i] = None;
 	}
 }
 
@@ -413,10 +414,11 @@ u8 pdfview::iscached(const u32 page) const {
 void pdfview::docache(const u32 page) {
 
 	// Insert it to cache. Pick the slot at random.
+	const struct cachedpage * const cur = &file->cache[page];
 	u32 i;
 
-	if (file->cache[page].uncompressed > cachedsize) {
-		cachedsize = file->cache[page].uncompressed;
+	if (cur->uncompressed > cachedsize) {
+		cachedsize = cur->uncompressed;
 
 		for (i = 0; i < CACHE_MAX; i++) {
 			cache[i] = (u8 *) realloc(cache[i], cachedsize);
@@ -424,21 +426,43 @@ void pdfview::docache(const u32 page) {
 	}
 
 	// Be safe
-	if (!file->cache[page].ready)
+	if (!cur->ready)
 		return;
 
 	const u32 dst = rand() % CACHE_MAX;
 
 	lzo_uint dstsize = cachedsize;
-	const int ret = lzo1x_decompress(file->cache[page].data,
-					file->cache[page].size,
+	const int ret = lzo1x_decompress(cur->data,
+					cur->size,
 					cache[dst],
 					&dstsize,
 					NULL);
-	if (ret != LZO_E_OK || dstsize != file->cache[page].uncompressed)
+	if (ret != LZO_E_OK || dstsize != cur->uncompressed)
 		die(_("Error decompressing\n"));
 
 	cachedpage[dst] = page;
+
+	// Create the Pixmap
+	if (pix[dst] != None)
+		XFreePixmap(fl_display, pix[dst]);
+
+	pix[dst] = XCreatePixmap(fl_display, fl_window, cur->w, cur->h, 24);
+	if (pix[dst] == None)
+		return;
+
+	fl_push_no_clip();
+
+	XImage *xi = XCreateImage(fl_display, fl_visual->visual, 24, ZPixmap, 0,
+					(char *) cache[dst], cur->w, cur->h,
+					32, 0);
+	if (xi == NULL) die("xi null\n");
+
+	XPutImage(fl_display, pix[dst], fl_gc, xi, 0, 0, 0, 0, cur->w, cur->h);
+
+	fl_pop_clip();
+
+	xi->data = NULL;
+	XDestroyImage(xi);
 }
 
 void pdfview::go(const u32 page) {
@@ -457,25 +481,10 @@ void pdfview::content(const u32 page, const s32 X, const s32 Y,
 
 	const struct cachedpage * const cur = &file->cache[page];
 
-	Pixmap pix = XCreatePixmap(fl_display, fl_window, cur->w, cur->h, 24);
-	if (pix == None)
-		return;
-
-	fl_push_no_clip();
-
-	XImage *xi = XCreateImage(fl_display, fl_visual->visual, 24, ZPixmap, 0,
-					(char *) cache[c], cur->w, cur->h,
-					32, 0);
-	if (xi == NULL) die("xi null\n");
-
-	XPutImage(fl_display, pix, fl_gc, xi, 0, 0, 0, 0, cur->w, cur->h);
-
-	fl_pop_clip();
-
 	XRenderPictureAttributes srcattr;
 	memset(&srcattr, 0, sizeof(XRenderPictureAttributes));
 	XRenderPictFormat *fmt = XRenderFindStandardFormat(fl_display, PictStandardRGB24);
-	Picture src = XRenderCreatePicture(fl_display, pix, fmt, 0, &srcattr);
+	Picture src = XRenderCreatePicture(fl_display, pix[c], fmt, 0, &srcattr);
 	Picture dst = XRenderCreatePicture(fl_display, fl_window, fmt, 0, &srcattr);
 
 	const Fl_Region clipr = fl_clip_region();
@@ -489,13 +498,9 @@ void pdfview::content(const u32 page, const s32 X, const s32 Y,
 	XRenderSetPictureTransform(fl_display, src, &xf);
 
 	XRenderComposite(fl_display, PictOpSrc, src, None, dst, 0, 0, 0, 0, X, Y, W, H);
-//	XCopyArea(fl_display, pix, fl_window, fl_gc, 0, 0, W, H, X, Y);
+//	XCopyArea(fl_display, pix[c], fl_window, fl_gc, 0, 0, W, H, X, Y);
 //	fl_draw_image(cache[c], X, Y, W, H, 4, file->cache[page].w * 4);
 
 	XRenderFreePicture(fl_display, src);
 	XRenderFreePicture(fl_display, dst);
-
-	xi->data = NULL;
-	XDestroyImage(xi);
-	XFreePixmap(fl_display, pix);
 }
