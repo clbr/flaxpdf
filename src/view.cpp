@@ -178,7 +178,7 @@ void pdfview::draw() {
 		H = (fullh(i) + MARGIN) * file->zoom;
 		if (file->mode == Z_CUSTOM || file->mode == Z_PAGE) {
 			W = fullw(i) * file->zoom;
-			X = x() + (w() - W) / 2;
+			X = x() + (w() - W) / 2 + xoff * W;
 		} else {
 			X = x();
 			W = w();
@@ -281,10 +281,23 @@ int pdfview::handle(int e) {
 				yoff -= (movedy / (float) h()) / file->zoom;
 			}
 
+			if (file->maxw && 0) {
+			
+			} else {
+				xoff += (movedx / (float) w()) / file->zoom;
+			}
+
 			if (yoff < 0)
 				yoff = 0;
 			if (yoff >= maxyoff())
 				yoff = maxyoff();
+
+			if (xoff < -1)
+				xoff = -1;
+			if (xoff > 1)
+				xoff = 1;
+			if (file->mode != Z_CUSTOM)
+				xoff = 0;
 
 			lasty = my;
 			lastx = mx;
