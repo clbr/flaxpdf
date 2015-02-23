@@ -31,4 +31,8 @@ was measured, as well as RAM use.
 		CPU		RAM		Binary
 Evince		90%		56.8 MB		507 KB (evince + libpdfdocument.so)
 ePDFView	72%		46.3 MB		124 KB
-FlaxPDF		57%		36.5 MB		45 KB
+FlaxPDF		57% (5% *)	36.5 MB		45 KB
+
+* To be fair to all, these measurements were done using the Vesa driver.
+FlaxPDF, as the only one of the three, is able to take advantage of the GPU,
+dropping its CPU use when scrolling to 5% (tested on radeon).
