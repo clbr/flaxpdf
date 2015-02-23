@@ -225,12 +225,10 @@ void pdfview::draw() {
 		if (trimmed) {
 			// And undo.
 			Y -= zoomedmarginhalf;
-			W += zoomedmargin;
 			H += zoomedmargin;
 		} else if (margins) {
 			// And undo.
 			Y -= cur->top * file->zoom;
-			W += (cur->left + cur->right) * file->zoom;
 			H += (cur->top + cur->bottom) * file->zoom;
 		}
 
