@@ -322,7 +322,10 @@ int pdfview::handle(int e) {
 								true, false, false);
 				GooString *str = dev->getText(X, Y, X + W, Y + H);
 				const char * const cstr = str->getCString();
-				printf("Selected %s\n", cstr);
+
+				// Put it to clipboard
+				Fl::copy(cstr, strlen(cstr));
+
 				delete str;
 				delete dev;
 			}
