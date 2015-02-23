@@ -521,6 +521,31 @@ void pdfview::content(const u32 page, const s32 X, const s32 Y,
 //	XCopyArea(fl_display, pix[c], fl_window, fl_gc, 0, 0, W, H, X, Y);
 //	fl_draw_image(cache[c], X, Y, W, H, 4, file->cache[page].w * 4);
 
+	if (selecting->value() && selx2 && sely2 && selx != selx2 && sely != sely2) {
+		// Draw a selection rectangle over this area
+		const XRenderColor col = {0, 51400, 51400, 32767};
+
+		u16 x, y, w, h;
+		if (selx < selx2) {
+			x = selx;
+			w = selx2 - x;
+		} else {
+			x = selx2;
+			w = selx - x;
+		}
+
+		if (sely < sely2) {
+			y = sely;
+			h = sely2 - y;
+		} else {
+			y = sely2;
+			h = sely - y;
+		}
+
+		XRenderFillRectangle(fl_display, PictOpOver, dst, &col,
+					x, y, w, h);
+	}
+
 	XRenderFreePicture(fl_display, src);
 	XRenderFreePicture(fl_display, dst);
 }
