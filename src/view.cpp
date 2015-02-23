@@ -523,7 +523,7 @@ void pdfview::content(const u32 page, const s32 X, const s32 Y,
 
 	if (selecting->value() && selx2 && sely2 && selx != selx2 && sely != sely2) {
 		// Draw a selection rectangle over this area
-		const XRenderColor col = {0, 51400, 51400, 32767};
+		const XRenderColor col = {0, 0, 65535, 16384};
 
 		u16 x, y, w, h;
 		if (selx < selx2) {
