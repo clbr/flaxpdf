@@ -263,6 +263,13 @@ int pdfview::handle(int e) {
 			if (selecting->value() && Fl::event_button() == FL_LEFT_MOUSE &&
 				selx && sely && selx2 && sely2 && selx != selx2 &&
 				sely != sely2) {
+
+				// Which page is selx,sely on?
+				u32 page = yoff;
+				const float visible = 1 - (yoff - floorf(yoff));
+				if (y() + fullh(page) * visible * file->zoom < sely)
+					page++;
+
 				TextOutputDev * const dev = new TextOutputDev(NULL, true,
 								0, false, false);
 				file->pdf->displayPageSlice(dev, page + 1, 144, 144, 0,
