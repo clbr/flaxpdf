@@ -336,12 +336,14 @@ int pdfview::handle(int e) {
 				break;
 				case FL_Page_Up:
 					yoff -= 1;
+					yoff = floorf(yoff);
 					if (yoff < 0)
 						yoff = 0;
 					redraw();
 				break;
 				case FL_Page_Down:
 					yoff += 1;
+					yoff = floorf(yoff);
 					if (yoff >= maxyoff())
 						yoff = maxyoff();
 					redraw();
