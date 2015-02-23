@@ -41,6 +41,9 @@ private:
 	u8 *cache[CACHE_MAX];
 	u16 cachedpage[CACHE_MAX];
 	Pixmap pix[CACHE_MAX];
+
+	// Text selection coords
+	u16 selx, sely, selw, selh;
 };
 
 extern pdfview *view;

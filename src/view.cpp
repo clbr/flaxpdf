@@ -20,7 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MARGIN 36
 
 pdfview::pdfview(int x, int y, int w, int h): Fl_Widget(x, y, w, h),
-		yoff(0), xoff(0) {
+		yoff(0), xoff(0),
+		selx(0), sely(0), selw(0), selh(0) {
 
 	cachedsize = 7 * 1024 * 1024;
 
