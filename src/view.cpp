@@ -281,11 +281,7 @@ int pdfview::handle(int e) {
 				yoff -= (movedy / (float) h()) / file->zoom;
 			}
 
-			if (file->maxw) {
-				xoff += (movedx / file->zoom) / fullw(0);
-			} else {
-				xoff += (movedx / (float) w()) / file->zoom;
-			}
+			xoff += (movedx / file->zoom) / fullw(0);
 
 			if (yoff < 0)
 				yoff = 0;
