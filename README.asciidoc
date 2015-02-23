@@ -10,6 +10,7 @@ its major points. Okular and Evince are nice but heavy; and the point
 for starting this project, ePDFview, is dead.
 
 EPDFview was nice and light, but lacking in a couple ways:
+
 - no caching, if you wanted to backtrack one page, it reloaded slowly
 - no automatic zoom to content/trim
 
