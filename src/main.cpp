@@ -53,6 +53,7 @@ static void applyzoom(const float what) {
 	snprintf(tmp, 10, "%.0f%%", what * 100);
 	zoombar->value(tmp);
 
+	view->resetselection();
 	view->redraw();
 }
 
