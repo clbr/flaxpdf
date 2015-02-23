@@ -293,7 +293,6 @@ int pdfview::handle(int e) {
 				Y -= y();
 
 				// Offset
-				float unused;
 				const zoommode prevmode = file->mode;
 				file->mode = Z_CUSTOM;
 				Y += floored * fullh(page) * file->zoom;
