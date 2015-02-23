@@ -267,6 +267,7 @@ int pdfview::handle(int e) {
 				sely = lasty;
 			}
 			selx2 = sely2 = 0;
+			redraw();
 
 			// Fall-through
 		case FL_FOCUS:
