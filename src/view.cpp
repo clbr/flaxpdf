@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 pdfview::pdfview(int x, int y, int w, int h): Fl_Widget(x, y, w, h),
 		yoff(0), xoff(0),
-		selx(0), sely(0), selw(0), selh(0) {
+		selx(0), sely(0), selx2(0), sely2(0) {
 
 	cachedsize = 7 * 1024 * 1024;
 
@@ -261,6 +261,13 @@ int pdfview::handle(int e) {
 			take_focus();
 			lasty = Fl::event_y();
 			lastx = Fl::event_x();
+
+			if (selecting->value()) {
+				selx = lastx;
+				sely = lasty;
+			}
+			selx2 = sely2 = 0;
+
 			// Fall-through
 		case FL_FOCUS:
 		case FL_ENTER:
@@ -273,6 +280,11 @@ int pdfview::handle(int e) {
 			const int mx = Fl::event_x();
 			const int movedy = my - lasty;
 			const int movedx = mx - lastx;
+
+			if (selecting->value()) {
+				selx2 = mx;
+				sely2 = my;
+			}
 
 			if (file->maxh) {
 				if (file->mode != Z_TRIM)
@@ -317,12 +329,14 @@ int pdfview::handle(int e) {
 					yoff = 0;
 			}
 
+			selx2 = sely2 = 0;
 			if (file->cache)
 				updatevisible(yoff, w(), h(), false);
 			redraw();
 		break;
 		case FL_KEYDOWN:
 		case FL_SHORTCUT:
+			selx2 = sely2 = 0;
 			switch (Fl::event_key()) {
 				case FL_Up:
 					yoff -= move;
