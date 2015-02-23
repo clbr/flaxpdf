@@ -492,9 +492,10 @@ void pdfview::content(const u32 page, const s32 X, const s32 Y,
 
 	XRenderSetPictureFilter(fl_display, src, "bilinear", NULL, 0);
 	XTransform xf;
-	xf.matrix[0][0] = (65536 * cur->w) / W; xf.matrix[0][1] = 0; xf.matrix[0][2] = 0;
-	xf.matrix[1][0] = 0; xf.matrix[1][1] = (65536 * cur->h) / H; xf.matrix[1][2] = 0;
-	xf.matrix[2][0] = 0; xf.matrix[2][1] = 0; xf.matrix[2][2] = 65536;
+	memset(&xf, 0, sizeof(XTransform));
+	xf.matrix[0][0] = (65536 * cur->w) / W;
+	xf.matrix[1][1] = (65536 * cur->h) / H;
+	xf.matrix[2][2] = 65536;
 	XRenderSetPictureTransform(fl_display, src, &xf);
 
 	XRenderComposite(fl_display, PictOpSrc, src, None, dst, 0, 0, 0, 0, X, Y, W, H);
