@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MARGIN 36
 
 pdfview::pdfview(int x, int y, int w, int h): Fl_Widget(x, y, w, h),
-		yoff(0) {
+		yoff(0), xoff(0) {
 
 	cachedsize = 7 * 1024 * 1024;
 
@@ -33,6 +33,7 @@ pdfview::pdfview(int x, int y, int w, int h): Fl_Widget(x, y, w, h),
 
 void pdfview::reset() {
 	yoff = 0;
+	xoff = 0;
 
 	u32 i;
 	for (i = 0; i < CACHE_MAX; i++) {
@@ -251,12 +252,13 @@ float pdfview::maxyoff() const {
 int pdfview::handle(int e) {
 
 	const float move = 0.05f;
-	static int lasty;
+	static int lasty, lastx;
 
 	switch (e) {
 		case FL_PUSH:
 			take_focus();
 			lasty = Fl::event_y();
+			lastx = Fl::event_x();
 			// Fall-through
 		case FL_FOCUS:
 		case FL_ENTER:
@@ -266,7 +268,9 @@ int pdfview::handle(int e) {
 			fl_cursor(FL_CURSOR_MOVE);
 
 			const int my = Fl::event_y();
+			const int mx = Fl::event_x();
 			const int movedy = my - lasty;
+			const int movedx = mx - lastx;
 
 			if (file->maxh) {
 				if (file->mode != Z_TRIM)
@@ -283,6 +287,7 @@ int pdfview::handle(int e) {
 				yoff = maxyoff();
 
 			lasty = my;
+			lastx = mx;
 
 			if (file->cache)
 				updatevisible(yoff, w(), h(), false);

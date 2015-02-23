@@ -36,7 +36,7 @@ private:
 	void content(const u32 page, const s32 X, const s32 y,
 			const u32 w, const u32 h);
 
-	float yoff;
+	float yoff, xoff;
 	u32 cachedsize;
 	u8 *cache[CACHE_MAX];
 	u16 cachedpage[CACHE_MAX];
