@@ -567,6 +567,7 @@ void pdfview::docache(const u32 page) {
 
 void pdfview::go(const u32 page) {
 	yoff = page;
+	resetselection();
 	redraw();
 }
 
