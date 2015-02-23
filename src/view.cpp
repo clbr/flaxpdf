@@ -15,6 +15,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "view.h"
+#include <TextOutputDev.h>
 
 // Quarter inch in double resolution
 #define MARGIN 36
@@ -259,7 +260,17 @@ int pdfview::handle(int e) {
 	switch (e) {
 		case FL_RELEASE:
 			// Was this a dragging text selection?
-			if (selecting->value() && Fl::event_button() == FL_LEFT_MOUSE) {
+			if (selecting->value() && Fl::event_button() == FL_LEFT_MOUSE &&
+				selx && sely && selx2 && sely2 && selx != selx2 &&
+				sely != sely2) {
+				TextOutputDev * const dev = new TextOutputDev(NULL, true,
+								0, false, false);
+				file->pdf->displayPageSlice(dev, page + 1, 144, 144, 0,
+								true, false, false,
+								X, Y, W, H);
+				GooString *str = dev->getText(X, Y, W, H);
+				delete str;
+				delete dev;
 			}
 		break;
 		case FL_PUSH:
