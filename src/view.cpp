@@ -275,8 +275,6 @@ int pdfview::handle(int e) {
 			return 1;
 		break;
 		case FL_DRAG: {
-			fl_cursor(FL_CURSOR_MOVE);
-
 			const int my = Fl::event_y();
 			const int mx = Fl::event_x();
 			const int movedy = my - lasty;
@@ -285,7 +283,11 @@ int pdfview::handle(int e) {
 			if (selecting->value()) {
 				selx2 = mx;
 				sely2 = my;
+				redraw();
+				return 1;
 			}
+
+			fl_cursor(FL_CURSOR_MOVE);
 
 			if (file->maxh) {
 				if (file->mode != Z_TRIM)
