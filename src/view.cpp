@@ -34,9 +34,15 @@ pdfview::pdfview(int x, int y, int w, int h): Fl_Widget(x, y, w, h),
 	}
 }
 
+void pdfview::resetselection() {
+	selx = sely = selx2 = sely2 = 0;
+}
+
 void pdfview::reset() {
 	yoff = 0;
 	xoff = 0;
+
+	resetselection();
 
 	u32 i;
 	for (i = 0; i < CACHE_MAX; i++) {

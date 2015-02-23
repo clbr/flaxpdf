@@ -29,6 +29,7 @@ public:
 
 	void go(const u32 page);
 	void reset();
+	void resetselection();
 private:
 	u8 iscached(const u32 page) const;
 	void docache(const u32 page);
