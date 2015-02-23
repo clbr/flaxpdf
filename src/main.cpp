@@ -138,6 +138,11 @@ static void checkX() {
 		die(_("No XRender on this server\n"));
 }
 
+static void selecting_changed(Fl_Widget *, void *) {
+	view->resetselection();
+	view->redraw();
+}
+
 int main(int argc, char **argv) {
 
 	srand(time(NULL));
@@ -232,6 +237,7 @@ int main(int argc, char **argv) {
 			selecting->tooltip(_("Select text"));
 			selecting->align(FL_ALIGN_CENTER);
 			selecting->image(new Fl_PNG_Image("text.png", img(text_png)));
+			selecting->callback(selecting_changed);
 		} // Fl_Light_Button* o
 		{ Fl_Button* o = new Fl_Button(0, 224, 64, 64);
 			o->tooltip(_("Hide toolbar (F8)"));
