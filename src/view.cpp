@@ -469,6 +469,9 @@ int pdfview::handle(int e) {
 					}
 					redraw();
 				break;
+				case FL_F + 8:
+					cb_hide(NULL, NULL);
+				break;
 				default:
 					return 0;
 			}

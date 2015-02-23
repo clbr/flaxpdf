@@ -86,7 +86,7 @@ void cb_Zoomout(Fl_Button*, void*) {
 	applyzoom(file->zoom);
 }
 
-static void cb_hide(Fl_Widget*, void*) {
+void cb_hide(Fl_Widget*, void*) {
 
 	if (buttons->visible()) {
 		buttons->hide();
@@ -233,7 +233,7 @@ int main(int argc, char **argv) {
 			selecting->image(new Fl_PNG_Image("text.png", img(text_png)));
 		} // Fl_Light_Button* o
 		{ Fl_Button* o = new Fl_Button(0, 224, 64, 64);
-			o->tooltip(_("Hide toolbar"));
+			o->tooltip(_("Hide toolbar (F8)"));
 			o->callback(cb_hide);
 			o->image(new Fl_PNG_Image("back.png", img(back_png)));
 		} // Fl_Button* o
