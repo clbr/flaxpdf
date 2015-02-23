@@ -175,7 +175,7 @@ void pdfview::draw() {
 			break;
 
 		H = (fullh(i) + MARGIN) * file->zoom;
-		if (file->mode == Z_CUSTOM) {
+		if (file->mode == Z_CUSTOM || file->mode == Z_PAGE) {
 			W = fullw(i) * file->zoom;
 			X = x() + (w() - W) / 2;
 		} else {
