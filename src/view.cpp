@@ -52,6 +52,18 @@ static u32 fullh(u32 page) {
 		file->cache[page].bottom;
 }
 
+static u32 fullw(u32 page) {
+	if (!file->cache[page].ready)
+		page = 0;
+
+	if (file->mode == Z_TRIM)
+		return file->cache[page].w;
+
+	return file->cache[page].w +
+		file->cache[page].left +
+		file->cache[page].right;
+}
+
 static bool hasmargins(const u32 page) {
 	if (!file->cache[page].ready)
 		return file->cache[0].left > MARGIN ||
