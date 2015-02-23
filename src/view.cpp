@@ -450,6 +450,9 @@ void pdfview::content(const u32 page, const s32 X, const s32 Y,
 	Picture src = XRenderCreatePicture(fl_display, pix, fmt, 0, &srcattr);
 	Picture dst = XRenderCreatePicture(fl_display, fl_window, fmt, 0, &srcattr);
 
+	const Fl_Region clipr = fl_clip_region();
+	XRenderSetPictureClipRegion(fl_display, dst, clipr);
+
 	XRenderSetPictureFilter(fl_display, src, "bilinear", NULL, 0);
 	XTransform xf;
 	xf.matrix[0][0] = (65536 * cur->w) / W; xf.matrix[0][1] = 0; xf.matrix[0][2] = 0;
