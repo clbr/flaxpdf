@@ -1,1 +1,5 @@
 # List of source files which contain translatable strings.
+src/helpers.cpp
+src/loadfile.cpp
+src/main.cpp
+src/view.cpp

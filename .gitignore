@@ -16,6 +16,7 @@ config.cache
 .libs
 config.status
 stamp-h1
+stamp-po
 autoconfig.h
 POTFILES
 

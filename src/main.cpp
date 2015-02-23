@@ -197,7 +197,7 @@ int main(int argc, char **argv) {
 
 	#define img(a) a, sizeof(a)
 
-	win = new Fl_Double_Window(705, 700, _("FlaxPDF"));
+	win = new Fl_Double_Window(705, 700, "FlaxPDF");
 	Fl_Pack* o = new Fl_Pack(0, 0, 705, 700);
 	o->type(1);
 	{ buttons = new Fl_Pack(0, -4, 64, 704);
