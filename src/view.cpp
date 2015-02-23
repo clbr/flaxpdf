@@ -257,12 +257,17 @@ int pdfview::handle(int e) {
 	static int lasty, lastx;
 
 	switch (e) {
+		case FL_RELEASE:
+			// Was this a dragging text selection?
+			if (selecting->value() && Fl::event_button() == FL_LEFT_MOUSE) {
+			}
+		break;
 		case FL_PUSH:
 			take_focus();
 			lasty = Fl::event_y();
 			lastx = Fl::event_x();
 
-			if (selecting->value()) {
+			if (selecting->value() && Fl::event_button() == FL_LEFT_MOUSE) {
 				selx = lastx;
 				sely = lasty;
 			}
@@ -280,7 +285,7 @@ int pdfview::handle(int e) {
 			const int movedy = my - lasty;
 			const int movedx = mx - lastx;
 
-			if (selecting->value()) {
+			if (selecting->value() && Fl::event_button() == FL_LEFT_MOUSE) {
 				selx2 = mx;
 				sely2 = my;
 				redraw();
