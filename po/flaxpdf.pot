@@ -1,0 +1,131 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Lauri Kasanen
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: flaxpdf 0.6\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-02-23 19:36+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/loadfile.cpp:112
+msgid "Compression failed\n"
+msgstr ""
+
+#: src/loadfile.cpp:191
+#, c-format
+msgid "Compressed mem usage %.2fmb, compressed to %.2f%%\n"
+msgstr ""
+
+#: src/loadfile.cpp:197
+#, c-format
+msgid "Processing the file took %u us (%.2f s)\n"
+msgstr ""
+
+#: src/loadfile.cpp:221
+msgid "Open PDF"
+msgstr ""
+
+#: src/loadfile.cpp:224
+msgid "Quit?"
+msgstr ""
+
+#: src/loadfile.cpp:224
+msgid "No"
+msgstr ""
+
+#: src/loadfile.cpp:224
+msgid "Yes"
+msgstr ""
+
+#: src/loadfile.cpp:234
+msgid "Unknown"
+msgstr ""
+
+#: src/loadfile.cpp:239
+msgid "Couldn't open file"
+msgstr ""
+
+#: src/loadfile.cpp:244
+msgid "Damaged PDF file"
+msgstr ""
+
+#: src/loadfile.cpp:248
+#, c-format
+msgid "Error %d, %s"
+msgstr ""
+
+#: src/loadfile.cpp:273
+#, c-format
+msgid "Couldn't open %s, perhaps it's corrupted?"
+msgstr ""
+
+#: src/main.cpp:104
+msgid "Page out of bounds"
+msgstr ""
+
+#: src/main.cpp:125
+msgid "Unrecognized thread message\n"
+msgstr ""
+
+#: src/main.cpp:134
+msgid "Visual doesn't match our expectations\n"
+msgstr ""
+
+#: src/main.cpp:138
+msgid "No XRender on this server\n"
+msgstr ""
+
+#: src/main.cpp:178
+#, c-format
+msgid ""
+"Usage: %s [options] file.pdf\n"
+"\n"
+"\t-d --details\tPrint RAM, timing details (use twice for more)\n"
+"\t-h --help\tThis help\n"
+"\t-v --version\tPrint version\n"
+msgstr ""
+
+#: src/main.cpp:193
+msgid "Failed in pipe()\n"
+msgstr ""
+
+#: src/main.cpp:205
+msgid "Open a new file"
+msgstr ""
+
+#: src/main.cpp:219
+msgid "Preset zoom choices"
+msgstr ""
+
+#: src/main.cpp:227
+msgid "Zoom in"
+msgstr ""
+
+#: src/main.cpp:232
+msgid "Zoom out"
+msgstr ""
+
+#: src/main.cpp:237
+msgid "Select text"
+msgstr ""
+
+#: src/main.cpp:243
+msgid "Hide toolbar (F8)"
+msgstr ""
+
+#: src/main.cpp:272
+msgid "LZO init failed\n"
+msgstr ""
+
+#: src/view.cpp:541
+msgid "Error decompressing\n"
+msgstr ""
