@@ -345,7 +345,7 @@ int pdfview::handle(int e) {
 				selx = lastx;
 				sely = lasty;
 			}
-			selx2 = sely2 = 0;
+			resetselection();
 			redraw();
 
 			// Fall-through
@@ -411,14 +411,14 @@ int pdfview::handle(int e) {
 					yoff = 0;
 			}
 
-			selx2 = sely2 = 0;
+			resetselection();
 			if (file->cache)
 				updatevisible(yoff, w(), h(), false);
 			redraw();
 		break;
 		case FL_KEYDOWN:
 		case FL_SHORTCUT:
-			selx2 = sely2 = 0;
+			resetselection();
 			switch (Fl::event_key()) {
 				case FL_Up:
 					yoff -= move;
