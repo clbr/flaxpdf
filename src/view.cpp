@@ -320,7 +320,7 @@ int pdfview::handle(int e) {
 								0, false, false);
 				file->pdf->displayPage(dev, page + 1, 144, 144, 0,
 								true, false, false);
-				GooString *str = dev->getText(X, Y, W, H);
+				GooString *str = dev->getText(X, Y, X + W, Y + H);
 				const char * const cstr = str->getCString();
 				printf("Selected %s\n", cstr);
 				delete str;
