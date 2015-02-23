@@ -266,16 +266,65 @@ int pdfview::handle(int e) {
 
 				// Which page is selx,sely on?
 				u32 page = yoff;
-				const float visible = 1 - (yoff - floorf(yoff));
+				const float floored = yoff - floorf(yoff);
+				const float visible = 1 - floored;
 				if (y() + fullh(page) * visible * file->zoom < sely)
 					page++;
+				// We assume nobody selects text with a tiny zoom.
+				u32 X, Y, W, H;
+				if (selx < selx2) {
+					X = selx;
+					W = selx2 - X;
+				} else {
+					X = selx2;
+					W = selx - X;
+				}
+
+				if (sely < sely2) {
+					Y = sely;
+					H = sely2 - Y;
+				} else {
+					Y = sely2;
+					H = sely - Y;
+				}
+
+				// Convert to widget coords
+				X -= x();
+				Y -= y();
+
+				// Offset
+				float unused;
+				const float xfloored = modff(xoff, &unused);
+				const zoommode prevmode = file->mode;
+				file->mode = Z_CUSTOM;
+				Y += floored * fullh(page) * file->zoom;
+				Y -= file->zoom * MARGIN / 2;
+				if (prevmode != Z_TRIM) {
+					X -= (w() - (fullw(page) * file->zoom)) / 2 +
+						xoff * (fullw(page) * file->zoom);
+				} else {
+					X += file->cache[page].left * file->zoom;
+					Y += file->cache[page].top * file->zoom;
+					if (hasmargins(page)) {
+						X -= (MARGIN / 2) * file->zoom;
+						Y -= (MARGIN / 2) * file->zoom;
+					}
+				}
+				file->mode = prevmode;
+
+				// Convert to page coords
+				X /= file->zoom;
+				Y /= file->zoom;
+				W /= file->zoom;
+				H /= file->zoom;
 
 				TextOutputDev * const dev = new TextOutputDev(NULL, true,
 								0, false, false);
-				file->pdf->displayPageSlice(dev, page + 1, 144, 144, 0,
-								true, false, false,
-								X, Y, W, H);
+				file->pdf->displayPage(dev, page + 1, 144, 144, 0,
+								true, false, false);
 				GooString *str = dev->getText(X, Y, W, H);
+				const char * const cstr = str->getCString();
+				printf("Selected %s\n", cstr);
 				delete str;
 				delete dev;
 			}
