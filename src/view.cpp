@@ -433,12 +433,16 @@ void pdfview::content(const u32 page, const s32 X, const s32 Y,
 	if (pix == None)
 		return;
 
+	fl_push_no_clip();
+
 	XImage *xi = XCreateImage(fl_display, fl_visual->visual, 24, ZPixmap, 0,
 					(char *) cache[c], cur->w, cur->h,
 					32, 0);
 	if (xi == NULL) die("xi null\n");
 
 	XPutImage(fl_display, pix, fl_gc, xi, 0, 0, 0, 0, cur->w, cur->h);
+
+	fl_pop_clip();
 
 	XRenderPictureAttributes srcattr;
 	memset(&srcattr, 0, sizeof(XRenderPictureAttributes));
