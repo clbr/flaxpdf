@@ -252,6 +252,7 @@ int main(int argc, char **argv) {
 	o->show();
 	Fl_Group::current()->resizable(o);
 
+	fl_open_display();
 	win->size_range(700, 700);
 	win->end();
 
@@ -262,6 +263,9 @@ int main(int argc, char **argv) {
 
 	if (lzo_init() != LZO_E_OK)
 		die(_("LZO init failed\n"));
+
+	// Set the width to half of the screen, 90% of height
+	win->size(Fl::w() * 0.4f, Fl::h() * 0.9f);
 
 	win->show();
 
