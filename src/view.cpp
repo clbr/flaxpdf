@@ -88,7 +88,7 @@ static void updatevisible(const float yoff, const u32 w, const u32 h, const bool
 	const u32 maxw = file->maxw ? file->maxw : file->cache[0].w;
 	const u32 maxh = file->maxh ? file->maxh : file->cache[0].h;
 	const u32 maxwmargin = hasmargins(file->first_visible) ? maxw + MARGIN * 2 : maxw;
-	const u32 fullw = file->cache[0].w + file->cache[0].left + file->cache[0].right;
+	const u32 fullw = ::fullw(0);
 	const u32 fullh = ::fullh(0);
 
 	const float visible = yoff < 0 ? 0 : 1 - (yoff - floorf(yoff));
