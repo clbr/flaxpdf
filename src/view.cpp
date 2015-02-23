@@ -484,7 +484,11 @@ void pdfview::content(const u32 page, const s32 X, const s32 Y,
 	XRenderPictureAttributes srcattr;
 	memset(&srcattr, 0, sizeof(XRenderPictureAttributes));
 	XRenderPictFormat *fmt = XRenderFindStandardFormat(fl_display, PictStandardRGB24);
-	Picture src = XRenderCreatePicture(fl_display, pix[c], fmt, 0, &srcattr);
+
+	// This corresponds to GL_CLAMP_TO_EDGE.
+	srcattr.repeat = RepeatPad;
+
+	Picture src = XRenderCreatePicture(fl_display, pix[c], fmt, CPRepeat, &srcattr);
 	Picture dst = XRenderCreatePicture(fl_display, fl_window, fmt, 0, &srcattr);
 
 	const Fl_Region clipr = fl_clip_region();
