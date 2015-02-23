@@ -341,11 +341,11 @@ int pdfview::handle(int e) {
 			lasty = Fl::event_y();
 			lastx = Fl::event_x();
 
+			resetselection();
 			if (selecting->value() && Fl::event_button() == FL_LEFT_MOUSE) {
 				selx = lastx;
 				sely = lasty;
 			}
-			resetselection();
 			redraw();
 
 			// Fall-through
