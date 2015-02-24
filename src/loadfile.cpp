@@ -164,7 +164,9 @@ static void dopage(const u32 page) {
 	__sync_bool_compare_and_swap(&file->cache[page].ready, 0, 1);
 
 	// If this page was visible, tell the app to refresh
-	if (page >= file->first_visible && page <= file->last_visible) {
+	const u32 first = __sync_fetch_and_add(&file->first_visible, 0);
+	const u32 last = __sync_fetch_and_add(&file->last_visible, 0);
+	if (page >= first && page <= last) {
 		const u8 msg = MSG_REFRESH;
 		swrite(writepipe, &msg, 1);
 	}
@@ -207,7 +209,8 @@ static void *renderer(void *) {
 			for (c = 0; c < chunks; c++) {
 
 				// Did the user skip around?
-				if (file->first_visible) {
+				const u32 first = __sync_fetch_and_add(&file->first_visible, 0);
+				if (first) {
 					const u32 tmp = file->first_visible / chunksize;
 					if (tmp < chunks && !done[tmp])
 						c = tmp;
