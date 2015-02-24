@@ -170,6 +170,15 @@ static void dopage(const u32 page) {
 	}
 }
 
+static bool notdone(const bool arr[], const u32 num) {
+	u32 i;
+	for (i = 0; i < num; i++) {
+		if (!arr[i])
+			return true;
+	}
+	return false;
+}
+
 static void *renderer(void *) {
 
 	// Optional timing
@@ -191,11 +200,26 @@ static void *renderer(void *) {
 		const u32 chunks = file->pages / chunksize;
 		const u32 remainder = file->pages % chunksize;
 
-		for (c = 0; c < chunks; c++) {
-			const u32 max = (c + 1) * chunksize;
-			#pragma omp parallel for schedule(guided)
-			for (u32 i = c * chunksize; i < max; i++) {
-				dopage(i);
+		bool done[chunks];
+		memset(done, 0, sizeof(bool) * chunks);
+
+		while (notdone(done, chunks)) {
+			for (c = 0; c < chunks; c++) {
+
+				// Did the user skip around?
+				if (file->first_visible) {
+					const u32 tmp = file->first_visible / chunksize;
+					if (tmp < chunks && !done[tmp])
+						c = tmp;
+				}
+
+				const u32 max = (c + 1) * chunksize;
+				if (done[c]) continue;
+				#pragma omp parallel for schedule(guided)
+				for (u32 i = c * chunksize; i < max; i++) {
+					dopage(i);
+				}
+				done[c] = true;
 			}
 		}
 
