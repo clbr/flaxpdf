@@ -410,6 +410,8 @@ int pdfview::handle(int e) {
 				yoff += move * Fl::event_dy();
 				if (yoff < 0)
 					yoff = 0;
+				if (yoff >= maxyoff())
+					yoff = maxyoff();
 			}
 
 			resetselection();
