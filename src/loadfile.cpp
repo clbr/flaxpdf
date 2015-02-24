@@ -16,6 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "main.h"
 #include <FL/Fl_File_Chooser.H>
+#include <omp.h>
 #include <ErrorCodes.h>
 #include <GlobalParams.h>
 #include <SplashOutputDev.h>
@@ -175,9 +176,20 @@ static void *renderer(void *) {
 	struct timeval start, end;
 	gettimeofday(&start, NULL);
 
-	#pragma omp parallel for schedule(guided)
-	for (u32 i = 1; i < file->pages; i++) {
-		dopage(i);
+	const u32 chunksize = omp_get_num_procs() * 2;
+
+	if (file->pages < chunksize) {
+		#pragma omp parallel for schedule(guided)
+		for (u32 i = 1; i < file->pages; i++) {
+			dopage(i);
+		}
+	} else {
+		// With a lot of pages, the user may want to go far before things
+		// are fully loaded, say to page 500. Render in chunks and adapt.
+		#pragma omp parallel for schedule(guided)
+		for (u32 i = 1; i < file->pages; i++) {
+			dopage(i);
+		}
 	}
 
 	// Print stats
