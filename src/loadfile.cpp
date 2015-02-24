@@ -176,7 +176,7 @@ static void *renderer(void *) {
 	struct timeval start, end;
 	gettimeofday(&start, NULL);
 
-	const u32 chunksize = omp_get_num_procs() * 2;
+	const u32 chunksize = omp_get_num_procs() * 3;
 
 	if (file->pages < chunksize) {
 		#pragma omp parallel for schedule(guided)
@@ -186,9 +186,22 @@ static void *renderer(void *) {
 	} else {
 		// With a lot of pages, the user may want to go far before things
 		// are fully loaded, say to page 500. Render in chunks and adapt.
+
+		u32 c;
+		const u32 chunks = file->pages / chunksize;
+		const u32 remainder = file->pages % chunksize;
+
+		for (c = 0; c < chunks; c++) {
+			const u32 max = (c + 1) * chunksize;
+			#pragma omp parallel for schedule(guided)
+			for (u32 i = c * chunksize; i < max; i++) {
+				dopage(i);
+			}
+		}
+
 		#pragma omp parallel for schedule(guided)
-		for (u32 i = 1; i < file->pages; i++) {
-			dopage(i);
+		for (c = 0; c < remainder; c++) {
+			dopage(c + chunks * chunksize);
 		}
 	}
 
