@@ -46,7 +46,7 @@ static void cb_Open(Fl_Button*, void*) {
 }
 
 static void applyzoom(const float what) {
-	file->zoom = what;
+	file->zoom = what > 0.01f ? what : 0.01f;
 	file->mode = Z_CUSTOM;
 
 	char tmp[10];
