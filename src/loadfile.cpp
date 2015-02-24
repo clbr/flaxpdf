@@ -266,6 +266,7 @@ void loadfile(const char *file) {
 
 	::file->pdf = pdf;
 	::file->pages = pdf->getNumPages();
+	::file->maxw = ::file->maxh = ::file->first_visible = ::file->last_visible = 0;
 
 	// Start threaded magic
 	if (::file->pages < 1) {
