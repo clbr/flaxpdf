@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: flaxpdf 0.6\n"
+"Project-Id-Version: flaxpdf 0.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-23 19:44+0200\n"
+"POT-Creation-Date: 2015-02-24 14:32+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,54 +16,42 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/loadfile.cpp:112
+#: src/loadfile.cpp:113
 msgid "Compression failed\n"
 msgstr ""
 
-#: src/loadfile.cpp:191
+#: src/loadfile.cpp:243
 #, c-format
 msgid "Compressed mem usage %.2fmb, compressed to %.2f%%\n"
 msgstr ""
 
-#: src/loadfile.cpp:197
+#: src/loadfile.cpp:249
 #, c-format
 msgid "Processing the file took %u us (%.2f s)\n"
 msgstr ""
 
-#: src/loadfile.cpp:221
+#: src/loadfile.cpp:273
 msgid "Open PDF"
 msgstr ""
 
-#: src/loadfile.cpp:224
-msgid "Quit?"
-msgstr ""
-
-#: src/loadfile.cpp:224
-msgid "No"
-msgstr ""
-
-#: src/loadfile.cpp:224
-msgid "Yes"
-msgstr ""
-
-#: src/loadfile.cpp:234
+#: src/loadfile.cpp:285
 msgid "Unknown"
 msgstr ""
 
-#: src/loadfile.cpp:239
+#: src/loadfile.cpp:290
 msgid "Couldn't open file"
 msgstr ""
 
-#: src/loadfile.cpp:244
+#: src/loadfile.cpp:295
 msgid "Damaged PDF file"
 msgstr ""
 
-#: src/loadfile.cpp:248
+#: src/loadfile.cpp:299
 #, c-format
 msgid "Error %d, %s"
 msgstr ""
 
-#: src/loadfile.cpp:273
+#: src/loadfile.cpp:325
 #, c-format
 msgid "Couldn't open %s, perhaps it's corrupted?"
 msgstr ""
@@ -126,6 +114,6 @@ msgstr ""
 msgid "LZO init failed\n"
 msgstr ""
 
-#: src/view.cpp:539
+#: src/view.cpp:544
 msgid "Error decompressing\n"
 msgstr ""
