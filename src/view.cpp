@@ -258,6 +258,9 @@ float pdfview::maxyoff() const {
 
 int pdfview::handle(int e) {
 
+	if (!file->cache)
+		return Fl_Widget::handle(e);
+
 	const float move = 0.05f;
 	static int lasty, lastx;
 
