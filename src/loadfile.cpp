@@ -222,6 +222,9 @@ void loadfile(const char *file) {
 	if (!file)
 		return;
 
+	// Refresh window
+	Fl::check();
+
 	// Parse info
 	GooString gooname(file);
 	PDFDoc *pdf = new PDFDoc(&gooname);
