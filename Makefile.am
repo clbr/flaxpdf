@@ -4,7 +4,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 dist_pkgdata_DATA = icon64.png icon128.png icon256.png
 
-EXTRA_DIST = config/config.rpath flaxpdf.desktop
+EXTRA_DIST = config/config.rpath flaxpdf.desktop README.asciidoc autogen.sh
 
 install-data-hook: iconsdir = $(DESTDIR)$(datadir)/icons/hicolor
 install-data-hook:
