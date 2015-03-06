@@ -253,6 +253,9 @@ float pdfview::maxyoff() const {
 	float f = last;
 	f += hidden / (float) sh;
 
+	if (f < 0)
+		return 0;
+
 	return f;
 }
 
