@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: flaxpdf 0.7\n"
+"Project-Id-Version: flaxpdf 0.7.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-24 14:32+0200\n"
+"POT-Creation-Date: 2015-03-06 15:18+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -114,6 +114,6 @@ msgstr ""
 msgid "LZO init failed\n"
 msgstr ""
 
-#: src/view.cpp:544
+#: src/view.cpp:547
 msgid "Error decompressing\n"
 msgstr ""
