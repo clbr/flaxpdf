@@ -177,6 +177,10 @@ void pdfview::draw() {
 	const u32 max = file->last_visible;
 	const float visible = yoff - floorf(yoff);
 	H = (fullh(file->first_visible) + MARGIN) * file->zoom;
+	if (file->mode != Z_CUSTOM && file->mode != Z_PAGE) {
+		const float ratio = W / (float) fullw(file->first_visible);
+		H = fullh(file->first_visible) * ratio + zoomedmargin;
+	}
 	Y = y() - visible * H;
 
 	for (i = file->first_visible; i <= max; i++) {
@@ -191,6 +195,10 @@ void pdfview::draw() {
 		} else {
 			X = x();
 			W = w();
+
+			// In case of different page sizes, H needs to be adjusted per-page
+			const float ratio = W / (float) fullw(i);
+			H = fullh(i) * ratio + zoomedmargin;
 		}
 
 		// XYWH is now the full area including grey margins.
@@ -246,7 +254,12 @@ float pdfview::maxyoff() const {
 	if (!file->cache[last].ready)
 		return last + 0.5f;
 
-	const s32 sh = (fullh(last) + MARGIN) * file->zoom;
+	s32 sh = (fullh(last) + MARGIN) * file->zoom;
+
+	if (file->mode != Z_CUSTOM && file->mode != Z_PAGE) {
+		const float ratio = w() / (float) fullw(last);
+		sh = fullh(last) * ratio + MARGIN * file->zoom;
+	}
 
 	const s32 hidden = sh - h();
 
