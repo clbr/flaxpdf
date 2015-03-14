@@ -287,12 +287,24 @@ int pdfview::handle(int e) {
 				selx && sely && selx2 && sely2 && selx != selx2 &&
 				sely != sely2) {
 
+				const u32 zoomedmargin = MARGIN * file->zoom;
+				const u32 zoomedmarginhalf = zoomedmargin / 2;
+
 				// Which page is selx,sely on?
 				u32 page = yoff;
 				const float floored = yoff - floorf(yoff);
 				const float visible = 1 - floored;
-				if (y() + fullh(page) * visible * file->zoom < sely)
+				u32 zoomedh = fullh(page) * visible * file->zoom;
+				const u32 ratiominus = hasmargins(page) ? zoomedmargin : 0;
+				const float ratio = w() / (float) fullw(page);
+				const float ratiox = (w() - ratiominus) / (float) fullw(page);
+				if (file->mode != Z_CUSTOM && file->mode != Z_PAGE) {
+					zoomedh = fullh(page) * visible * ratio;
+				}
+
+				if (y() + zoomedh < sely)
 					page++;
+
 				// We assume nobody selects text with a tiny zoom.
 				u32 X, Y, W, H;
 				if (selx < selx2) {
@@ -316,28 +328,55 @@ int pdfview::handle(int e) {
 				Y -= y();
 
 				// Offset
-				const zoommode prevmode = file->mode;
-				file->mode = Z_CUSTOM;
-				Y += floored * fullh(page) * file->zoom;
-				Y -= file->zoom * MARGIN / 2;
-				if (prevmode != Z_TRIM) {
-					X -= (w() - (fullw(page) * file->zoom)) / 2 +
-						xoff * (fullw(page) * file->zoom);
-				} else {
-					X += file->cache[page].left * file->zoom;
-					Y += file->cache[page].top * file->zoom;
-					if (hasmargins(page)) {
-						X -= (MARGIN / 2) * file->zoom;
-						Y -= (MARGIN / 2) * file->zoom;
-					}
-				}
-				file->mode = prevmode;
+				switch (file->mode) {
+					case Z_TRIM:
+						// X and Y start in widget space, 0 to w/h.
+						Y += floored * (fullh(page) * ratiox +
+								zoomedmargin + ratiominus);
+						Y -= zoomedmarginhalf; // Grey margin
 
-				// Convert to page coords
-				X /= file->zoom;
-				Y /= file->zoom;
-				W /= file->zoom;
-				H /= file->zoom;
+						if (hasmargins(page)) {
+							X -= zoomedmarginhalf;
+							Y -= zoomedmarginhalf;
+						}
+
+						// Now page's area.
+
+						X += file->cache[page].left * ratiox;
+						Y += file->cache[page].top * ratiox;
+
+						X /= ratiox;
+						Y /= ratiox;
+						W /= ratiox;
+						H /= ratiox;
+					break;
+					case Z_WIDTH:
+						// X and Y start in widget space, 0 to w/h.
+						Y += floored * (fullh(page) * ratio +
+								zoomedmargin);
+						Y -= zoomedmarginhalf; // Grey margin
+
+						X /= ratio;
+						Y /= ratio;
+						W /= ratio;
+						H /= ratio;
+					break;
+					case Z_PAGE:
+					case Z_CUSTOM:
+						// X and Y start in widget space, 0 to w/h.
+						Y += floored * (fullh(page) * file->zoom +
+								zoomedmargin);
+						Y -= zoomedmarginhalf; // Grey margin
+
+						X -= (w() - (fullw(page) * file->zoom)) / 2 +
+							xoff * (fullw(page) * file->zoom);
+
+						X /= file->zoom;
+						Y /= file->zoom;
+						W /= file->zoom;
+						H /= file->zoom;
+					break;
+				}
 
 				TextOutputDev * const dev = new TextOutputDev(NULL, true,
 								0, false, false);
