@@ -170,6 +170,12 @@ void pdfview::draw() {
 
 	fl_push_clip(X, Y, W, H);
 
+	// As the variables are used for calculations, reset them to full widget dimensions.
+	X = x();
+	Y = y();
+	W = w();
+	H = h();
+
 	// Fill each page rect
 	const int zoomedmargin = file->zoom * MARGIN;
 	const int zoomedmarginhalf = zoomedmargin / 2;
