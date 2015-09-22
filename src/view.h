@@ -34,6 +34,7 @@ private:
 	u8 iscached(const u32 page) const;
 	void docache(const u32 page);
 	float maxyoff() const;
+	u32 pxrel(u32 page) const;
 	void content(const u32 page, const s32 X, const s32 y,
 			const u32 w, const u32 h);
 

@@ -182,11 +182,7 @@ void pdfview::draw() {
 	u32 i;
 	const u32 max = file->last_visible;
 	const float visible = yoff - floorf(yoff);
-	H = (fullh(file->first_visible) + MARGIN) * file->zoom;
-	if (file->mode != Z_CUSTOM && file->mode != Z_PAGE) {
-		const float ratio = W / (float) fullw(file->first_visible);
-		H = fullh(file->first_visible) * ratio + zoomedmargin;
-	}
+	H = pxrel(file->first_visible);
 	Y = y() - visible * H;
 
 	for (i = file->first_visible; i <= max; i++) {
@@ -254,18 +250,21 @@ void pdfview::draw() {
 	fl_pop_clip();
 }
 
+u32 pdfview::pxrel(u32 page) const {
+	if (file->mode != Z_CUSTOM && file->mode != Z_PAGE) {
+		const float ratio = w() / (float) fullw(page);
+		return fullh(page) * ratio + MARGIN * file->zoom;
+	}
+	return (fullh(page) + MARGIN) * file->zoom;
+}
+
 float pdfview::maxyoff() const {
 
 	const u32 last = file->pages - 1;
 	if (!file->cache[last].ready)
 		return last + 0.5f;
 
-	s32 sh = (fullh(last) + MARGIN) * file->zoom;
-
-	if (file->mode != Z_CUSTOM && file->mode != Z_PAGE) {
-		const float ratio = w() / (float) fullw(last);
-		sh = fullh(last) * ratio + MARGIN * file->zoom;
-	}
+	s32 sh = pxrel(last);
 
 	const s32 hidden = sh - h();
 
@@ -484,6 +483,79 @@ int pdfview::handle(int e) {
 		case FL_SHORTCUT:
 			resetselection();
 			switch (Fl::event_key()) {
+				case 'k':
+					if (Fl::event_ctrl()) {
+						yoff = 0;
+					} else {
+						u32 page = floorf(yoff);
+						s32 sh = pxrel(page);
+						s32 shp = sh;
+						if (page > 0)
+							shp = pxrel(page - 1);
+						if (h() + 2 * MARGIN * file->zoom >= sh) {
+							/* scroll up like Page_Up */
+							if (floorf(yoff) + MARGIN * file->zoom / (float) sh >= yoff) {
+								yoff = floorf(yoff - 1) + MARGIN * file->zoom / 2 / (float) shp;
+							}
+							else {
+								yoff = floorf(yoff) + MARGIN * file->zoom / 2 / (float) sh;
+							}
+						} else {
+							/* scroll up less than one page height */
+							float d = (h() - MARGIN) / (float) sh;
+							if (floorf(yoff) == floorf(yoff - d)){
+								/* not scrolling over page border */
+								yoff -= d;
+							} else {
+								/* scrolling over page border */
+								d -= (yoff - floorf(yoff));
+								yoff = floorf(yoff);
+								/* ratio of prev page can be different */
+								d = d * (float) sh / (float) shp;
+								yoff -= d;
+							}
+						}
+						if (yoff < 0)
+							yoff = 0;
+						if (yoff >= maxyoff())
+							yoff = maxyoff();
+					}
+					redraw();
+				break;
+				case 'j':
+					if (Fl::event_ctrl()) {
+						yoff = maxyoff();
+					} else {
+						u32 page = floorf(yoff);
+						s32 sh = pxrel(page);
+						s32 shn = sh;
+						if (page + 1 <= file->pages - 1)
+							shn = pxrel(page + 1);
+						if (h() + 2 * MARGIN * file->zoom >= sh) {
+							/* scroll down like Page_Down */
+							yoff = floorf(yoff + 1) + MARGIN * file->zoom / 2 / (float) shn;
+						} else {
+							/* scroll down less than one page height */
+							float d = (h() - MARGIN) / (float) sh;
+							if (floorf(yoff) == floorf(yoff + d)){
+								/* not scrolling over page border */
+								yoff += d;
+							} else {
+								/* scrolling over page border */
+								d -= (ceilf(yoff) - yoff);
+								yoff = ceilf(yoff);
+								/* ratio of next page can be different */
+								d = d * (float) sh / (float) shn;
+								yoff += d;
+							}
+						}
+						if (yoff < 0)
+							yoff = 0;
+						if (yoff >= maxyoff())
+							yoff = maxyoff();
+					}
+					redraw();
+				break;
 				case FL_Up:
 					yoff -= move;
 					if (yoff < 0)
@@ -497,18 +569,34 @@ int pdfview::handle(int e) {
 					redraw();
 				break;
 				case FL_Page_Up:
-					yoff -= 1;
-					yoff = floorf(yoff);
+				{
+					u32 page = floorf(yoff);
+					s32 sh = pxrel(page);
+					s32 shp = sh;
+					if (page!=0)
+						shp = pxrel(page - 1);
+					if (floorf(yoff) + MARGIN * file->zoom / (float) sh >= yoff) {
+						yoff = floorf(yoff - 1) + MARGIN * file->zoom / 2 / (float) shp;
+					}
+					else {
+						yoff = floorf(yoff) + MARGIN * file->zoom / 2 / (float) sh;
+					}
 					if (yoff < 0)
 						yoff = 0;
 					redraw();
+				}
 				break;
 				case FL_Page_Down:
-					yoff += 1;
-					yoff = floorf(yoff);
+				{
+					u32 page = floorf(yoff);
+					s32 shn = pxrel(page);
+					if (page + 1 <= file->pages - 1)
+						shn = pxrel(page + 1);
+					yoff = floorf(yoff + 1) + MARGIN * file->zoom / 2 / (float) shn;
 					if (yoff >= maxyoff())
 						yoff = maxyoff();
 					redraw();
+				}
 				break;
 				case FL_Home:
 					if (Fl::event_ctrl()) {
@@ -522,14 +610,8 @@ int pdfview::handle(int e) {
 					if (Fl::event_ctrl()) {
 						yoff = maxyoff();
 					} else {
-						s32 sh;
 						u32 page = yoff;
-						if (file->mode != Z_CUSTOM && file->mode != Z_PAGE) {
-							const float ratio = w() / (float) fullw(page);
-							sh = fullh(page) * ratio + MARGIN * file->zoom;
-						} else {
-							sh = (fullh(page) + MARGIN) * file->zoom;
-						}
+						s32 sh = pxrel(page);
 
 						if (file->cache[page].ready) {
 							const s32 hidden = sh - h();
