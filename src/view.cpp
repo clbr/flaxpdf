@@ -522,17 +522,24 @@ int pdfview::handle(int e) {
 					if (Fl::event_ctrl()) {
 						yoff = maxyoff();
 					} else {
-						const u32 page = yoff;
-						if (file->cache[page].ready) {
-							const s32 sh = (fullh(page) +
-									MARGIN)
-									* file->zoom;
-							const s32 hidden = sh - h();
+						s32 sh;
+						u32 page = yoff;
+						if (file->mode != Z_CUSTOM && file->mode != Z_PAGE) {
+							const float ratio = w() / (float) fullw(page);
+							sh = fullh(page) * ratio + MARGIN * file->zoom;
+						} else {
+							sh = (fullh(page) + MARGIN) * file->zoom;
+						}
 
-							yoff = floorf(yoff);
-							yoff += hidden / (float) sh;
+						if (file->cache[page].ready) {
+							const s32 hidden = sh - h();
+							float tmp = floorf(yoff) + hidden / (float) sh;
+							if (tmp > yoff)
+								yoff = tmp;
 							if (yoff < 0)
 								yoff = 0;
+							if (yoff >= maxyoff())
+								yoff = maxyoff();
 						} else {
 							yoff = ceilf(yoff) - 0.4f;
 						}
