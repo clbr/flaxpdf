@@ -487,7 +487,7 @@ int pdfview::handle(int e) {
 					if (Fl::event_ctrl()) {
 						yoff = 0;
 					} else {
-						u32 page = floorf(yoff);
+						const u32 page = yoff;
 						s32 sh = pxrel(page);
 						s32 shp = sh;
 						if (page > 0)
@@ -496,8 +496,7 @@ int pdfview::handle(int e) {
 							/* scroll up like Page_Up */
 							if (floorf(yoff) + MARGIN * file->zoom / (float) sh >= yoff) {
 								yoff = floorf(yoff - 1) + MARGIN * file->zoom / 2 / (float) shp;
-							}
-							else {
+							} else {
 								yoff = floorf(yoff) + MARGIN * file->zoom / 2 / (float) sh;
 							}
 						} else {
@@ -526,7 +525,7 @@ int pdfview::handle(int e) {
 					if (Fl::event_ctrl()) {
 						yoff = maxyoff();
 					} else {
-						u32 page = floorf(yoff);
+						const u32 page = yoff;
 						s32 sh = pxrel(page);
 						s32 shn = sh;
 						if (page + 1 <= file->pages - 1)
@@ -570,10 +569,10 @@ int pdfview::handle(int e) {
 				break;
 				case FL_Page_Up:
 				{
-					u32 page = floorf(yoff);
+					const u32 page = yoff;
 					s32 sh = pxrel(page);
 					s32 shp = sh;
-					if (page!=0)
+					if (page)
 						shp = pxrel(page - 1);
 					if (floorf(yoff) + MARGIN * file->zoom / (float) sh >= yoff) {
 						yoff = floorf(yoff - 1) + MARGIN * file->zoom / 2 / (float) shp;
