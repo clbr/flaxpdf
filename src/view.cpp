@@ -502,7 +502,7 @@ int pdfview::handle(int e) {
 						} else {
 							/* scroll up less than one page height */
 							float d = (h() - MARGIN) / (float) sh;
-							if (floorf(yoff) == floorf(yoff - d)){
+							if (((u32) floorf(yoff)) == ((u32) floorf(yoff - d))) {
 								/* not scrolling over page border */
 								yoff -= d;
 							} else {
@@ -536,7 +536,7 @@ int pdfview::handle(int e) {
 						} else {
 							/* scroll down less than one page height */
 							float d = (h() - MARGIN) / (float) sh;
-							if (floorf(yoff) == floorf(yoff + d)){
+							if (((u32) floorf(yoff)) == ((u32) floorf(yoff + d))) {
 								/* not scrolling over page border */
 								yoff += d;
 							} else {
