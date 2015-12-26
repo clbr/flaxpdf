@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "main.h"
 #include "wmicon.h"
 #include "icons.h"
+#include <FL/Fl_File_Icon.H>
 #include <getopt.h>
 #include <ctype.h>
 
@@ -186,6 +187,7 @@ int main(int argc, char **argv) {
 	}
 
 	Fl::scheme("gtk+");
+	Fl_File_Icon::load_system_icons();
 
 	file = (openfile *) xcalloc(1, sizeof(openfile));
 	int ptmp[2];
