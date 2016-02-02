@@ -269,7 +269,13 @@ float pdfview::maxyoff() const {
 	const s32 hidden = sh - h();
 
 	float f = last;
-	f += hidden / (float) sh;
+
+	if (hidden > 0) {
+		f += hidden / (float) sh;
+	} else {
+		f -= 1 - (sh / (float) h());
+		f += MARGIN / (float) h();
+	}
 
 	if (f < 0)
 		return 0;
