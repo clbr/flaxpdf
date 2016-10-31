@@ -1,4 +1,4 @@
-[Please note that this branch is in BETA. Still some work remaining to be done...]
+Please note that this branch is in BETA. Still some work remaining to be done...
 
 FlaxPDF
 =======
