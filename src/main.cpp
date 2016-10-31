@@ -35,6 +35,7 @@ static Fl_Pack *buttons = NULL;
 static Fl_Pack *v = NULL;
 static Fl_Button *showbtn = NULL;
 static Fl_Button *fullscreenbtn = NULL;
+static Fl_Button *recentselectbtn = NULL;
 
 static Fl_Scrollbar * vertical_scrollbar = NULL;
 
@@ -151,14 +152,21 @@ static void cb_zoombar(Fl_Input_Choice *w, void*) {
 static void adjust_display_from_recent(recent_file_struct &recent)
 {
 	view->set_params(recent.columns, recent.xoff, recent.yoff);
-	fullscreen = recent.fullscreen;
-	cb_fullscreen(NULL, NULL);
+	if ((recent.columns >= 1) && (recent.columns <= 5)) {
+		columns->value(recent.columns - 1);
+	}
+
+	fullscreen = !recent.fullscreen; // Must be inversed...
+	cb_fullscreen(NULL, NULL);       // ...as cb_fullscreen is a toggle
+	
 	if (recent.zoom_mode == Z_CUSTOM)
 		display_zoom(recent.zoom);
 	else
 		zoombar->value(menu_zoombar[recent.zoom_mode].text);
+
 	win->damage(FL_DAMAGE_ALL);
 	win->flush();
+	
 	win->position(recent.x, recent.y);
 	win->size(recent.width, recent.height);
 }
@@ -168,8 +176,6 @@ void cb_recent_select(Fl_Select_Browser *, void *) {
 	recent_win->hide();
 
 	int i = recent_select->value();
-
-	fl_message("Selected: %d", i);
 
 	if (i <= 0) return;
 
@@ -188,11 +194,13 @@ void cb_recent_select(Fl_Select_Browser *, void *) {
 static void cb_OpenRecent(Fl_Button*, void*) {
 
 	if (recent_win == NULL){
-		recent_win = new Fl_Window(10, 10, 250, 180, "Recent Files");
-		Fl_Pack *p = new Fl_Pack(10, 10, 230, 160);
+		recent_win = new Fl_Window(
+			win->x() + 30, 
+			win->y() + 100, 450, 180, "Recent Files");
+		Fl_Pack *p = new Fl_Pack(10, 10, 430, 160);
 		p->type(1);
 		{
-			recent_select = new Fl_Select_Browser(0, 0, 230, 160);
+			recent_select = new Fl_Select_Browser(0, 0, 430, 160);
 			recent_select->callback((Fl_Callback*)cb_recent_select);
 			recent_select->resizable();
 			recent_select->show();
@@ -394,11 +402,11 @@ int main(int argc, char **argv) {
 			o->callback((Fl_Callback*)cb_Open);
 			o->image(new Fl_PNG_Image("fileopen.png", img(document_open_png)));
 		} // Fl_Button* o
-		{ Fl_Button* o = new Fl_Button(0, pos += 48, 64, 48);
-			o->tooltip(_("Open a recent file"));
-			o->callback((Fl_Callback*)cb_OpenRecent);
-			o->image(new Fl_PNG_Image("fileopen.png", img(emblem_documents_png)));
-		} // Fl_Button* o
+		{ Fl_Button* recentselectbtn = new Fl_Button(0, pos += 48, 64, 48);
+			recentselectbtn->tooltip(_("Open a recent file"));
+			recentselectbtn->callback((Fl_Callback*)cb_OpenRecent);
+			recentselectbtn->image(new Fl_PNG_Image("fileopen.png", img(emblem_documents_png)));
+		} // Fl_Button* recentselectbtn
 		{ pagebox = new Fl_Input(0, pos += 48, 64, 24);
 			pagebox->value("0");
 			pagebox->callback((Fl_Callback*)goto_page);

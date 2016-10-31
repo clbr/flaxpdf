@@ -4,13 +4,12 @@ TODO
 - Re-integrate the original code for PageDown, PageUp, j and k
 - Scrollbars integration still to be completed
 - Bug with load of a new file when the current file is still being processed
-- Mouse scrolling left-right not working properly with multi-columns
+- [DONE] Mouse scrolling left-right not working properly with multi-columns 
 - Text selection not revised yet
 
 - Other aspects:
 
-	- Title page(s) management: to get proper pages on the same line
-	- Font. There maybe better fonts available
+	- Title page(s) management: to offset rest of the document when columns > 1
 	- Get rid of the "Create Directory" icon in the open file dialog
 	- Add a new integrated "Page + Trim", if possible...
 

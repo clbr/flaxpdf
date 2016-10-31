@@ -83,11 +83,13 @@ void pdfview::go(const u32 page) {
 }
 
 void pdfview::set_columns(int count) {
-	columns = count;
-	if (file && file->pages > 0) {
-		adjust_scrollbar_parameters();
+	if ((count >= 1) && (count <= 5)) {
+		columns = count;
+		if (file && file->pages > 0) {
+			adjust_scrollbar_parameters();
+		}
+		redraw();
 	}
-	redraw();
 }
 
 void pdfview::set_params(int columns_count, float x, float y) {
@@ -97,11 +99,7 @@ void pdfview::set_params(int columns_count, float x, float y) {
 
 	adjust_yoff(0);
 
-	columns = columns_count;
-	if (file && file->pages > 0) {
-		adjust_scrollbar_parameters();
-	}
-	redraw();
+	set_columns(columns_count);
 }
 
 void pdfview::reset() {
@@ -365,18 +363,6 @@ void pdfview::draw() {
 		W = Ws;
 		H = Hs;
 
-		/*
-		if (trimmed) {
-			// And undo.
-			Y -= zoomedmarginhalf;
-			H += zoomedmargin;
-		} else if (margins) {
-			// And undo.
-			Y -= cur->top * file->zoom;
-			H += (cur->top + cur->bottom) * file->zoom;
-		}
-		*/
-
 		H += zoomedmargin;
 		Y -= zoomedmarginhalf;
 		if (column == (columns - 1)) {
@@ -599,19 +585,16 @@ int pdfview::handle(int e) {
 				adjust_yoff(-((movedy / (float) h()) / file->zoom));
 			}
 
-			xoff += (movedx / file->zoom) / fullw(0);
-
-			//if (yoff < 0)
-			//	yoff = 0;
-			//if (yoff >= maxyoff())
-			//	yoff = maxyoff();
-
-			if (xoff < -1)
-				xoff = -1;
-			if (xoff > 1)
-				xoff = 1;
 			if (file->mode != Z_CUSTOM)
 				xoff = 0;
+			else {				
+				xoff += ((float) movedx / file->zoom) / fullw(0);
+				float maxchg = (((((float)w() / file->zoom) + (fullw(0) * columns)) / 2) / fullw(0)) - 0.1f;
+				if (xoff < -maxchg)
+					xoff = -maxchg;
+				if (xoff > maxchg)
+					xoff = maxchg;
+			}
 
 			lasty = my;
 			lastx = mx;
@@ -727,33 +710,26 @@ int pdfview::handle(int e) {
 				break;
 				case FL_Page_Up:
 				{
-					if (floorf(yoff) == yoff) 
-						adjust_floor_yoff(-1.0);
+					const u32 page = yoff;
+					s32 sh = pxrel(page);
+					s32 shp = sh;
+					if (page > columns)
+						shp = pxrel(page - columns);
+					float offset = (float)MARGIN * file->zoom / (float) sh;
+					if ((floorf(yoff) + offset) >= yoff)
+						adjust_floor_yoff(- (1.0 + (float)MARGIN * file->zoom / 2 / (float) shp));
 					else
-						adjust_floor_yoff(0.0);
-					//const u32 page = yoff;
-					//s32 sh = pxrel(page);
-					//s32 shp = sh;
-					//if (page)
-					//	shp = pxrel(page - 1);
-					//if (floorf(yoff) + MARGIN * file->zoom / (float) sh >= yoff) {
-					//	yoff = floorf(yoff - 1) + MARGIN * file->zoom / 2 / (float) shp;
-					//}
-					//else {
-					//	yoff = floorf(yoff) + MARGIN * file->zoom / 2 / (float) sh;
-					//}
-					//if (yoff < 0)
-					//	yoff = 0;
+						adjust_floor_yoff((float)MARGIN * file->zoom / 2 / (float) sh);
 					redraw();
 				}
 				break;
 				case FL_Page_Down:
 				{
-					adjust_floor_yoff(1);
-					//u32 page = floorf(yoff);
-					//s32 shn = pxrel(page);
-					//if (page + 1 <= file->pages - 1)
-					//	shn = pxrel(page + 1);
+					u32 page = yoff;
+					s32 shn = pxrel(page);
+					if (page + columns <= file->pages - 1)
+						shn = pxrel(page + columns);
+					adjust_floor_yoff(1.0f + file->zoom * MARGIN / 2 / (float)shn);
 					//yoff = floorf(yoff + 1) + MARGIN * file->zoom / 2 / (float) shn;
 					//if (yoff >= maxyoff())
 					//	yoff = maxyoff();

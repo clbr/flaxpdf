@@ -62,11 +62,11 @@ void save_to_config(
 		rf->yoff       = yoff;
 		rf->zoom       = zoom;
 		rf->zoom_mode  = zoommode;
+		rf->x          = x;
+		rf->y          = y;
 		rf->width      = w;
 		rf->height     = h;
 		rf->fullscreen = full;
-		rf->x          = x;
-		rf->y          = y;
 
 		// prev is NULL if it's already the first entry in the list
 		if (prev) {
@@ -84,11 +84,11 @@ void save_to_config(
 		rf->yoff       = yoff;
 		rf->zoom       = zoom;
 		rf->zoom_mode  = zoommode;
+		rf->x          = x;
+		rf->y          = y;
 		rf->width      = w;
 		rf->height     = h;
 		rf->fullscreen = full;
-		rf->x          = x;
-		rf->y          = y;
 
 		rf->next       = recent_files;
 		recent_files   = rf;
@@ -147,16 +147,16 @@ void load_config() {
 			if (file_exists(filename.c_str())) {
 				recent_file_struct *rf = new recent_file_struct;
 
-				if (!(s.lookupValue("filename"  , rf->filename ) &&
-				      s.lookupValue("columns"   , rf->columns  ) &&
-				      s.lookupValue("xoff"      , rf->xoff     ) &&
-				      s.lookupValue("yoff"      , rf->yoff     ) &&
-				      s.lookupValue("zoom"      , rf->zoom     ) &&
-				      s.lookupValue("zoom_mode" , rf->zoom_mode) &&
-				      s.lookupValue("width"     , rf->width    ) &&
-				      s.lookupValue("height"    , rf->height   ) &&
-				      s.lookupValue("x"         , rf->x        ) &&
-				      s.lookupValue("y"         , rf->y        ) &&
+				if (!(s.lookupValue("filename"  , rf->filename  ) &&
+				      s.lookupValue("columns"   , rf->columns   ) &&
+				      s.lookupValue("xoff"      , rf->xoff      ) &&
+				      s.lookupValue("yoff"      , rf->yoff      ) &&
+				      s.lookupValue("zoom"      , rf->zoom      ) &&
+				      s.lookupValue("zoom_mode" , rf->zoom_mode ) &&
+				      s.lookupValue("x"         , rf->x         ) &&
+				      s.lookupValue("y"         , rf->y         ) &&
+				      s.lookupValue("width"     , rf->width     ) &&
+				      s.lookupValue("height"    , rf->height    ) &&
 				      s.lookupValue("fullscreen", rf->fullscreen))) {
 					fl_alert(_("Configuration file content error: %s."), config_filename);
 					return;
@@ -219,10 +219,10 @@ void save_config() {
 			gr.add("yoff",       Setting::TypeFloat  ) = rf->yoff;
 			gr.add("zoom",       Setting::TypeFloat  ) = rf->zoom;
 			gr.add("zoom_mode",  Setting::TypeInt    ) = (int)rf->zoom_mode;
-			gr.add("width",      Setting::TypeInt    ) = rf->width;
-			gr.add("height",     Setting::TypeInt    ) = rf->height;
 			gr.add("x",          Setting::TypeInt    ) = rf->x;
 			gr.add("y",          Setting::TypeInt    ) = rf->y;
+			gr.add("width",      Setting::TypeInt    ) = rf->width;
+			gr.add("height",     Setting::TypeInt    ) = rf->height;
 			gr.add("fullscreen", Setting::TypeBoolean) = rf->fullscreen;
 
 			rf = rf->next;
