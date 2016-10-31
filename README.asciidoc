@@ -37,3 +37,18 @@ FlaxPDF		57% (5% *)	36.5 MB		45 KB
 * To be fair to all, these measurements were done using the Vesa driver.
 FlaxPDF, as the only one of the three, is able to take advantage of the GPU,
 dropping its CPU use when scrolling to 5% (tested on radeon).
+
+New capabilities added by Guy Turcotte (November 2016)
+------------------------------------------------------
+
+The following modifications have been made to allow FlaxPDF to be verstatile enough
+to be used everyday as a pdf document viewer.
+
+- Multi-columns document display
+- Selection button for the last 10 viewed documents
+- Automatically open the last viewed document
+- Fullscreen mode
+- PageUp and PageDown buttons
+- Exit button 
+- Scrollbars
+- Gnome standard icons
