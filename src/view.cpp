@@ -190,15 +190,15 @@ void pdfview::updatevisible(const bool fromdraw) {
 	u32 usedh = fullh;
 	switch (file->mode) {
 		case Z_TRIM:
-			file->zoom = (w() / columns) / (float) maxwmargin;
+			file->zoom = (float)(w() / columns) / maxwmargin;
 			usedh = maxh;
 		break;
 		case Z_WIDTH:
-			file->zoom = (w() / columns) / ((float) fullw - ((columns - 1) * MARGINHALF));
+			file->zoom = (float)(w() / columns) / fullw;
 		break;
 		case Z_PAGE:
 			if ((((float)(fullw * columns + ((columns - 1) * MARGINHALF))) / fullh) > ((float)w() / h())) {
-				file->zoom = (w() / columns) / ((float) fullw );
+				file->zoom = (float)(w() / columns) / fullw;
 			}
 			else {
 				file->zoom = (float)h() / fullh;
@@ -212,7 +212,7 @@ void pdfview::updatevisible(const bool fromdraw) {
 
 	const u32 zoomedmargin = MARGIN * file->zoom;
 	u32 i = file->first_visible;
-	u32 tmp = visible * usedh * file->zoom;
+	s32 tmp = visible * usedh * file->zoom;
 	tmp += zoomedmargin;
 	
 	while (tmp < h()) {
@@ -285,7 +285,7 @@ void pdfview::draw() {
 	H = pxrel(file->first_visible);
 	Y = y() - visible * H;
 
-	u32 i, column;
+	s32 i, column;
 
 	// Do the following for each visible page
 	for (i = file->first_visible, column = 0;
@@ -364,21 +364,26 @@ void pdfview::draw() {
 	fl_pop_clip();
 }
 
+// Compute the vertical screen size of a serie of pages that will be lined.
+// The columns variable indicates how many pages to consider. The 
+// page paremeter is the first page to be seen on the line.
 u32 pdfview::pxrel(u32 page) const {
 	u32 maxH = 0;
 	u32 h, p;
 	for (p = page; (p < (page + columns)) && (p < file->pages); p++) {
 		if (file->mode != Z_CUSTOM && file->mode != Z_PAGE) {
 			const float ratio = (w() / columns) / (float) fullw(p);
-			h = fullh(p) * ratio + MARGIN * file->zoom;
+			h = fullh(p) * ratio; //+ MARGIN * file->zoom;
 		}
 		else
-			h = (fullh(p) + MARGIN) * file->zoom;
+			h = (fullh(p) /* + MARGIN */) * file->zoom;
 		maxH = maxH > h ? maxH : h;
 	}
 	return maxH;
 }
 
+// Compute the maximum yoff value, taking care of the number of 
+// columns displayed and the screen size
 float pdfview::maxyoff() const {
 
 	float f;
@@ -397,9 +402,9 @@ float pdfview::maxyoff() const {
 		f = last;
 
 		if (hidden > 0) {
-			f += hidden / (float) sh - offset;
+			f += hidden / (float) sh + offset / 2;
 		} else {
-			f -= columns - (sh / (float) h()) + (columns * offset);
+			f -= columns - (sh / (float) h()) - offset / 2;
 		}
 		//f -= MARGIN / (float) sh;
 	}
@@ -615,12 +620,12 @@ int pdfview::handle(int e) {
 					if (Fl::event_ctrl()) {
 						yoff = 0;
 					} else {
-						const u32 page = yoff;
+						const s32 page = yoff;
 						s32 sh;
 						s32 shp = sh = pxrel(page);
 						if (page >= columns)
 							shp = pxrel(page - columns);
-						if (h() + 2 * MARGIN * file->zoom >= sh) {
+						if ((h() + (file->zoom * 2 * MARGIN)) >= sh) {
 							/* scroll up like Page_Up */
 							float offset = file->zoom * MARGIN / (float) sh;
 							if (floorf(yoff) + offset >= yoff) {
@@ -647,10 +652,10 @@ int pdfview::handle(int e) {
 					if (Fl::event_ctrl()) {
 						yoff = maxyoff();
 					} else {
-						const u32 page = yoff;
+						const s32 page = yoff;
 						s32 sh;
 						s32 shn = sh = pxrel(page);
-						if (page + columns <= file->pages - 1)
+						if (page + columns <= (s32)(file->pages - 1))
 							shn = pxrel(page + columns);
 						if (h() + 2 * MARGIN * file->zoom >= sh) {
 							/* scroll down like Page_Down */
@@ -680,24 +685,27 @@ int pdfview::handle(int e) {
 				break;
 				case FL_Page_Up:
 				{
-					const u32 page = yoff;
+					const s32 page = yoff;
 					s32 sh;
 					s32 shp = sh = pxrel(page);
 					if (page >= columns)
 						shp = pxrel(page - columns);
-					float offset = file->zoom * MARGIN / (float) sh;
-					if ((floorf(yoff) + offset) >= yoff)
+					float marginoffset = file->zoom * MARGIN / (float) sh;
+
+					if ((floorf(yoff) + marginoffset) >= yoff)
 						adjust_floor_yoff(- (1.0f - file->zoom * MARGIN / 2 / (float) shp));
 					else
-						adjust_floor_yoff(offset / 2);
+						adjust_floor_yoff(marginoffset / 2);
 					redraw();
 				}
 				break;
 				case FL_Page_Down:
 				{
-					u32 page = yoff;
-					s32 shn = pxrel((page + columns <= file->pages - 1) ? page + columns : page);
-					adjust_floor_yoff(1.0f + file->zoom * MARGIN / 2 / (float)shn);
+					s32 page = yoff;
+					s32 shn = pxrel((page + columns <= (s32)(file->pages - 1)) ? page + columns : page);
+					float marginoffset = file->zoom * MARGIN / (float) shn;
+
+					adjust_floor_yoff(1.0f + marginoffset / 2);
 					redraw();
 				}
 				break;
@@ -705,10 +713,12 @@ int pdfview::handle(int e) {
 				{
 					const u32 page = yoff;
 					const s32 sh = pxrel(page);
+					float marginoffset = file->zoom * MARGIN / (float) sh;
+
 					if (Fl::event_ctrl()) {
-						yoff = 0 + file->zoom * MARGIN / (float) sh / 2;
+						yoff = 0 + marginoffset / 2;
 					} else {
-						yoff = floorf(yoff) + file->zoom * MARGIN / (float) sh / 2;
+						yoff = floorf(yoff) + marginoffset / 2;
 					}
 					redraw();
 				}
@@ -719,10 +729,11 @@ int pdfview::handle(int e) {
 					} else {
 						u32 page = yoff;
 						s32 sh = pxrel(page);
+						float marginoffset = file->zoom * MARGIN / (float) sh;
 
 						if (file->cache[page].ready) {
 							const s32 hidden = sh - h();
-							float tmp = floorf(yoff) + hidden / (float) sh;
+							float tmp = floorf(yoff) + hidden / (float) sh + marginoffset / 2;
 							if (tmp > yoff)
 								yoff = tmp;
 							adjust_yoff(0);
