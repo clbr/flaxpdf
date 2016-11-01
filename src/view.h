@@ -48,6 +48,7 @@ private:
 	void adjust_yoff(float offset);
 	void adjust_floor_yoff(float offset);
 	void adjust_scrollbar_parameters();
+	void updatevisible(const bool fromdraw);
 
 	float yoff, xoff;
 	u32 cachedsize;

@@ -1,10 +1,13 @@
 TODO
 ----
 
-- Re-integrate the original code for PageDown, PageUp, j and k
-- Scrollbars integration still to be completed
-- Bug with load of a new file when the current file is still being processed
+- [DONE] Re-integrate the original code for PageDown, PageUp, j and k
 - [DONE] Mouse scrolling left-right not working properly with multi-columns 
+- Dimensions functions to be revised for discripencies in the With / High computations
+- Scrollbars integration still to be completed
+- Bug with load of a new file when the current file is still being processed -> crash
+- Get rid of compilation warnings
+
 - Text selection not revised yet
 
 - Other aspects:
