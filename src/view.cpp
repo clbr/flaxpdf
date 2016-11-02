@@ -118,6 +118,30 @@ void pdfview::reset() {
 	adjust_scrollbar_parameters();
 }
 
+u32 pdfview::pageh(u32 page) const {
+	if (file->cache[page].ready) {
+		if (file->mode == Z_TRIM || file->mode == Z_PGTRIM)
+			return file->cache[page].h;
+		else 
+			return  file->cache[page].h     +
+					file->cache[page].top   +
+					file->cache[page].bottom;
+	}
+	return 0;
+}
+
+u32 pdfview::pagew(u32 page) const {
+	if (file->cache[page].ready) {
+		if (file->mode == Z_TRIM || file->mode == Z_PGTRIM)
+			return file->cache[page].h;
+		else 
+			return  file->cache[page].h     +
+					file->cache[page].top   +
+					file->cache[page].bottom;
+	}
+	return 0;
+}
+
 u32 pdfview::fullh(u32 page) const {
 
 	if (!file->cache[page].ready)
@@ -191,16 +215,63 @@ static bool hasmargins(const u32 page) {
 		file->cache[page].bottom > MARGIN;
 }
 
-void pdfview::updatevisible(const bool fromdraw) {
+float pdfview::line_zoom_factor(const u32 first_page, u32 &w, u32 &h) const {
+
+    // compute the required zoom factor to fit the line of pages on the screen,
+    // according to the zoom mode parameter if not a custom zoom.
+
+	const u32 fullw = this->fullw(first_page);
+	const u32 fullh = this->fullh(first_page);
+
+	const float visible = yoff < 0 ? 0 : 1 - (yoff - floorf(yoff));
+
+	float zf;
+
+	switch (file->mode) {
+		case Z_TRIM:
+		case Z_WIDTH:
+			zf = (float)w() / fullw;
+		break;
+		case Z_PAGE:
+		case Z_PGTRIM:
+			if (((float)fullw / fullh) > ((float)w() / h())) {
+				zf = (float)w() / fullw;
+			}
+			else {
+				zf = (float)h() / fullh;
+			}
+		break;
+		case Z_CUSTOM:
+			zf = file->zoom;
+		break;
+	}
+
+	w = fullw;
+	h = fullh;
+
+	return zf;
+}
+
+void pdfview::update_visible(const bool fromdraw) const {
 
 	// From the current zoom mode and view offset, update the visible page info
 	// Will adjust the following parameters:
+	//
 	// - file->first_visible
 	// - file->last_visible
-	// - file->zoom
 	// - pagebox->value
+	// - scrollbar update
+	//
+	// This method as been extensively modified to take into account multicolumns
+	// and the fact that no page will be expected to be of the same size as the others,
+	// both for vertical and horizontal limits. Because of these constraints, the
+	// zoom factor cannot be applied to the whole screen but for each "line" of
+	// pages.
 
 	const u32 prev = file->first_visible;
+
+	// Those are very conservative. Maybe optimize a bit further.
+	static const u32 max_lines_per_screen[MAX_COLUMNS_COUNT] = [3, 4, 5, 6, 7];
 
 	// Adjust file->first_visible
 
@@ -208,63 +279,13 @@ void pdfview::updatevisible(const bool fromdraw) {
 	if (file->first_visible > file->pages - 1)
 		file->first_visible = file->pages - 1;
 
-    // Adjust file->zoom
-
-	const u32 maxw = file->maxw ? file->maxw : file->cache[0].w;
-	const u32 maxh = file->maxh ? file->maxh : file->cache[0].h;
-	const u32 maxwmargin = (hasmargins(file->first_visible) ? maxw + MARGIN * 2 : maxw) +
-								((columns - 1) * MARGINHALF);
-	const u32 fullw = this->fullw(0);
-	const u32 fullh = this->fullh(0);
-
-	const float visible = yoff < 0 ? 0 : 1 - (yoff - floorf(yoff));
-
-	u32 usedh = fullh;
-	switch (file->mode) {
-		case Z_TRIM:
-			file->zoom = (float)w() / maxwmargin;
-			usedh = maxh;
-		break;
-		case Z_WIDTH:
-			file->zoom = (float)w() / fullw;
-		break;
-		case Z_PAGE:
-			if (((float)fullw / fullh) > ((float)w() / h())) {
-				file->zoom = (float)w() / fullw;
-			}
-			else {
-				file->zoom = (float)h() / fullh;
-			}
-		break;
-		case Z_PGTRIM:
-			if (((float)fullw / fullh) > ((float)w() / h())) {
-				file->zoom = (float)w() / fullw;
-			}
-			else {
-				file->zoom = (float)h() / fullh;
-			}
-		break;
-		case Z_CUSTOM:
-		break;
-	}
-
 	// Adjust file->last_visible
 
-	const u32 zoomedmargin = MARGIN * file->zoom;
-	u32 i = file->first_visible;
-	s32 tmp = visible * usedh * file->zoom;
-	tmp += zoomedmargin;
-	
-	while (tmp < h()) {
-		tmp += usedh * file->zoom;
-		tmp += zoomedmargin;
-		i += columns;
-	}
-	// Be conservative
-	i += columns;
-	if (i > file->pages - 1)
-		i = file->pages - 1;
-	file->last_visible = i;
+	u32 new_last_visible = file->first_visible + max_lines_per_screen[columns - 1] * columns;
+	if (new_last_visible >= file->pages) 
+		file->last_visible = file->pages - 1;
+	else
+		file->last_visible = new_last_visible;
 
 	// If position has changed:
     //    - update current page visible number in the pagebox
@@ -276,9 +297,58 @@ void pdfview::updatevisible(const bool fromdraw) {
 
 		if (!fromdraw)
 			pagebox->redraw();
+
+		update_scrollbar();
 	}
 
-	update_scrollbar();
+
+	// // Adjust file->last_visible
+
+	// const u32 zoomedmargin = MARGIN * file->zoom;
+	// u32 i = file->first_visible;
+	// s32 tmp = visible * usedh * file->zoom;
+	// tmp += zoomedmargin;
+	
+	// while (tmp < h()) {
+	// 	tmp += usedh * file->zoom;
+	// 	tmp += zoomedmargin;
+	// 	i += columns;
+	// }
+	// // Be conservative
+	// i += columns;
+	// if (i > file->pages - 1)
+	// 	i = file->pages - 1;
+	// file->last_visible = i;
+
+	// // If position has changed:
+ //    //    - update current page visible number in the pagebox
+	// //    - request a redraw (if not already called by draw...)
+	// if (prev != file->first_visible) {
+	// 	char buf[10];
+	// 	snprintf(buf, 10, "%u", file->first_visible + 1);
+	// 	pagebox->value(buf);
+
+	// 	if (!fromdraw)
+	// 		pagebox->redraw();
+	// }
+
+	// update_scrollbar();
+}
+
+// Compute the vertical screen size of a line of pages
+u32 pdfview::pxrel(u32 page) const {
+	u32 maxH = 0;
+	u32 h, p;
+	for (p = page; (p < (page + columns)) && (p < file->pages); p++) {
+		if (file->mode != Z_CUSTOM && file->mode != Z_PAGE && file->mode != Z_PGTRIM) {
+			const float ratio = (w() / columns) / (float) fullw(p);
+			h = fullh(p) * ratio; //+ MARGIN * file->zoom;
+		}
+		else
+			h = (fullh(p) /* + MARGIN */) * file->zoom;
+		maxH = maxH > h ? maxH : h;
+	}
+	return maxH;
 }
 
 void pdfview::draw() {
@@ -286,7 +356,7 @@ void pdfview::draw() {
 	if (!file->cache)
 		return;
 
-	updatevisible(true);
+	update_visible(true);
 
 	const Fl_Color pagecol = FL_WHITE;
 	int X, Y, W, H;
@@ -316,110 +386,117 @@ void pdfview::draw() {
 	//W = w();
 	//H = h();
 
-	// Fill each page rect
-	const int   zoomedmargin     = file->zoom * MARGIN;
-	const int   zoomedmarginhalf = zoomedmargin / 2;
-	const float visible          = yoff - floorf(yoff);
-	int         maxH             = 0;
+	u32 current_screen_pos = 0;
+	u32 first_page_in_line = file->first_visible;
+	bool first_line = true;
 
-	H = pxrel(file->first_visible);
-	Y = y() - visible * H;
+	const float invisibleY = yoff - floorf(yoff);
 
-	s32 i, column;
+	s32 page;
 
-	// Do the following for each visible page
-	for (i = file->first_visible, column = 0;
-	     i <= (int)file->last_visible;
-	     i++, column = (column + 1) % columns) {
+	// Do the following for each line of pages
+	while (current_screen_pos < h() && (first_page_in_line < file->pages)) {
 
-		cur = &file->cache[i];
-		if (!cur->ready)
-			break;
+		float zoom;
+		u32 line_width, line_height;
+		zoom = line_zoom_factor(first_page_in_line, line_width, line_height);
 
-		//H = (fullh(i) + MARGIN) * file->zoom;
-		H = fullh(i) * file->zoom;
-		if (file->mode == Z_CUSTOM || file->mode == Z_PAGE || file->mode == Z_PGTRIM) {
-			W = fullw(i) * file->zoom;
-			X =  x() +
-			    (w() - (W * columns) - ((columns - 1) * zoomedmarginhalf)) / 2 +
-			    (xoff * W) +
-			    (column * W) +
-			    (column * zoomedmarginhalf);
-		}
-		else {
-			W = (w() - ((columns - 1) * zoomedmarginhalf)) / columns;
-			X =  x() + ( column * (W + zoomedmarginhalf));
+		const int   zoomedmargin     = zoom * MARGIN;
+		const int   zoomedmarginhalf = zoomedmargin / 2;
+		int         maxH             = 0;
 
-			// In case of different page sizes, H needs to be adjusted per-page
-			const float ratio = W / (float) fullw(i);
-			H = fullh(i) * ratio; // + zoomedmargin;
+		H = line_height * zoom; // Line of pages height in screen pixels
+
+		if (first_line) {
+			Y = y() - invisibleY * H;
+
+			first_line = false;
 		}
 
-		// XYW (but H) is now the full area including grey margins.
-		Y += zoomedmarginhalf;
-		//H -= zoomedmargin;
+		X = x() + w() / 2 - zoom * line_width / 2 - (xoff * line_width * zoom);
 
-		// XYWH is now the page's area.
-		if (Y >= (y() + h()))
-			continue;
+		// Do the following for each page in line
 
-		fl_rectf(Xs = X, Ys = Y, Ws = W, Hs = H, pagecol);
+		s32 column;
 
-		const bool margins = hasmargins(i);
-		const bool trimmed = margins && (file->mode == Z_TRIM || file->mode == Z_PGTRIM);
-		if (trimmed) {
-			// If the page was trimmed, have the real one a bit smaller
-			X += zoomedmarginhalf;
-			Y += zoomedmarginhalf;
-			W -= zoomedmargin;
-			H -= zoomedmargin;
-		} else if (margins) {
-			// Restore the full size with empty borders
-			X += cur->left * file->zoom;
-			Y += cur->top * file->zoom;
-			W -= (cur->left + cur->right) * file->zoom;
-			H -= (cur->top + cur->bottom) * file->zoom;
+		for (page = file->first_page_in_line, column = 0;
+		     (column < columns) && (page < file->pages);
+		     page++, column++) {
+
+			cur = &file->cache[page];
+			if (!cur->ready)
+				break;
+
+			//H = (fullh(i) + MARGIN) * file->zoom;
+			H = pageh(page) * zoom;
+			W = pagew(page) * zoom;
+
+			// if (file->mode == Z_CUSTOM || file->mode == Z_PAGE || file->mode == Z_PGTRIM) {
+			// 	W = pagew(page) * zoom;
+			// 	X =  x() +
+			// 	    (w() - (W * columns) - ((columns - 1) * zoomedmarginhalf)) / 2 +
+			// 	    (xoff * W) +
+			// 	    (column * W) +
+			// 	    (column * zoomedmarginhalf);
+			// }
+			// else { // file->mode == Z_TRIM || file->mode == Z_WIDTH
+			// 	W = (w() - ((columns - 1) * zoomedmarginhalf)) / columns;
+			// 	X =  x() + ( column * (W + zoomedmarginhalf));
+
+			// 	// In case of different page sizes, H needs to be adjusted per-page
+			// 	const float ratio = W / (float) fullw(i);
+			// 	H = fullh(i) * ratio; // + zoomedmargin;
+			// }
+
+			// // XYW (but H) is now the full area including grey margins.
+			// Y += zoomedmarginhalf;
+			// //H -= zoomedmargin;
+
+			// XYWH is now the page's area.
+			if (Y >= (y() + h()))
+				continue;
+
+			fl_rectf(Xs = X, Ys = Y, Ws = W, Hs = H, pagecol);
+
+			const bool margins = hasmargins(i);
+			const bool trimmed = margins && (file->mode == Z_TRIM || file->mode == Z_PGTRIM);
+			if (trimmed) {
+				// If the page was trimmed, have the real one a bit smaller
+				X += zoomedmarginhalf;
+				Y += zoomedmarginhalf;
+				W -= zoomedmargin;
+				H -= zoomedmargin;
+			} else if (margins) {
+				// Restore the full size with empty borders
+				X += cur->left * zoom;
+				Y += cur->top * zoom;
+				W -= (cur->left + cur->right) * zoom;
+				H -= (cur->top + cur->bottom) * zoom;
+			}
+
+			// Render real content
+			content(i, X, Y, W, H);
+
+			// And undo.
+			X = Xs;
+			Y = Ys;
+			W = Ws;
+			H = Hs;
+
+			X += zoomedmarginhalf + pagew(page);
 		}
 
-		// Render real content
-		content(i, X, Y, W, H);
+		// Prepare for next line of pages
 
-		// And undo.
-		X = Xs;
-		Y = Ys;
-		W = Ws;
-		H = Hs;
+		Y += (line_height * zoom) + zoomedmarginhalf;
 
-		H += zoomedmargin;
-		Y -= zoomedmarginhalf;
-		if (column == (columns - 1)) {
-			Y += maxH == 0 ? H : (maxH >= H ? maxH : H);
-			maxH = 0;
-		}
-		else {
-			maxH = maxH >= H ? maxH : H;
-		}
+		first_page_in_line += columns;
+		current_screen_pos += line_height + zoomedmarginhalf;
 	}
+
+	file->last_visible = page - 1;
 
 	fl_pop_clip();
-}
-
-// Compute the vertical screen size of a serie of pages that will be lined.
-// The columns variable indicates how many pages to consider. The 
-// page paremeter is the first page to be seen on the line.
-u32 pdfview::pxrel(u32 page) const {
-	u32 maxH = 0;
-	u32 h, p;
-	for (p = page; (p < (page + columns)) && (p < file->pages); p++) {
-		if (file->mode != Z_CUSTOM && file->mode != Z_PAGE && file->mode != Z_PGTRIM) {
-			const float ratio = (w() / columns) / (float) fullw(p);
-			h = fullh(p) * ratio; //+ MARGIN * file->zoom;
-		}
-		else
-			h = (fullh(p) /* + MARGIN */) * file->zoom;
-		maxH = maxH > h ? maxH : h;
-	}
-	return maxH;
 }
 
 // Compute the maximum yoff value, taking care of the number of 
@@ -633,8 +710,6 @@ int pdfview::handle(int e) {
 			lasty = my;
 			lastx = mx;
 
-			if (file->cache)
-				updatevisible(false);
 			redraw();
 		}
 		break;
@@ -649,8 +724,6 @@ int pdfview::handle(int e) {
 			}
 
 			resetselection();
-			if (file->cache)
-				updatevisible(false);
 			redraw();
 		break;
 		case FL_KEYDOWN:
@@ -792,7 +865,7 @@ int pdfview::handle(int e) {
 			}
 
 			if (file->cache)
-				updatevisible(false);
+				update_visible(false);
 
 			return 1;
 		break;

@@ -39,6 +39,8 @@ public:
 	inline int   get_columns() { return columns; };
 	void set_params(int columns_count, float x, float y);
 private:
+	float line_zoom_factor(u32 first_page, float &w, float &h) const;
+	void update_visible(const bool fromdraw) const;
 	u8 iscached(const u32 page) const;
 	void docache(const u32 page);
 	float maxyoff() const;
@@ -48,10 +50,11 @@ private:
 	void adjust_yoff(float offset);
 	void adjust_floor_yoff(float offset);
 	void adjust_scrollbar_parameters();
-	void updatevisible(const bool fromdraw);
+	u32 pageh(u32 page) const;
+	u32 pagew(u32 page) const;
 	u32 fullh(u32 page) const;
 	u32 fullw(u32 page) const;
-	
+
 	float yoff, xoff;
 	u32 cachedsize;
 	u8 *cache[CACHE_MAX];
