@@ -68,9 +68,10 @@ u8 details = 0;
 openfile *file = NULL;
 
 static Fl_Menu_Item menu_zoombar[] = {
-	{"Trim",  0, 0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
-	{"Width", 0, 0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
-	{"Page",  0, 0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+	{"Trim",   0, 0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+	{"Width",  0, 0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+	{"Page",   0, 0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+	{"PgTrim", 0, 0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
 	{0,0,0,0,0,0,0,0,0}
 };
 
@@ -141,6 +142,8 @@ static void cb_zoombar(Fl_Input_Choice *w, void*) {
 			file->mode = Z_WIDTH;
 		} else if (!strcmp(val, menu_zoombar[2].text)) {
 			file->mode = Z_PAGE;
+		} else if (!strcmp(val, menu_zoombar[3].text)) {
+			file->mode = Z_PGTRIM;
 		} else {
 			//fl_alert(_("Unrecognized zoom level"));
 		}

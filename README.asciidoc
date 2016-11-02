@@ -54,3 +54,68 @@ to be used everyday as a pdf document viewer.
 - Exit button 
 - Scrollbars
 - Gnome standard icons
+
+Installation
+------------
+
+The following packages are required and may need to be built and installed if not
+available as a package:
+
+- poppler (http://poppler.freedesktop.org/poppler-0.48.0.tar.xz)
+- fltk 1.3.3 (http://www.fltk.org/software.php?VERSION=1.3.3&FILE=fltk/1.3.3/fltk-1.3.3-source.tar.gz)
+
+The following packages are available via apt-get under linux:
+
+- libconfig++ ("$ sudo apt-get install libconfig++-dev")
+- libjpeg ("$ sudo apt-get install libjpeg-dev")
+- libpng ("$ sudo apt-get install libpng-dev")
+- libtiff ("$ sudi apt-get install libtiff-dev")
+
+Poppler
+-------
+
+To properly build poppler, some libraries are required to be installed. That's the case for
+libjpeg, libpng and libtiff. Other libraries are required and are often already installed. Here is
+a page to get some more informations about the dependencies:
+
+http://www.linuxfromscratch.org/blfs/view/svn/general/poppler.html
+
+Once the popper library untared, you need to configure it with the following command:
+
+------------------------------------------
+./configure --prefix=/usr               \
+            --sysconfdir=/etc           \
+            --disable-static            \
+            --enable-build-type=release \
+            --enable-cmyk               \
+            --enable-xpdf-headers
+------------------------------------------
+
+After that, the usual commands make && sudo make install will complete the installation.
+
+FLTK
+----
+
+The FLTK library is installed using the usual GNU autoconf commands:
+
+--------------------
+$ ./configure
+$ make
+$ sudo make install
+--------------------
+
+FlaxPDF
+-------
+
+To install FlaxPDF, the following commands are required:
+
+--------------------
+$ ./autogen.sh
+$ ./configure
+$ make
+$ sudo make install
+--------------------
+
+All the previously indicated libraries must have been installed before building 
+the application. The installation will add an entry into the OFFICE main menu of you 
+linux installation.

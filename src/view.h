@@ -49,7 +49,9 @@ private:
 	void adjust_floor_yoff(float offset);
 	void adjust_scrollbar_parameters();
 	void updatevisible(const bool fromdraw);
-
+	u32 fullh(u32 page) const;
+	u32 fullw(u32 page) const;
+	
 	float yoff, xoff;
 	u32 cachedsize;
 	u8 *cache[CACHE_MAX];

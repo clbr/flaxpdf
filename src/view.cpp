@@ -118,30 +118,62 @@ void pdfview::reset() {
 	adjust_scrollbar_parameters();
 }
 
-static u32 fullh(u32 page) {
+u32 pdfview::fullh(u32 page) const {
+
 	if (!file->cache[page].ready)
 		page = 0;
 
-	if (file->mode == Z_TRIM)
-		return file->cache[page].h;
+	u32 fh = 0;
+	s32 i;
 
-	return
-	    file->cache[page].h     +
-		file->cache[page].top   +
-		file->cache[page].bottom;
+	if (file->mode == Z_TRIM || file->mode == Z_PGTRIM) {
+		for (i = page; (i < (page + columns)) && (i < file->pages); i++) {
+			if (file->cache[i].ready && (file->cache[i].h > fh))
+				fh = file->cache[i].h;
+		}
+	}
+	else {
+		for (i = page; (i < (page + columns)) && (i < file->pages); i++) {
+			if (file->cache[i].ready) {
+				u32 h = file->cache[page].h     +
+						file->cache[page].top   +
+						file->cache[page].bottom;
+				if (h > fh)
+					fh = h;
+			}
+		}				
+	}
+
+	return fh;
 }
 
-static u32 fullw(u32 page) {
-	if (!file->cache[page].ready)
-		page = 0;
+u32 pdfview::fullw(u32 page) const {
+	u32 fw = 0;
+	s32 i;
 
-	if (file->mode == Z_TRIM)
-		return file->cache[page].w;
+	if (file->mode == Z_TRIM || file->mode == Z_PGTRIM) {
+		for (i = page; (i < (page + columns)) && (i < file->pages); i++) {
+			if (file->cache[i].ready)
+				fw += file->cache[i].w;
+			else
+				fw += file->cache[0].w;
+		}
+	}
+	else {
+		for (i = page; (i < (page + columns)) && (i < file->pages); i++) {
+			if (file->cache[i].ready) {
+				fw += file->cache[page].w    +
+					  file->cache[page].left +
+					  file->cache[page].right;
+			else
+				fw += file->cache[0].w    +
+					  file->cache[0].left +
+					  file->cache[0].right;
+			}
+		}
+	}
 
-	return
-	    file->cache[page].w    +
-		file->cache[page].left +
-		file->cache[page].right;
+	return fw + (columns - 1) * MARGINHALF;
 }
 
 static bool hasmargins(const u32 page) {
@@ -182,23 +214,31 @@ void pdfview::updatevisible(const bool fromdraw) {
 	const u32 maxh = file->maxh ? file->maxh : file->cache[0].h;
 	const u32 maxwmargin = (hasmargins(file->first_visible) ? maxw + MARGIN * 2 : maxw) +
 								((columns - 1) * MARGINHALF);
-	const u32 fullw = ::fullw(0);
-	const u32 fullh = ::fullh(0);
+	const u32 fullw = this->fullw(0);
+	const u32 fullh = this->fullh(0);
 
 	const float visible = yoff < 0 ? 0 : 1 - (yoff - floorf(yoff));
 
 	u32 usedh = fullh;
 	switch (file->mode) {
 		case Z_TRIM:
-			file->zoom = (float)(w() / columns) / maxwmargin;
+			file->zoom = (float)w() / maxwmargin;
 			usedh = maxh;
 		break;
 		case Z_WIDTH:
-			file->zoom = (float)(w() / columns) / fullw;
+			file->zoom = (float)w() / fullw;
 		break;
 		case Z_PAGE:
-			if ((((float)(fullw * columns + ((columns - 1) * MARGINHALF))) / fullh) > ((float)w() / h())) {
-				file->zoom = (float)(w() / columns) / fullw;
+			if (((float)fullw / fullh) > ((float)w() / h())) {
+				file->zoom = (float)w() / fullw;
+			}
+			else {
+				file->zoom = (float)h() / fullh;
+			}
+		break;
+		case Z_PGTRIM:
+			if (((float)fullw / fullh) > ((float)w() / h())) {
+				file->zoom = (float)w() / fullw;
 			}
 			else {
 				file->zoom = (float)h() / fullh;
@@ -298,7 +338,7 @@ void pdfview::draw() {
 
 		//H = (fullh(i) + MARGIN) * file->zoom;
 		H = fullh(i) * file->zoom;
-		if (file->mode == Z_CUSTOM || file->mode == Z_PAGE) {
+		if (file->mode == Z_CUSTOM || file->mode == Z_PAGE || file->mode == Z_PGTRIM) {
 			W = fullw(i) * file->zoom;
 			X =  x() +
 			    (w() - (W * columns) - ((columns - 1) * zoomedmarginhalf)) / 2 +
@@ -326,7 +366,7 @@ void pdfview::draw() {
 		fl_rectf(Xs = X, Ys = Y, Ws = W, Hs = H, pagecol);
 
 		const bool margins = hasmargins(i);
-		const bool trimmed = margins && file->mode == Z_TRIM;
+		const bool trimmed = margins && (file->mode == Z_TRIM || file->mode == Z_PGTRIM);
 		if (trimmed) {
 			// If the page was trimmed, have the real one a bit smaller
 			X += zoomedmarginhalf;
@@ -371,7 +411,7 @@ u32 pdfview::pxrel(u32 page) const {
 	u32 maxH = 0;
 	u32 h, p;
 	for (p = page; (p < (page + columns)) && (p < file->pages); p++) {
-		if (file->mode != Z_CUSTOM && file->mode != Z_PAGE) {
+		if (file->mode != Z_CUSTOM && file->mode != Z_PAGE && file->mode != Z_PGTRIM) {
 			const float ratio = (w() / columns) / (float) fullw(p);
 			h = fullh(p) * ratio; //+ MARGIN * file->zoom;
 		}
@@ -440,7 +480,7 @@ int pdfview::handle(int e) {
 				const u32 ratiominus = hasmargins(page) ? zoomedmargin : 0;
 				const float ratio = w() / (float) fullw(page);
 				const float ratiox = (w() - ratiominus) / (float) fullw(page);
-				if (file->mode != Z_CUSTOM && file->mode != Z_PAGE) {
+				if (file->mode != Z_CUSTOM && file->mode != Z_PAGE && file->mode != Z_PGTRIM) {
 					zoomedh = fullh(page) * visible * ratio;
 				}
 
@@ -472,6 +512,7 @@ int pdfview::handle(int e) {
 				// Offset
 				switch (file->mode) {
 					case Z_TRIM:
+					case Z_PGTRIM:
 						// X and Y start in widget space, 0 to w/h.
 						Y += floored * (fullh(page) * ratiox +
 								zoomedmargin + ratiominus);
@@ -567,7 +608,7 @@ int pdfview::handle(int e) {
 			fl_cursor(FL_CURSOR_MOVE);
 
 			if (file->maxh) {
-				if (file->mode != Z_TRIM)
+				if (file->mode != Z_TRIM && file->mode != Z_PGTRIM)
 					//yoff -= (movedy / file->zoom) / fullh(0);
 					adjust_yoff(-((movedy / file->zoom) / fullh(0)));
 				else

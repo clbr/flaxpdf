@@ -80,6 +80,7 @@ enum zoommode {
 	Z_TRIM = 0,
 	Z_WIDTH,
 	Z_PAGE,
+	Z_PGTRIM,
 	Z_CUSTOM
 };
 
