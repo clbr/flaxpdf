@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "main.h"
 
-#define CACHE_MAX 3
+#define CACHE_MAX 15
 
 class pdfview: public Fl_Widget {
 public:
@@ -31,7 +31,7 @@ public:
 	void go(const u32 page);
 	void reset();
 	void resetselection();
-	void update_scrollbar();
+	void update_scrollbar() const;
 	void set_columns(int count);
 	void update_position(const int vscroll_pos);
 	inline float get_xoff() { return xoff; };
@@ -39,7 +39,7 @@ public:
 	inline int   get_columns() { return columns; };
 	void set_params(int columns_count, float x, float y);
 private:
-	float line_zoom_factor(u32 first_page, float &w, float &h) const;
+	float line_zoom_factor(u32 first_page, u32 &width,u32 &height) const;
 	void update_visible(const bool fromdraw) const;
 	u8 iscached(const u32 page) const;
 	void docache(const u32 page);

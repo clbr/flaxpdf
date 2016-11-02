@@ -65,6 +65,8 @@ void debug(Fl_Box * ctrl, const float value, const char * hint);
 
 bool loadfile(const char *, recent_file_struct *recent_files);
 
+const int MAX_COLUMNS_COUNT = 5;
+
 struct cachedpage {
 	u8 *data;
 	u32 size;
