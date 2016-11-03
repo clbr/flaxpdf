@@ -50,6 +50,7 @@ private:
 	void adjust_yoff(float offset);
 	void adjust_floor_yoff(float offset);
 	void adjust_scrollbar_parameters();
+	void end_of_selection();
 	u32 pageh(u32 page) const;
 	u32 pagew(u32 page) const;
 	u32 fullh(u32 page) const;
