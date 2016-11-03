@@ -31,16 +31,19 @@ public:
 	void go(const u32 page);
 	void reset();
 	void resetselection();
-	void update_scrollbar() const;
 	void set_columns(int count);
 	void update_position(const int vscroll_pos);
 	inline float get_xoff() { return xoff; };
 	inline float get_yoff() { return yoff; };
 	inline int   get_columns() { return columns; };
 	void set_params(int columns_count, float x, float y);
+	void page_up();
+	void page_down();
 private:
 	float line_zoom_factor(u32 first_page, u32 &width,u32 &height) const;
 	void update_visible(const bool fromdraw) const;
+	void update_scrollbars() const;
+	void adjust_scrollbar_parameters() const;
 	u8 iscached(const u32 page) const;
 	void docache(const u32 page);
 	float maxyoff() const;
@@ -49,7 +52,6 @@ private:
 			const u32 w, const u32 h);
 	void adjust_yoff(float offset);
 	void adjust_floor_yoff(float offset);
-	void adjust_scrollbar_parameters();
 	void end_of_selection();
 	u32 pageh(u32 page) const;
 	u32 pagew(u32 page) const;

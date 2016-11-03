@@ -62,6 +62,8 @@ extern u8 details;
 extern int writepipe;
 
 void debug(Fl_Box * ctrl, const float value, const char * hint);
+void debug(Fl_Box * ctrl, const s32   value, const char * hint);
+void debug(Fl_Box * ctrl, const u32   value, const char * hint);
 
 bool loadfile(const char *, recent_file_struct *recent_files);
 

@@ -86,12 +86,56 @@ static Fl_Menu_Item menu_columns[] = {
 
 void debug(Fl_Box * ctrl, const float value, const char * hint) {
 
-  char tmp[20];
+	char tmp[20];
 
-  snprintf(tmp, 20, "%4.2f", value);
-  ctrl->copy_label(tmp);
-  ctrl->tooltip(hint);
-  ctrl->redraw_label();
+	snprintf(tmp, 20, "%5.3f", value);
+	ctrl->copy_label(tmp);
+	ctrl->tooltip(hint);
+	ctrl->redraw_label();
+	Fl::check();
+}
+
+void debug(Fl_Box * ctrl, const u32 value, const char * hint) {
+
+	char tmp[20];
+
+	snprintf(tmp, 20, "%u", value);
+	ctrl->copy_label(tmp);
+	ctrl->tooltip(hint);
+	ctrl->redraw_label();
+	Fl::check();
+}
+
+void debug(Fl_Box * ctrl, const s32 value, const char * hint) {
+
+	char tmp[20];
+
+	snprintf(tmp, 20, "%d", value);
+	ctrl->copy_label(tmp);
+	ctrl->tooltip(hint);
+	ctrl->redraw_label();
+	Fl::check();
+}
+
+void save_current_to_config() {
+	save_to_config(
+		file->filename,
+		view->get_columns(),
+		view->get_xoff(),
+		view->get_yoff(),
+		file->zoom,
+		file->mode,
+		win->x(),
+		win->y(),
+		win->w(),
+		win->h(),
+		fullscreen);	
+}
+
+void cb_exit(Fl_Widget*, void*) {
+	save_current_to_config();
+	save_config();
+	exit(0);
 }
 
 void cb_fullscreen(Fl_Button*, void*) {
@@ -107,10 +151,13 @@ void cb_fullscreen(Fl_Button*, void*) {
 		fullscreenbtn->tooltip(_("Exit Full Screen"));
 		win->fullscreen();
 	}
+	view->take_focus();
 }
 
 static void cb_Open(Fl_Button*, void*) {
+	save_current_to_config();
 	loadfile(NULL, NULL);
+	view->take_focus();
 }
 
 static void display_zoom(const float what)
@@ -126,6 +173,7 @@ static void applyzoom(const float what) {
 
 	display_zoom(what);
 
+	view->take_focus();
 	view->resetselection();
 	view->redraw();
 }
@@ -149,6 +197,7 @@ static void cb_zoombar(Fl_Input_Choice *w, void*) {
 		}
 	}
 
+	view->take_focus();
 	view->redraw();
 }
 
@@ -190,8 +239,11 @@ void cb_recent_select(Fl_Select_Browser *, void *) {
  		i -= 1;
 	}
 
-	if ((rf != NULL) && loadfile(NULL, rf))
+	save_current_to_config();
+	if ((rf != NULL) && loadfile(NULL, rf)) {
 		adjust_display_from_recent(*rf);
+		view->take_focus();
+	}
 }
 
 static void cb_OpenRecent(Fl_Button*, void*) {
@@ -230,25 +282,25 @@ static void cb_columns(Fl_Choice *w, void*) {
 }
 
 void cb_page_up(Fl_Button*, void*) {
-	Fl::e_keysym = FL_Page_Up;
-	Fl::handle_(FL_KEYDOWN, win);
-	Fl::handle_(FL_KEYUP, win);
+	view->page_up();
+	view->take_focus();
 }
 
 void cb_page_down(Fl_Button*, void*) {
-	Fl::e_keysym = FL_Page_Down;
-	Fl::handle_(FL_KEYDOWN, win);
-	Fl::handle_(FL_KEYUP, win);
+	view->page_down();
+	view->take_focus();
 }
 
 void cb_Zoomin(Fl_Button*, void*) {
 	file->zoom *= 1.2f;
 	applyzoom(file->zoom);
+	view->take_focus();
 }
 
 void cb_Zoomout(Fl_Button*, void*) {
 	file->zoom *= 0.833333;
 	applyzoom(file->zoom);
+	view->take_focus();
 }
 
 void cb_hide(Fl_Widget*, void*) {
@@ -260,30 +312,15 @@ void cb_hide(Fl_Widget*, void*) {
 		showbtn->hide();
 		buttons->show();
 	}
+	view->take_focus();
 }
 
 void cb_vertical_scrollbar(Fl_Widget*, void*) {
 	view->update_position(vertical_scrollbar->value());
+	view->take_focus();
 }
 
-void cb_exit(Fl_Widget*, void*) {
-	save_to_config(
-		file->filename,
-		view->get_columns(),
-		view->get_xoff(),
-		view->get_yoff(),
-		file->zoom,
-		file->mode,
-		win->x(),
-		win->y(),
-		win->w(),
-		win->h(),
-		fullscreen);
-	save_config();
-	exit(0);
-}
-
-static void goto_page(Fl_Input *w, void*) {
+static void cb_goto_page(Fl_Input *w, void*) {
 	const u32 which = atoi(w->value()) - 1;
 	if (which >= file->pages) {
 		fl_alert(_("Page out of bounds"));
@@ -412,7 +449,7 @@ int main(int argc, char **argv) {
 		} // Fl_Button* recentselectbtn
 		{ pagebox = new Fl_Input(0, pos += 48, 64, 24);
 			pagebox->value("0");
-			pagebox->callback((Fl_Callback*)goto_page);
+			pagebox->callback((Fl_Callback*)cb_goto_page);
 			pagebox->when(FL_WHEN_ENTER_KEY | FL_WHEN_NOT_CHANGED);
 		} // Fl_Box* pagectr
 		{ pagectr = new Fl_Box(0, pos += 24, 64, 24, "/ 0");
@@ -480,31 +517,24 @@ int main(int argc, char **argv) {
 			fullscreenbtn->tooltip(_("Enter Full Screen"));
 		}
 		{ debug1 = new Fl_Box(0, pos += 38, 64, 32, "");
-			debug1->box(FL_ENGRAVED_FRAME);
 			debug1->align(FL_ALIGN_WRAP);
 		} // Fl_Box* debug1
 		{ debug2 = new Fl_Box(0, pos += 32, 64, 32, "");
-			debug2->box(FL_ENGRAVED_FRAME);
 			debug2->align(FL_ALIGN_WRAP);
 		} // Fl_Box* debug2
 		{ debug3 = new Fl_Box(0, pos += 32, 64, 32, "");
-			debug3->box(FL_ENGRAVED_FRAME);
 			debug3->align(FL_ALIGN_WRAP);
 		} // Fl_Box* debug3
 		{ debug4 = new Fl_Box(0, pos += 32, 64, 32, "");
-			debug4->box(FL_ENGRAVED_FRAME);
 			debug4->align(FL_ALIGN_WRAP);
 		} // Fl_Box* debug4
 		{ debug5 = new Fl_Box(0, pos += 32, 64, 32, "");
-			debug5->box(FL_ENGRAVED_FRAME);
 			debug5->align(FL_ALIGN_WRAP);
 		} // Fl_Box* debug5
 		{ debug6 = new Fl_Box(0, pos += 32, 64, 32, "");
-			debug6->box(FL_ENGRAVED_FRAME);
 			debug6->align(FL_ALIGN_WRAP);
 		} // Fl_Box* debug6
 		{ debug7 = new Fl_Box(0, pos += 32, 64, 32, "");
-			debug7->box(FL_ENGRAVED_FRAME);
 			debug7->align(FL_ALIGN_WRAP);
 		} // Fl_Box* debug7
 		{ Fl_Box *fill_box = new Fl_Box(0, pos += 32, 64, 64, "");

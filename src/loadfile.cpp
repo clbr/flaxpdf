@@ -181,6 +181,8 @@ static bool notdone(const bool arr[], const u32 num) {
 	return false;
 }
 
+static bool aborting = false;
+
 static void *renderer(void *) {
 
 	// Optional timing
@@ -207,6 +209,8 @@ static void *renderer(void *) {
 
 		while (notdone(done, chunks)) {
 			for (c = 0; c < chunks; c++) {
+
+				if (aborting) return NULL;
 
 				// Did the user skip around?
 				const u32 first = __sync_fetch_and_add(&file->first_visible, 0);
@@ -289,6 +293,7 @@ bool loadfile(const char *file, recent_file_struct *recent_files) {
 
 	// Parse info
 	GooString gooname(file);
+
 	PDFDoc *pdf = new PDFDoc(&gooname);
 	if (!pdf->isOk()) {
 		const int err = pdf->getErrorCode();
@@ -313,7 +318,8 @@ bool loadfile(const char *file, recent_file_struct *recent_files) {
 
 	if (::file->cache) {
 		// Free the old one
-		pthread_cancel(::file->tid);
+		//pthread_cancel(::file->tid);
+		aborting = true;
 		pthread_join(::file->tid, NULL);
 
 		u32 i;
@@ -354,6 +360,7 @@ bool loadfile(const char *file, recent_file_struct *recent_files) {
 	const struct sched_param nice = { 15 };
 	pthread_attr_setschedparam(&attr, &nice);
 
+	aborting = false;
 	pthread_create(&::file->tid, &attr, renderer, NULL);
 
 	// Update title
