@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MARGIN 36
 #define MARGINHALF 18
 
-pdfview::pdfview(int x, int y, int w, int h): Fl_Widget(x, y, w, h),
+pdfview::pdfview(int x, int y, int w, int h): Fl_Scroll(x, y, w, h),
 		yoff(0), xoff(0),
 		selx(0), sely(0), selx2(0), sely2(0),
 		columns(1) {
@@ -40,28 +40,54 @@ void pdfview::resetselection() {
 	selx = sely = selx2 = sely2 = 0;
 }
 
-void pdfview::set_scrollbar(Fl_Scrollbar* vscroll) {
-	vertical_scrollbar = vscroll;
+void pdfview::compute_screen_size() {
+	// This will be changed once I understand Fl_Scroll...
+	screen_x = x();
+	screen_y = y();
+	//bbox(screen_x, screen_y, screen_width, screen_height);
+	//if (!hscrollbar.visible())
+		screen_height = h();
+	//if (!scrollbar.visible())
+		screen_width = w();
 }
 
 void pdfview::adjust_scrollbar_parameters() const {
-	float y = floorf(yoff);
-	float frac = yoff - y;
-	float k = file->pages - columns + 1;
-	k = k < columns ? columns : k;
-	int relpos = ((y / columns + frac) / (k / columns)) * 50000;
-	int size = 50000 / (k / columns);
-	vertical_scrollbar->value(relpos, size, 0, 50000);
+
+	s32 tmp;
+
+	float length = maxyoff();
+	tmp = length;
+	length = (length - tmp) + (tmp / columns);
+
+
+	float relpos = yoff;
+	tmp = relpos;
+	relpos = (relpos - tmp) + (tmp / columns);
+
+	debug(debug6, 50000 * relpos / length, "Scrollbar position");
+	debug(debug7, 50000 / length, "Size");
+
+	//vertical_scrollbar->value(50000 * relpos / length, 50000 / length, 0, 50000);
 }
 
 // From the document position, update scrollbar position.
 void pdfview::update_scrollbars() const {
-	float y = floorf(yoff);
-	float frac = yoff - y;
-	float k = file->pages - columns + 1;
-	k = k < columns ? columns : k;
-	int relpos = ((y / columns + frac) / (k / columns)) * 50000;
-	vertical_scrollbar->value(relpos);
+
+	s32 tmp;
+
+	float length = maxyoff();
+	tmp = length;
+	length = (length - tmp) + (tmp / columns);
+
+	float relpos = yoff;
+	tmp = relpos;
+	relpos = (relpos - tmp) + (tmp / columns);
+
+	debug(debug1, relpos, "relpos");
+	debug(debug2, length, "length");
+	debug(debug3, 50000 * relpos / length, "scrollbar position");
+
+	//vertical_scrollbar->value(50000 * relpos / length);
 }
 
 // From the scrollbar position, update position in the document.
@@ -224,20 +250,21 @@ float pdfview::line_zoom_factor(const u32 first_page, u32 &width, u32 &height) c
 	const u32 line_width  = fullw(first_page);
 	const u32 line_height = fullh(first_page);
 
+
 	float zoom_factor;
 
 	switch (file->mode) {
 		case Z_TRIM:
 		case Z_WIDTH:
-			zoom_factor = (float)this->w() / line_width;
+			zoom_factor = (float)screen_width / line_width;
 		break;
 		case Z_PAGE:
 		case Z_PGTRIM:
-			if (((float)line_width / line_height) > ((float)this->w() / this->h())) {
-				zoom_factor = (float)this->w() / line_width;
+			if (((float)line_width / line_height) > ((float)screen_width / screen_height)) {
+				zoom_factor = (float)screen_width / line_width;
 			}
 			else {
-				zoom_factor = (float)this->h() / line_height;
+				zoom_factor = (float)screen_height / line_height;
 			}
 		break;
 		default:
@@ -319,13 +346,14 @@ void pdfview::draw() {
 	if (!file->cache)
 		return;
 
+	compute_screen_size();
 	update_visible(true);
 
 	const Fl_Color pagecol = FL_WHITE;
 	int X, Y, W, H;
 	int Xs, Ys, Ws, Hs; // Saved values
 
-	fl_clip_box(x(), y(), w(), h(), X, Y, W, H);
+	fl_clip_box(screen_x, screen_y, screen_width, screen_height, X, Y, W, H);
 
 	// If nothing is visible on screen, nothing to do
 	if (W == 0 || H == 0)
@@ -356,7 +384,7 @@ void pdfview::draw() {
 	u32 page = file->first_visible;
 
 	// Do the following for each line of pages
-	while (current_screen_pos < h() && (first_page_in_line < file->pages)) {
+	while (current_screen_pos < screen_height && (first_page_in_line < file->pages)) {
 
 		float zoom;
 		u32 line_width, line_height;
@@ -368,12 +396,12 @@ void pdfview::draw() {
 		H = line_height * zoom; // Line of pages height in screen pixels
 
 		if (first_line) {
-			Y = y() - invisibleY * H;
+			Y = screen_y - invisibleY * H;
 
 			first_line = false;
 		}
 
-		X = x() + w() / 2 - zoom * line_width / 2 + (zoom * xoff * line_width);
+		X = screen_x + screen_width / 2 - zoom * line_width / 2 + (zoom * xoff * line_width);
 
 		// Do the following for each page in line
 
@@ -425,7 +453,7 @@ void pdfview::draw() {
 		Y += (line_height * zoom) + zoomedmarginhalf;
 
 		first_page_in_line += columns;
-		current_screen_pos = Y - y();
+		current_screen_pos = Y - screen_y;
 	}
 
 	file->last_visible = page;
@@ -448,7 +476,7 @@ float pdfview::maxyoff() const {
 	if (!file->cache[last].ready)
 		f = last + 0.5f;
 	else {
-		s32 H = this->h();
+		s32 H = screen_height;
 
 		while (true) {
 			zoom = line_zoom_factor(last, line_width, line_height);
@@ -470,8 +498,6 @@ float pdfview::maxyoff() const {
 	return f;
 }
 
-static int lasty, lastx;
-
 void pdfview::end_of_selection() {
 
 	const u32 zoomedmargin = MARGIN * file->zoom;
@@ -483,8 +509,8 @@ void pdfview::end_of_selection() {
 	const float visible = 1 - floored;
 	u32 zoomedh = fullh(page) * visible * file->zoom;
 	const u32 ratiominus = hasmargins(page) ? zoomedmargin : 0;
-	const float ratio = w() / (float) fullw(page);
-	const float ratiox = (w() - ratiominus) / (float) fullw(page);
+	const float ratio = screen_width / (float) fullw(page);
+	const float ratiox = (screen_width - ratiominus) / (float) fullw(page);
 	if (file->mode != Z_CUSTOM && file->mode != Z_PAGE && file->mode != Z_PGTRIM) {
 		zoomedh = fullh(page) * visible * ratio;
 	}
@@ -513,8 +539,8 @@ void pdfview::end_of_selection() {
 	}
 
 	// Convert to widget coords
-	X -= x();
-	Y -= y();
+	X -= screen_x;
+	Y -= screen_y;
 
 	// Offset
 	switch (file->mode) {
@@ -557,7 +583,7 @@ void pdfview::end_of_selection() {
 			Y += floored * (fullh(page) * file->zoom + zoomedmargin);
 			Y -= zoomedmarginhalf; // Grey margin
 
-			X -= (w() - (fullw(page) * file->zoom)) / 2 + xoff * (fullw(page) * file->zoom);
+			X -= (screen_width - (fullw(page) * file->zoom)) / 2 + xoff * (fullw(page) * file->zoom);
 
 			X /= file->zoom;
 			Y /= file->zoom;
@@ -600,6 +626,7 @@ int pdfview::handle(int e) {
 	u32 line_width, line_height;
 	zoom = line_zoom_factor(yoff, line_width, line_height);
 
+	static int lasty, lastx;
 	const float move = 0.05f;
 
 	switch (e) {
@@ -648,26 +675,26 @@ int pdfview::handle(int e) {
 				fl_cursor(FL_CURSOR_MOVE);
 
 				if (file->maxh)
-					adjust_yoff(-((movedy / zoom) / line_height));
+					adjust_yoff(-((movedy / zoom) / file->maxh));
 				else
-					adjust_yoff(-((movedy / (float) h()) / zoom));
+					adjust_yoff(-((movedy / (float) screen_height) / zoom));
 
 				if (file->mode == Z_CUSTOM) {
 					xoff += ((float) movedx / zoom) / line_width;
-					float maxchg = (((((float)w() / zoom) + line_width) / 2) / line_width) - 0.1f;
+					float maxchg = (((((float)screen_width / zoom) + line_width) / 2) / line_width) - 0.1f;
 					if (xoff < -maxchg)
 						xoff = -maxchg;
 					if (xoff > maxchg)
 						xoff = maxchg;
-					debug(debug5, maxchg, "maxchg");
+					// debug(debug5, maxchg, "maxchg");
 				}
 
-				debug(debug1, zoom, "zoom");
-				debug(debug2, line_width, "Line Width");
-				debug(debug3, movedx, "movedx");
-				debug(debug4, movedy, "movedy");
-				debug(debug6, xoff, " xoff ");
-				debug(debug7, yoff, " yoff ");
+				// debug(debug1, zoom, "zoom");
+				// debug(debug2, line_width, "Line Width");
+				// debug(debug3, movedx, "movedx");
+				// debug(debug4, movedy, "movedy");
+				// debug(debug6, xoff, " xoff ");
+				// debug(debug7, yoff, " yoff ");
 
 				lasty = my;
 				lastx = mx;
@@ -703,7 +730,7 @@ int pdfview::handle(int e) {
 						s32 shp = sh = pxrel(page);
 						if (page >= columns)
 							shp = pxrel(page - columns);
-						if ((h() + (file->zoom * 2 * MARGIN)) >= sh) {
+						if ((screen_height + (file->zoom * 2 * MARGIN)) >= sh) {
 							/* scroll up like Page_Up */
 							if (floorf(yoff) >= yoff)
 								adjust_floor_yoff(-1.0f);
@@ -712,7 +739,7 @@ int pdfview::handle(int e) {
 						} 
 						else {
 							/* scroll up less than one page height */
-							float d = (h() - MARGIN) / (float) sh;
+							float d = (screen_height - MARGIN) / (float) sh;
 							if (((u32) yoff) != ((u32) (yoff - d))) {
 								/* scrolling over page border */
 								d -= (yoff - floorf(yoff));
@@ -736,13 +763,13 @@ int pdfview::handle(int e) {
 						s32 shn = sh = pxrel(page);
 						if (page + columns <= (s32)(file->pages - 1))
 							shn = pxrel(page + columns);
-						if (h() + 2 * MARGIN * file->zoom >= sh) {
+						if (screen_height + 2 * MARGIN * file->zoom >= sh) {
 							/* scroll down like Page_Down */
 							adjust_floor_yoff(1.0f);
 						} 
 						else {
 							/* scroll down less than one page height */
-							float d = (h() - MARGIN) / (float) sh;
+							float d = (screen_height - MARGIN) / (float) sh;
 							if (((u32) yoff) != ((u32) (yoff + d))) {
 								/* scrolling over page border */
 								d -= (ceilf(yoff) - yoff);
@@ -790,7 +817,7 @@ int pdfview::handle(int e) {
 						s32 sh = line_height * zoom;
 
 						if (file->cache[page].ready) {
-							const s32 hidden = sh - h();
+							const s32 hidden = sh - screen_height;
 							float tmp = floorf(yoff) + hidden / (float) sh;
 							if (tmp > yoff)
 								yoff = tmp;

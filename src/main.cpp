@@ -32,12 +32,9 @@ using namespace libconfig;
 Fl_Double_Window *win = NULL;
 static Fl_Pack* win_pack = NULL;
 static Fl_Pack *buttons = NULL;
-static Fl_Pack *v = NULL;
 static Fl_Button *showbtn = NULL;
 static Fl_Button *fullscreenbtn = NULL;
 static Fl_Button *recentselectbtn = NULL;
-
-static Fl_Scrollbar * vertical_scrollbar = NULL;
 
 static Fl_PNG_Image *fullscreen_image = NULL;
 static Fl_PNG_Image *fullscreenreverse_image = NULL;
@@ -315,11 +312,6 @@ void cb_hide(Fl_Widget*, void*) {
 	view->take_focus();
 }
 
-void cb_vertical_scrollbar(Fl_Widget*, void*) {
-	view->update_position(vertical_scrollbar->value());
-	view->take_focus();
-}
-
 static void cb_goto_page(Fl_Input *w, void*) {
 	const u32 which = atoi(w->value()) - 1;
 	if (which >= file->pages) {
@@ -555,20 +547,24 @@ int main(int argc, char **argv) {
 		showbtn->hide();
 		showbtn->callback(cb_hide);
 	}
-	{ v = new Fl_Pack(64, 0, 700-64, 700);
-		v->type(Fl_Pack::HORIZONTAL);
-		{ view = new pdfview(0, 0, 700-64-16, 700);
-			Fl_Group::current()->resizable(view);
-		}
-		{ vertical_scrollbar = new Fl_Scrollbar(700-64-16, 0, 16, 700);
-			vertical_scrollbar->callback((Fl_Callback*)cb_vertical_scrollbar);
-		} // Fl_Box* o
-		view->set_scrollbar(vertical_scrollbar);
-		v->end();
-		v->show();
+	{ view = new pdfview(64, 0, 700-64, 700);
+		view->type(Fl_Scroll::BOTH);
+		view->box(FL_DOWN_FRAME);
+		view->end();
+		view->show();
 	}
 
-	Fl_Group::current()->resizable(v);
+	// { v = new Fl_Scroll(64, 0, 700-64, 700);
+	// 	v->type(Fl_Scroll::BOTH);
+	// 	v->box(FL_DOWN_FRAME);
+	// 	{ view = new pdfview(0, 0, 700-64, 700);
+	// 		Fl_Scroll::current()->resizable(view);
+	// 	}
+	// 	v->end();
+	// 	v->show();
+	// }
+
+	Fl_Group::current()->resizable(view);
 	win_pack->end();
 	win_pack->show();
 

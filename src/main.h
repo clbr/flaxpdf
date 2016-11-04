@@ -33,7 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <FL/Fl_Pack.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Box.H>
-#include <FL/Fl_Scrollbar.H>
+#include <FL/Fl_Scroll.H>
 #include <FL/Fl_Input_Choice.H>
 #include <FL/Fl_Choice.H>
 #include <FL/Fl_Light_Button.H>

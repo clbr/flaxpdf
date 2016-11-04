@@ -20,8 +20,8 @@ TODO
 	- Text search
 	- Printing
 	- Page rotation
-		For the whole document
-		For a specific page
+		. For the whole document
+		. For a specific page
 	- Double-click or Ctrl-Click: page selection (goto one column in page mode)
 
 - Tests, tests, tests

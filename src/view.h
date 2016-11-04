@@ -21,10 +21,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define CACHE_MAX 15
 
-class pdfview: public Fl_Widget {
+class pdfview: public Fl_Scroll {
 public:
 	pdfview(int x, int y, int w, int h);
-	void set_scrollbar(Fl_Scrollbar* vscroll);
 	void draw();
 	int handle(int e);
 
@@ -40,6 +39,7 @@ public:
 	void page_up();
 	void page_down();
 private:
+	void compute_screen_size();
 	float line_zoom_factor(u32 first_page, u32 &width,u32 &height) const;
 	void update_visible(const bool fromdraw) const;
 	void update_scrollbars() const;
@@ -64,11 +64,11 @@ private:
 	u16 cachedpage[CACHE_MAX];
 	Pixmap pix[CACHE_MAX];
 
-	Fl_Scrollbar *vertical_scrollbar;
-
 	// Text selection coords
 	u16 selx, sely, selx2, sely2;
 	s32 columns;
+
+	s32 screen_x, screen_y, screen_width, screen_height;
 };
 
 extern pdfview *view;
