@@ -6,7 +6,6 @@ TODO
 - [DONE] Get rid of compilation warnings
 - [DONE] Add a new integrated mode "Page + Trim"
 - [DONE] Dimensions functions to be revised for discripencies in the Width / High computations
-- Scrollbars integration
 - [DONE] Bug with load of a new file when the current file is still being processed -> crash
 - [DONE] When changing document, save the previous document parameters
 
@@ -23,5 +22,6 @@ TODO
 		. For the whole document
 		. For a specific page
 	- Double-click or Ctrl-Click: page selection (goto one column in page mode)
+	- Scrollbars integration (I doubt FLTK Fl_Scroll is a solution)
 
 - Tests, tests, tests

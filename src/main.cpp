@@ -288,6 +288,16 @@ void cb_page_down(Fl_Button*, void*) {
 	view->take_focus();
 }
 
+void cb_page_top(Fl_Button*, void*) {
+	view->page_top();
+	view->take_focus();
+}
+
+void cb_page_bottom(Fl_Button*, void*) {
+	view->page_bottom();
+	view->take_focus();
+}
+
 void cb_Zoomin(Fl_Button*, void*) {
 	file->zoom *= 1.2f;
 	applyzoom(file->zoom);
@@ -491,18 +501,33 @@ int main(int argc, char **argv) {
 		{ Fl_Pack* page_moves = new Fl_Pack(0, pos += 24, 64, 42);
 			page_moves->type(Fl_Pack::HORIZONTAL);
 			{ Fl_Button* o = new Fl_Button(0, 0, 32, 42);
+				o->tooltip(_("First Page"));
+				o->callback((Fl_Callback*)cb_page_top);
+				o->image(new Fl_PNG_Image("pagetop.png", img(go_top_png)));
+			} // Fl_Button* o
+			{ Fl_Button* o = new Fl_Button(32, 0, 32, 42);
 				o->tooltip(_("Page Up"));
 				o->callback((Fl_Callback*)cb_page_up);
 				o->image(new Fl_PNG_Image("pageup.png", img(go_up_png)));
+			} // Fl_Button* o
+			page_moves->end();
+			page_moves->show();
+		} // Fl_Pack* page_moves
+		{ Fl_Pack* page_moves2 = new Fl_Pack(0, pos += 42, 64, 42);
+			page_moves2->type(Fl_Pack::HORIZONTAL);
+			{ Fl_Button* o = new Fl_Button(0, 0, 32, 42);
+				o->tooltip(_("Last Page"));
+				o->callback((Fl_Callback*)cb_page_bottom);
+				o->image(new Fl_PNG_Image("pagebottom.png", img(go_bottom_png)));
 			} // Fl_Button* o
 			{ Fl_Button* o = new Fl_Button(32, 0, 32, 42);
 				o->tooltip(_("Page Down"));
 				o->callback((Fl_Callback*)cb_page_down);
 				o->image(new Fl_PNG_Image("pagedown.png", img(go_down_png)));
 			} // Fl_Button* o
-			page_moves->end();
-			page_moves->show();
-		} // Fl_Pack* page_moves
+			page_moves2->end();
+			page_moves2->show();
+		} // Fl_Pack* page_moves2
 		{ fullscreenbtn = new Fl_Button(0, pos += 42, 64, 38);
 			fullscreenbtn->image(fullscreen_image);
 			fullscreenbtn->callback((Fl_Callback*)cb_fullscreen);
@@ -548,21 +573,8 @@ int main(int argc, char **argv) {
 		showbtn->callback(cb_hide);
 	}
 	{ view = new pdfview(64, 0, 700-64, 700);
-		view->type(Fl_Scroll::BOTH);
-		view->box(FL_DOWN_FRAME);
-		view->end();
 		view->show();
 	}
-
-	// { v = new Fl_Scroll(64, 0, 700-64, 700);
-	// 	v->type(Fl_Scroll::BOTH);
-	// 	v->box(FL_DOWN_FRAME);
-	// 	{ view = new pdfview(0, 0, 700-64, 700);
-	// 		Fl_Scroll::current()->resizable(view);
-	// 	}
-	// 	v->end();
-	// 	v->show();
-	// }
 
 	Fl_Group::current()->resizable(view);
 	win_pack->end();

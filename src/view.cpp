@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MARGIN 36
 #define MARGINHALF 18
 
-pdfview::pdfview(int x, int y, int w, int h): Fl_Scroll(x, y, w, h),
+pdfview::pdfview(int x, int y, int w, int h): Fl_Widget(x, y, w, h),
 		yoff(0), xoff(0),
 		selx(0), sely(0), selx2(0), sely2(0),
 		columns(1) {
@@ -41,65 +41,12 @@ void pdfview::resetselection() {
 }
 
 void pdfview::compute_screen_size() {
-	// This will be changed once I understand Fl_Scroll...
 	screen_x = x();
 	screen_y = y();
-	//bbox(screen_x, screen_y, screen_width, screen_height);
-	//if (!hscrollbar.visible())
-		screen_height = h();
-	//if (!scrollbar.visible())
-		screen_width = w();
+	screen_height = h();
+	screen_width = w();
 }
 
-void pdfview::adjust_scrollbar_parameters() const {
-
-	s32 tmp;
-
-	float length = maxyoff();
-	tmp = length;
-	length = (length - tmp) + (tmp / columns);
-
-
-	float relpos = yoff;
-	tmp = relpos;
-	relpos = (relpos - tmp) + (tmp / columns);
-
-	debug(debug6, 50000 * relpos / length, "Scrollbar position");
-	debug(debug7, 50000 / length, "Size");
-
-	//vertical_scrollbar->value(50000 * relpos / length, 50000 / length, 0, 50000);
-}
-
-// From the document position, update scrollbar position.
-void pdfview::update_scrollbars() const {
-
-	s32 tmp;
-
-	float length = maxyoff();
-	tmp = length;
-	length = (length - tmp) + (tmp / columns);
-
-	float relpos = yoff;
-	tmp = relpos;
-	relpos = (relpos - tmp) + (tmp / columns);
-
-	debug(debug1, relpos, "relpos");
-	debug(debug2, length, "length");
-	debug(debug3, 50000 * relpos / length, "scrollbar position");
-
-	//vertical_scrollbar->value(50000 * relpos / length);
-}
-
-// From the scrollbar position, update position in the document.
-void pdfview::update_position(const int vscroll_pos) {
-	return;
-	float frac = yoff - floorf(yoff);
-	if (file != NULL && file->pages > 0) {
-		yoff = (((float)(vscroll_pos)) / 50000) * file->pages + (frac * columns);
-		adjust_yoff(0);
-		redraw();
-	}
-}
 
 void pdfview::go(const u32 page) {
 	yoff = page;
@@ -111,9 +58,6 @@ void pdfview::go(const u32 page) {
 void pdfview::set_columns(int count) {
 	if ((count >= 1) && (count <= 5)) {
 		columns = count;
-		if (file && file->pages > 0) {
-			adjust_scrollbar_parameters();
-		}
 		redraw();
 	}
 }
@@ -139,8 +83,6 @@ void pdfview::reset() {
 	for (i = 0; i < CACHE_MAX; i++) {
 		cachedpage[i] = USHRT_MAX;
 	}
-
-	adjust_scrollbar_parameters();
 }
 
 u32 pdfview::pageh(u32 page) const {
@@ -288,7 +230,6 @@ void pdfview::update_visible(const bool fromdraw) const {
 	// - file->first_visible
 	// - file->last_visible
 	// - pagebox->value
-	// - scrollbars update
 	//
 	// This method as been extensively modified to take into account multicolumns
 	// and the fact that no page will be expected to be of the same size as the others,
@@ -327,7 +268,6 @@ void pdfview::update_visible(const bool fromdraw) const {
 		if (!fromdraw)
 			pagebox->redraw();
 
-		update_scrollbars();
 		Fl::check();
 	}
 }
@@ -617,6 +557,16 @@ void pdfview::page_down() {
 	redraw();
 }
 
+void pdfview::page_top() {
+	yoff = 0.0f;
+	redraw();
+}
+
+void pdfview::page_bottom() {
+	yoff = maxyoff();
+	redraw();
+}
+
 int pdfview::handle(int e) {
 
 	if (!file->cache)
@@ -686,15 +636,7 @@ int pdfview::handle(int e) {
 						xoff = -maxchg;
 					if (xoff > maxchg)
 						xoff = maxchg;
-					// debug(debug5, maxchg, "maxchg");
 				}
-
-				// debug(debug1, zoom, "zoom");
-				// debug(debug2, line_width, "Line Width");
-				// debug(debug3, movedx, "movedx");
-				// debug(debug4, movedy, "movedy");
-				// debug(debug6, xoff, " xoff ");
-				// debug(debug7, yoff, " yoff ");
 
 				lasty = my;
 				lastx = mx;
@@ -730,7 +672,7 @@ int pdfview::handle(int e) {
 						s32 shp = sh = pxrel(page);
 						if (page >= columns)
 							shp = pxrel(page - columns);
-						if ((screen_height + (file->zoom * 2 * MARGIN)) >= sh) {
+						if (screen_height >= sh) {
 							/* scroll up like Page_Up */
 							if (floorf(yoff) >= yoff)
 								adjust_floor_yoff(-1.0f);
@@ -739,7 +681,7 @@ int pdfview::handle(int e) {
 						} 
 						else {
 							/* scroll up less than one page height */
-							float d = (screen_height - MARGIN) / (float) sh;
+							float d = (screen_height - 2 * MARGIN) / (float) sh;
 							if (((u32) yoff) != ((u32) (yoff - d))) {
 								/* scrolling over page border */
 								d -= (yoff - floorf(yoff));
@@ -748,6 +690,7 @@ int pdfview::handle(int e) {
 								d = d * (float) sh / (float) shp;
 							}
 							adjust_yoff(-d);
+							debug(debug1, d, "delta up");
 						}
 					}
 					redraw();
@@ -763,13 +706,13 @@ int pdfview::handle(int e) {
 						s32 shn = sh = pxrel(page);
 						if (page + columns <= (s32)(file->pages - 1))
 							shn = pxrel(page + columns);
-						if (screen_height + 2 * MARGIN * file->zoom >= sh) {
+						if (screen_height >= sh) {
 							/* scroll down like Page_Down */
 							adjust_floor_yoff(1.0f);
 						} 
 						else {
 							/* scroll down less than one page height */
-							float d = (screen_height - MARGIN) / (float) sh;
+							float d = (screen_height - 2 * MARGIN) / (float) sh;
 							if (((u32) yoff) != ((u32) (yoff + d))) {
 								/* scrolling over page border */
 								d -= (ceilf(yoff) - yoff);
@@ -777,7 +720,12 @@ int pdfview::handle(int e) {
 								/* ratio of next page can be different */
 								d = d * (float) sh / (float) shn;
 							}
+							debug(debug2, d,    "delta down" );
+							debug(debug4, yoff, "yoff before");
+
 							adjust_yoff(d);
+							
+							debug(debug5, yoff, "yoff after" );
 						}
 					}
 					redraw();

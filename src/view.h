@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define CACHE_MAX 15
 
-class pdfview: public Fl_Scroll {
+class pdfview: public Fl_Widget {
 public:
 	pdfview(int x, int y, int w, int h);
 	void draw();
@@ -31,19 +31,18 @@ public:
 	void reset();
 	void resetselection();
 	void set_columns(int count);
-	void update_position(const int vscroll_pos);
 	inline float get_xoff() { return xoff; };
 	inline float get_yoff() { return yoff; };
 	inline int   get_columns() { return columns; };
 	void set_params(int columns_count, float x, float y);
 	void page_up();
 	void page_down();
+	void page_top();
+	void page_bottom();
 private:
 	void compute_screen_size();
 	float line_zoom_factor(u32 first_page, u32 &width,u32 &height) const;
 	void update_visible(const bool fromdraw) const;
-	void update_scrollbars() const;
-	void adjust_scrollbar_parameters() const;
 	u8 iscached(const u32 page) const;
 	void docache(const u32 page);
 	float maxyoff() const;
