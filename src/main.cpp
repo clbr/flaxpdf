@@ -89,7 +89,6 @@ void debug(Fl_Box * ctrl, const float value, const char * hint) {
 	ctrl->copy_label(tmp);
 	ctrl->tooltip(hint);
 	ctrl->redraw_label();
-	Fl::check();
 }
 
 void debug(Fl_Box * ctrl, const u32 value, const char * hint) {

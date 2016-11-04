@@ -77,7 +77,7 @@ Poppler
 
 To properly build poppler, some libraries are required to be installed. That's the case for
 libjpeg, libpng and libtiff to manage embedded images in PDFs. Other libraries are required 
-and are often already installed. Here is a page to get some more informations about the dependencies:
+and are often already installed. Here is a page to get some more information about dependencies:
 
 http://www.linuxfromscratch.org/blfs/view/svn/general/poppler.html
 
