@@ -40,7 +40,7 @@ FlaxPDF		57% (5% *)	36.5 MB		45 KB
 FlaxPDF, as the only one of the three, is able to take advantage of the GPU,
 dropping its CPU use when scrolling to 5% (tested on radeon).
 
-image::screenshot.png[]
+image::screenshot.png[Screenshot,350,350,align="center"]
 
 New capabilities / modifications added (November 2016)
 ------------------------------------------------------
@@ -53,7 +53,6 @@ The following modifications have been made
 - Fullscreen mode
 - PageUp and PageDown buttons
 - Exit button 
-- Scrollbars
 - Gnome standard icons
 
 Installation
