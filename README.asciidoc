@@ -22,7 +22,7 @@ those two itches scratched?
 Requirements
 ------------
 
-Poppler, LZO, Config\+\+, and FLTK 1.3.
+Poppler, LZO, Config{plus}{plus}, and FLTK 1.3.
 
 Comparison
 ----------
@@ -67,7 +67,7 @@ available as a package:
 The following packages are usually available via package management under linux (command
 examples in parenthesis for the apt-get package management tool):
 
-- libconfig\+\+ ("$ sudo apt-get install libconfig\+\+-dev")
+- libconfig{plus}{plus} ("$ sudo apt-get install libconfig{plus}{plus}-dev")
 - libjpeg ("$ sudo apt-get install libjpeg-dev")
 - libpng ("$ sudo apt-get install libpng-dev")
 - libtiff ("$ sudi apt-get install libtiff-dev")
