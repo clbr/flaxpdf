@@ -170,7 +170,7 @@ static void applyzoom(const float what) {
 	display_zoom(what);
 
 	view->take_focus();
-	view->resetselection();
+	view->reset_selection();
 	view->redraw();
 }
 
@@ -362,7 +362,7 @@ static void checkX() {
 }
 
 static void selecting_changed(Fl_Widget *, void *) {
-	view->resetselection();
+	view->reset_selection();
 	view->redraw();
 }
 
@@ -500,7 +500,7 @@ int main(int argc, char **argv) {
 		{ Fl_Pack* page_moves = new Fl_Pack(0, pos += 24, 64, 42);
 			page_moves->type(Fl_Pack::HORIZONTAL);
 			{ Fl_Button* o = new Fl_Button(0, 0, 32, 42);
-				o->tooltip(_("First Page"));
+				o->tooltip(_("Beginning of Document"));
 				o->callback((Fl_Callback*)cb_page_top);
 				o->image(new Fl_PNG_Image("pagetop.png", img(go_top_png)));
 			} // Fl_Button* o
@@ -515,7 +515,7 @@ int main(int argc, char **argv) {
 		{ Fl_Pack* page_moves2 = new Fl_Pack(0, pos += 42, 64, 42);
 			page_moves2->type(Fl_Pack::HORIZONTAL);
 			{ Fl_Button* o = new Fl_Button(0, 0, 32, 42);
-				o->tooltip(_("Last Page"));
+				o->tooltip(_("End of Document"));
 				o->callback((Fl_Callback*)cb_page_bottom);
 				o->image(new Fl_PNG_Image("pagebottom.png", img(go_bottom_png)));
 			} // Fl_Button* o
