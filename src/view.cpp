@@ -414,9 +414,9 @@ void pdfview::draw() {
 				pp->ratio_x = ratio_x;
 				pp->ratio_y = ratio_y;
 
-				if (page_pos_count == 0) 
-					printf("Copy X0:%d Y0:%d X:%d Y:%d W:%d H:%d Zoom: %6.3f page: %d\n", 
-						pp->X0, pp->Y0, pp->X, pp->Y, pp->W, pp->H, pp->zoom, pp->page + 1);
+				// if (page_pos_count == 0) 
+				// 	printf("Copy X0:%d Y0:%d X:%d Y:%d W:%d H:%d Zoom: %6.3f page: %d\n", 
+				// 		pp->X0, pp->Y0, pp->X, pp->Y, pp->W, pp->H, pp->zoom, pp->page + 1);
 
 				page_pos_count++;
 				pp++;
