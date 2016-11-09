@@ -1,3 +1,5 @@
+Please note that this branch is in BETA. Still some work remaining to be done...
+
 FlaxPDF
 =======
 
@@ -20,7 +22,7 @@ those two itches scratched?
 Requirements
 ------------
 
-Poppler, LZO, and FLTK 1.3.
+Poppler, LZO, Config{plus}{plus}, and FLTK 1.3.
 
 Comparison
 ----------
@@ -37,3 +39,85 @@ FlaxPDF		57% (5% *)	36.5 MB		45 KB
 * To be fair to all, these measurements were done using the Vesa driver.
 FlaxPDF, as the only one of the three, is able to take advantage of the GPU,
 dropping its CPU use when scrolling to 5% (tested on radeon).
+
+New capabilities / modifications added (November 2016)
+------------------------------------------------------
+
+The following modifications have been made
+
+- Multi-columns document display
+- Selection for the last 10 viewed documents
+- Automatically open the last viewed document with last display parameters
+- Fullscreen mode
+- PageUp and PageDown buttons
+- Exit button 
+- Gnome standard icons
+
+image::screenshot.png[Screenshot,350,350,align="center"]
+
+Installation
+============
+
+The following packages are required and may need to be built and installed if not
+available as a package:
+
+- poppler (http://poppler.freedesktop.org/poppler-0.48.0.tar.xz)
+- fltk 1.3.3 (http://www.fltk.org/software.php?VERSION=1.3.3&FILE=fltk/1.3.3/fltk-1.3.3-source.tar.gz)
+
+The following packages are usually available via package management under linux (command
+examples in parenthesis for the apt-get package management tool):
+
+- libconfig{plus}{plus} ("$ sudo apt-get install libconfig{plus}{plus}-dev")
+- libjpeg ("$ sudo apt-get install libjpeg-dev")
+- libpng ("$ sudo apt-get install libpng-dev")
+- libtiff ("$ sudi apt-get install libtiff-dev")
+
+Poppler
+-------
+
+To properly build poppler, some libraries are required to be installed. That's the case for
+libjpeg, libpng and libtiff to manage embedded images in PDFs. Other libraries are required 
+and are often already installed. Here is a page to get some more information about dependencies:
+
+http://www.linuxfromscratch.org/blfs/view/svn/general/poppler.html
+
+Once the popper library is untared, you need to build it with the following commands:
+
+------------------------------------------
+$ ./configure --prefix=/usr               \
+              --sysconfdir=/etc           \
+              --disable-static            \
+              --enable-build-type=release \
+              --enable-cmyk               \
+              --enable-xpdf-headers
+$ make
+$ sudo make install
+------------------------------------------
+
+
+FLTK
+----
+
+The FLTK library is installed using the usual GNU autoconf commands:
+
+--------------------
+$ ./configure
+$ make
+$ sudo make install
+--------------------
+
+FlaxPDF
+-------
+
+To install FlaxPDF, the following commands are required:
+
+--------------------
+$ ./autogen.sh
+$ ./configure
+$ make
+$ sudo make install
+--------------------
+
+All the previously indicated libraries must have been installed before building 
+the application. The installation will add an entry into the OFFICE main menu of you 
+linux installation.

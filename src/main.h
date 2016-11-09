@@ -34,8 +34,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Input_Choice.H>
+#include <FL/Fl_Choice.H>
 #include <FL/Fl_Light_Button.H>
 #include <FL/Fl_PNG_Image.H>
+#include <FL/Fl_Select_Browser.H>
 #include <FL/x.H>
 
 #include <PDFDoc.h>
@@ -46,17 +48,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "macros.h"
 #include "helpers.h"
 #include "view.h"
+#include "config.h"
 
 extern Fl_Double_Window *win;
 extern Fl_Box *pagectr;
 extern Fl_Input *pagebox;
 extern Fl_Input_Choice *zoombar;
 extern Fl_Light_Button *selecting;
+extern Fl_Box *debug1, *debug2, *debug3, *debug4, *debug5, *debug6, *debug7;
 extern u8 details;
 
 extern int writepipe;
 
-void loadfile(const char *);
+void debug(Fl_Box * ctrl, const float value, const char * hint);
+void debug(Fl_Box * ctrl, const s32   value, const char * hint);
+void debug(Fl_Box * ctrl, const u32   value, const char * hint);
+
+bool loadfile(const char *, recent_file_struct *recent_files);
+
+const int MAX_COLUMNS_COUNT = 5;
 
 struct cachedpage {
 	u8 *data;
@@ -71,8 +81,9 @@ struct cachedpage {
 
 enum zoommode {
 	Z_TRIM = 0,
-	Z_PAGE,
 	Z_WIDTH,
+	Z_PAGE,
+	Z_PGTRIM,
 	Z_CUSTOM
 };
 
@@ -82,6 +93,7 @@ enum msg {
 };
 
 struct openfile {
+	char * filename;
 	cachedpage *cache;
 	PDFDoc *pdf;
 	u32 maxw, maxh;

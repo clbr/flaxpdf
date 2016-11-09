@@ -14,17 +14,26 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+The pdfview class has been modified extensively to allow for multiple
+columns visualization of a document. You can think of this view as a
+matrix of pages, each line of this matrix composed of as many columns
+as required by the user.
+*/
+
 #include "view.h"
 #include <TextOutputDev.h>
 
 // Quarter inch in double resolution
 #define MARGIN 36
+#define MARGINHALF 18
 
 pdfview::pdfview(int x, int y, int w, int h): Fl_Widget(x, y, w, h),
 		yoff(0), xoff(0),
-		selx(0), sely(0), selx2(0), sely2(0) {
+		selx(0), sely(0), selx2(0), sely2(0),
+		columns(1) {
 
-	cachedsize = 7 * 1024 * 1024;
+	cachedsize = 7 * 1024 * 1024; // 7 megabytes
 
 	u32 i;
 	for (i = 0; i < CACHE_MAX; i++) {
@@ -34,15 +43,48 @@ pdfview::pdfview(int x, int y, int w, int h): Fl_Widget(x, y, w, h),
 	}
 }
 
-void pdfview::resetselection() {
+void pdfview::reset_selection() {
 	selx = sely = selx2 = sely2 = 0;
+}
+
+void pdfview::compute_screen_size() {
+	screen_x = x();
+	screen_y = y();
+	screen_height = h();
+	screen_width = w();
+}
+
+
+void pdfview::go(const u32 page) {
+	yoff = page;
+	adjust_yoff(0);
+	reset_selection();
+	redraw();
+}
+
+void pdfview::set_columns(int count) {
+	if ((count >= 1) && (count <= 5)) {
+		columns = count;
+		redraw();
+	}
+}
+
+void pdfview::set_params(int columns_count, float x, float y) {
+
+	yoff = y;
+	xoff = x;
+
+	set_columns(columns_count);
+	go(y);
 }
 
 void pdfview::reset() {
 	yoff = 0;
 	xoff = 0;
 
-	resetselection();
+	adjust_yoff(0);
+
+	reset_selection();
 
 	u32 i;
 	for (i = 0; i < CACHE_MAX; i++) {
@@ -50,95 +92,180 @@ void pdfview::reset() {
 	}
 }
 
-static u32 fullh(u32 page) {
-	if (!file->cache[page].ready)
-		page = 0;
-
-	if (file->mode == Z_TRIM)
-		return file->cache[page].h;
-
-	return file->cache[page].h +
-		file->cache[page].top +
-		file->cache[page].bottom;
+u32 pdfview::pageh(u32 page) const {
+	if (file->cache[page].ready) {
+		if (file->mode == Z_TRIM || file->mode == Z_PGTRIM)
+			return file->cache[page].h;
+		else 
+			return  file->cache[page].h     +
+					file->cache[page].top   +
+					file->cache[page].bottom;
+	}
+	return 0;
 }
 
-static u32 fullw(u32 page) {
+u32 pdfview::pagew(u32 page) const {
+	if (file->cache[page].ready) {
+		if (file->mode == Z_TRIM || file->mode == Z_PGTRIM)
+			return file->cache[page].w;
+		else 
+			return  file->cache[page].w     +
+					file->cache[page].left  +
+					file->cache[page].right;
+	}
+	return 0;
+}
+
+// Compute the height of a line of pages, selecting the page that is the
+// highest.
+u32 pdfview::fullh(u32 page) const {
+
 	if (!file->cache[page].ready)
 		page = 0;
 
-	if (file->mode == Z_TRIM)
-		return file->cache[page].w;
+	u32 fh = 0;
+	u32 i;
 
-	return file->cache[page].w +
-		file->cache[page].left +
-		file->cache[page].right;
+	if (file->mode == Z_TRIM || file->mode == Z_PGTRIM) {
+		for (i = page; (i < (page + columns)) && (i < file->pages); i++) {
+			if (file->cache[i].ready && (file->cache[i].h > fh))
+				fh = file->cache[i].h;
+		}
+	}
+	else {
+		for (i = page; (i < (page + columns)) && (i < file->pages); i++) {
+			if (file->cache[i].ready) {
+				u32 h = file->cache[i].h     +
+						file->cache[i].top   +
+						file->cache[i].bottom;
+				if (h > fh)
+					fh = h;
+			}
+		}				
+	}
+
+	return fh;
+}
+
+u32 pdfview::fullw(u32 page) const {
+	u32 fw = 0;
+	u32 i;
+
+	if (file->mode == Z_TRIM || file->mode == Z_PGTRIM) {
+		for (i = page; i < (page + columns); i++) {
+			if (file->cache[i].ready && (i < file->pages))
+				fw += file->cache[i].w;
+			else
+				fw += file->cache[0].w;
+		}
+	}
+	else {
+		for (i = page; i < (page + columns); i++) {
+			if (file->cache[i].ready && (i < file->pages)) 
+				fw += file->cache[i].w    +
+					  file->cache[i].left +
+					  file->cache[i].right;
+			else
+				fw += file->cache[0].w    +
+					  file->cache[0].left +
+					  file->cache[0].right;
+		}
+	}
+
+	// Add the margins between columns
+	return fw + (columns - 1) * MARGINHALF;
 }
 
 static bool hasmargins(const u32 page) {
 	if (!file->cache[page].ready)
-		return file->cache[0].left > MARGIN ||
-			file->cache[0].right > MARGIN ||
-			file->cache[0].top > MARGIN ||
+		return
+	        file->cache[0].left   > MARGIN ||
+			file->cache[0].right  > MARGIN ||
+			file->cache[0].top    > MARGIN ||
 			file->cache[0].bottom > MARGIN;
 
-	return file->cache[page].left > MARGIN ||
-		file->cache[page].right > MARGIN ||
-		file->cache[page].top > MARGIN ||
+	return
+	    file->cache[page].left   > MARGIN ||
+		file->cache[page].right  > MARGIN ||
+		file->cache[page].top    > MARGIN ||
 		file->cache[page].bottom > MARGIN;
 }
 
-static void updatevisible(const float yoff, const u32 w, const u32 h, const bool fromdraw) {
+float pdfview::line_zoom_factor(const u32 first_page, u32 &width, u32 &height) const {
+
+    // compute the required zoom factor to fit the line of pages on the screen,
+    // according to the zoom mode parameter if not a custom zoom.
+
+	const u32 line_width  = fullw(first_page);
+	const u32 line_height = fullh(first_page);
+
+	float zoom_factor;
+
+	switch (file->mode) {
+		case Z_TRIM:
+		case Z_WIDTH:
+			zoom_factor = (float)screen_width / line_width;
+		break;
+		case Z_PAGE:
+		case Z_PGTRIM:
+			if (((float)line_width / line_height) > ((float)screen_width / screen_height)) {
+				zoom_factor = (float)screen_width / line_width;
+			}
+			else {
+				zoom_factor = (float)screen_height / line_height;
+			}
+		break;
+		default:
+			zoom_factor = file->zoom;
+		break;
+	}
+
+	width  = line_width;
+	height = line_height;
+
+	file->zoom = zoom_factor;
+
+	return zoom_factor;
+}
+
+void pdfview::update_visible(const bool fromdraw) const {
+
 	// From the current zoom mode and view offset, update the visible page info
+	// Will adjust the following parameters:
+	//
+	// - file->first_visible
+	// - file->last_visible
+	// - pagebox->value
+	//
+	// This method as been extensively modified to take into account multicolumns
+	// and the fact that no page will be expected to be of the same size as the others,
+	// both for vertical and horizontal limits. Because of these constraints, the
+	// zoom factor cannot be applied to the whole screen but for each "line" of
+	// pages.
+
 	const u32 prev = file->first_visible;
+
+	// Those are very very conservative numbers to compute last_visible. 
+	// The end of the draw process will adjust precisely the value
+	static const u32 max_lines_per_screen[MAX_COLUMNS_COUNT] = { 2, 3, 4, 5, 6 };
+
+	// Adjust file->first_visible
+
 	file->first_visible = yoff < 0 ? 0 : yoff;
 	if (file->first_visible > file->pages - 1)
 		file->first_visible = file->pages - 1;
-	u32 i;
 
-	const u32 maxw = file->maxw ? file->maxw : file->cache[0].w;
-	const u32 maxh = file->maxh ? file->maxh : file->cache[0].h;
-	const u32 maxwmargin = hasmargins(file->first_visible) ? maxw + MARGIN * 2 : maxw;
-	const u32 fullw = ::fullw(0);
-	const u32 fullh = ::fullh(0);
+	// Adjust file->last_visible
 
-	const float visible = yoff < 0 ? 0 : 1 - (yoff - floorf(yoff));
+	u32 new_last_visible = file->first_visible + max_lines_per_screen[columns - 1] * columns;
+	if (new_last_visible >= file->pages) 
+		file->last_visible = file->pages - 1;
+	else
+		file->last_visible = new_last_visible;
 
-	u32 usedh = fullh;
-	switch (file->mode) {
-		case Z_TRIM:
-			file->zoom = w / (float) maxwmargin;
-			usedh = maxh;
-		break;
-		case Z_WIDTH:
-			file->zoom = w / (float) fullw;
-		break;
-		case Z_PAGE:
-			if (fullw > fullh) {
-				file->zoom = w / (float) fullw;
-			} else {
-				file->zoom = h / (float) fullh;
-			}
-		break;
-		case Z_CUSTOM:
-		break;
-	}
-
-	const u32 zoomedmargin = MARGIN * file->zoom;
-	i = file->first_visible;
-	u32 tmp = visible * usedh * file->zoom;
-	tmp += zoomedmargin;
-	while (tmp < h) {
-		tmp += usedh * file->zoom;
-		tmp += zoomedmargin;
-		i++;
-	}
-	// Be conservative
-	if (i < file->pages - 1)
-		i++;
-	if (i > file->pages - 1)
-		i = file->pages - 1;
-	file->last_visible = i;
-
+	// If position has changed:
+    //    - update current page visible number in the pagebox
+	//    - request a redraw (if not already called by draw...)
 	if (prev != file->first_visible) {
 		char buf[10];
 		snprintf(buf, 10, "%u", file->first_visible + 1);
@@ -146,7 +273,18 @@ static void updatevisible(const float yoff, const u32 w, const u32 h, const bool
 
 		if (!fromdraw)
 			pagebox->redraw();
+
+		Fl::check();
 	}
+}
+
+// Compute the vertical screen size of a line of pages
+u32 pdfview::pxrel(u32 page) const {
+	float zoom;
+	u32 line_width, line_height;
+	
+	zoom = line_zoom_factor(page, line_width, line_height);
+	return line_height * zoom;
 }
 
 void pdfview::draw() {
@@ -154,14 +292,20 @@ void pdfview::draw() {
 	if (!file->cache)
 		return;
 
-	updatevisible(yoff, w(), h(), true);
+	compute_screen_size();
+	update_visible(true);
 
 	const Fl_Color pagecol = FL_WHITE;
 	int X, Y, W, H;
-	fl_clip_box(x(), y(), w(), h(), X, Y, W, H);
-	if (!W)
+	int Xs, Ys, Ws, Hs; // Saved values
+
+	fl_clip_box(screen_x, screen_y, screen_width, screen_height, X, Y, W, H);
+
+	// If nothing is visible on screen, nothing to do
+	if (W == 0 || H == 0)
 		return;
 
+    // Paint the background with page separation color
 	fl_rectf(X, Y, W, H, FL_GRAY + 1);
 
 	struct cachedpage *cur = &file->cache[file->first_visible];
@@ -170,117 +314,285 @@ void pdfview::draw() {
 
 	fl_push_clip(X, Y, W, H);
 
+	if (file->mode != Z_CUSTOM)
+		xoff = 0.0f;
+
 	// As the variables are used for calculations, reset them to full widget dimensions.
-	X = x();
-	Y = y();
-	W = w();
-	H = h();
+	// (doesn´t seems to be needed... they are adjusted to something else in the code
+	//  that follow...)
 
-	// Fill each page rect
-	const int zoomedmargin = file->zoom * MARGIN;
-	const int zoomedmarginhalf = zoomedmargin / 2;
-	u32 i;
-	const u32 max = file->last_visible;
-	const float visible = yoff - floorf(yoff);
-	H = pxrel(file->first_visible);
-	Y = y() - visible * H;
+	s32 current_screen_pos = 0;
+	u32 first_page_in_line = file->first_visible;
+	bool first_line = true;
 
-	for (i = file->first_visible; i <= max; i++) {
-		cur = &file->cache[i];
-		if (!cur->ready)
-			break;
+	const float invisibleY = yoff - floorf(yoff);
 
-		H = (fullh(i) + MARGIN) * file->zoom;
-		if (file->mode == Z_CUSTOM || file->mode == Z_PAGE) {
-			W = fullw(i) * file->zoom;
-			X = x() + (w() - W) / 2 + xoff * W;
-		} else {
-			X = x();
-			W = w();
+	page_pos_struct *pp = page_pos_on_screen;
+	page_pos_count = 0;
 
-			// In case of different page sizes, H needs to be adjusted per-page
-			const float ratio = W / (float) fullw(i);
-			H = fullh(i) * ratio + zoomedmargin;
+	u32 page = file->first_visible;
+
+	// Do the following for each line of pages
+	while (current_screen_pos < screen_height && (first_page_in_line < file->pages)) {
+
+		float zoom;
+		u32 line_width, line_height;
+		zoom = line_zoom_factor(first_page_in_line, line_width, line_height);
+
+		const int zoomedmargin     = zoom * MARGIN;
+		const int zoomedmarginhalf = zoomedmargin / 2;
+
+		H = line_height * zoom; // Line of pages height in screen pixels
+
+		if (first_line) {
+			Y = screen_y - invisibleY * H;
+
+			first_line = false;
 		}
 
-		// XYWH is now the full area including grey margins.
+		X = screen_x + screen_width / 2 - zoom * line_width / 2 + (zoom * xoff * line_width);
 
-		Y += zoomedmarginhalf;
-		H -= zoomedmargin;
+		// Do the following for each page in the line
 
-		// XYWH is now the page's area.
-		if (Y >= y() + h())
-			break;
-		fl_rectf(X, Y, W, H, pagecol);
+		s32 column = 0;
+		page = first_page_in_line;
 
-		const bool margins = hasmargins(i);
-		const bool trimmed = margins && file->mode == Z_TRIM;
-		if (trimmed) {
-			// If the page was trimmed, have the real one a bit smaller
-			X += zoomedmarginhalf;
-			Y += zoomedmarginhalf;
-			W -= zoomedmargin;
-			H -= zoomedmargin;
-		} else if (margins) {
-			// Restore the full size with empty borders
-			X += cur->left * file->zoom;
-			Y += cur->top * file->zoom;
-			W -= (cur->left + cur->right) * file->zoom;
-			H -= (cur->top + cur->bottom) * file->zoom;
-		}
+		while ((column < columns) && (page < file->pages)) {
 
-		// Render real content
-		content(i, X, Y, W, H);
+			cur = &file->cache[page];
+			if (!cur->ready)
+				break;
 
-		if (trimmed) {
+			H = pageh(page) * zoom;
+			W = pagew(page) * zoom;
+
+			fl_rectf(Xs = X, Ys = Y, Ws = W, Hs = H, pagecol);
+
+			const bool margins = hasmargins(page);
+			const bool trimmed = margins && (file->mode == Z_TRIM || file->mode == Z_PGTRIM);
+
+			float ratio_x = 1.0f;
+			float ratio_y = 1.0f;
+
+			if (trimmed) {
+				// If the page was trimmed, have the real one a bit smaller
+				X += zoomedmarginhalf;
+				Y += zoomedmarginhalf;
+				W -= zoomedmargin;
+				H -= zoomedmargin;
+
+				// These changes in size have an impact on the zoom factor
+				// previously used. We need to keep track of these changes
+				// to help into the text selection process.
+				ratio_x = W / (float)(W + zoomedmargin);
+				ratio_y = H / (float)(H + zoomedmargin);
+			} 
+			else if (margins) {
+				// Restore the full size with empty borders
+				X += cur->left * zoom;
+				Y += cur->top  * zoom;
+				W -= (cur->left + cur->right) * zoom;
+				H -= (cur->top + cur->bottom) * zoom;
+			}
+
+			// Render real content
+			content(page, X, Y, W, H);
+
+			// For each displayed page, we keep those parameters
+			// to permit the localization of the page on screen when
+			// a selection is made to retrieve the text underneath
+			if (page_pos_count < PAGES_ON_SCREEN_MAX) {
+
+				pp->page    = page;
+				pp->X0      = Xs;
+				pp->Y0      = Ys;				
+				pp->X       = X;
+				pp->Y       = Y;
+				pp->W       = W;
+				pp->H       = H;
+				pp->zoom    = zoom;
+				pp->ratio_x = ratio_x;
+				pp->ratio_y = ratio_y;
+
+				// if (page_pos_count == 0) 
+				// 	printf("Copy X0:%d Y0:%d X:%d Y:%d W:%d H:%d Zoom: %6.3f page: %d\n", 
+				// 		pp->X0, pp->Y0, pp->X, pp->Y, pp->W, pp->H, pp->zoom, pp->page + 1);
+
+				page_pos_count++;
+				pp++;
+			}
+
 			// And undo.
-			Y -= zoomedmarginhalf;
-			H += zoomedmargin;
-		} else if (margins) {
-			// And undo.
-			Y -= cur->top * file->zoom;
-			H += (cur->top + cur->bottom) * file->zoom;
+			X = Xs;
+			Y = Ys;
+			W = Ws;
+			H = Hs;
+
+			X += zoomedmarginhalf + (pagew(page) * zoom);
+			page++; column++;
 		}
 
-		Y -= zoomedmarginhalf;
-		H += zoomedmargin;
-		Y += H;
+		// Prepare for next line of pages
+
+		Y += (line_height * zoom) + zoomedmarginhalf;
+
+		first_page_in_line += columns;
+		current_screen_pos = Y - screen_y;
 	}
+
+	file->last_visible = page;
 
 	fl_pop_clip();
 }
 
-u32 pdfview::pxrel(u32 page) const {
-	if (file->mode != Z_CUSTOM && file->mode != Z_PAGE) {
-		const float ratio = w() / (float) fullw(page);
-		return fullh(page) * ratio + MARGIN * file->zoom;
-	}
-	return (fullh(page) + MARGIN) * file->zoom;
-}
-
+// Compute the maximum yoff value, taking care of the number of 
+// columns displayed and the screen size. Start at the end of the
+// document, getting up to the point where the line of pages will be
+// out of reach on screen.
 float pdfview::maxyoff() const {
 
-	const u32 last = file->pages - 1;
+	float zoom, f;
+	u32   line_width, line_height, h;
+
+	s32 last = file->pages - 1;
+	last    -= (last % columns);
+
 	if (!file->cache[last].ready)
-		return last + 0.5f;
+		f = last + 0.5f;
+	else {
+		s32 H = screen_height;
 
-	s32 sh = pxrel(last);
+		while (true) {
+			zoom = line_zoom_factor(last, line_width, line_height);
+			H   -= (h = zoom * (line_height + MARGINHALF));
 
-	const s32 hidden = sh - h();
+			if (H <= 0) {
+				H += (MARGINHALF * zoom);
+				f = last + (float)(-H) / (zoom * line_height);
+				break;
+			} 
 
-	float f = last;
+			last -= columns;
+			if (last < 0) {
+				f = 0.0f;
+				break;
+			}
+		}
+	}
+	return f;
+}
 
-	if (hidden > 0) {
-		f += hidden / (float) sh;
-	} else {
-		f -= 1 - (sh / (float) h());
-		f += MARGIN / (float) h();
+#include <FL/fl_draw.H>
+
+void pdfview::end_of_selection() {
+
+	s32 X, Y, W, H;
+	if (selx < selx2) {
+		X = selx;
+		W = selx2 - X;
+	} 
+	else {
+		X = selx2;
+		W = selx - X;
 	}
 
-	if (f < 0)
-		return 0;
+	if (sely < sely2) {
+		Y = sely;
+		H = sely2 - Y;
+	} 
+	else {
+		Y = sely2;
+		H = sely - Y;
+	}
 
-	return f;
+	// Search for the page caracteristics saved before with
+	// the draw method.
+	u32 idx = 0;
+	page_pos_struct *pp = page_pos_on_screen;
+
+	while (idx < page_pos_count) {
+		if ((X >= pp->X0)         &&
+			(Y >= pp->Y0)         &&
+			(X < (pp->X + pp->W)) &&
+			(Y < (pp->Y + pp->H)))
+			break;
+		idx++;
+		pp++;
+	}
+	if (idx >= page_pos_count)
+		return; // Not found
+
+	// Adjust the selection rectangle to be inside the real page data
+	if ((X + W) > (pp->X + pp->W))
+		W = pp->X + pp->W - X;
+	if ((Y + H) > (pp->Y + pp->H))
+		H = pp->Y + pp->H - Y;
+	if (((X + W) < pp->X) ||
+		((Y + H) < pp->Y))
+		return; // Out of the printed area
+	if (X < pp->X) {
+		W -= (pp->X - X);
+		X = pp->X;
+	}
+	if (Y < pp->Y) {
+		H -= (pp->Y - Y);
+		Y = pp->Y;
+	}
+
+	// Convert to page coords
+	if (file->mode == Z_TRIM || file->mode == Z_PGTRIM) {
+		X = X - pp->X0 + (pp->zoom * file->cache[pp->page].left);
+		Y = Y - pp->Y0 + (pp->zoom * file->cache[pp->page].top ) ;
+
+		if (hasmargins(pp->page)) {
+			X -= (pp->X - pp->X0);
+			Y -= (pp->Y - pp->Y0);
+		}
+	}
+	else {
+		X -= pp->X0;
+		Y -= pp->Y0;
+	}
+
+	// Convert to original page resolution
+	X /= (pp->zoom * pp->ratio_x);
+	Y /= (pp->zoom * pp->ratio_y);
+	W /= (pp->zoom * pp->ratio_x);
+	H /= (pp->zoom * pp->ratio_y);
+
+	TextOutputDev * const dev = new TextOutputDev(NULL, true, 0, false, false);
+	file->pdf->displayPage(dev, pp->page + 1, 144, 144, 0, true, false, false);
+	GooString *str = dev->getText(X, Y, X + W, Y + H);
+	const char * const cstr = str->getCString();
+
+	// Put it to clipboard
+	Fl::copy(cstr, strlen(cstr), 1);
+
+	delete str;
+	delete dev;
+}
+
+void pdfview::page_up() {
+	if (floorf(yoff) == yoff)
+		adjust_floor_yoff(-1.0f);
+	else
+		adjust_floor_yoff(0.0f);
+	redraw();
+}
+
+void pdfview::page_down() {
+	adjust_floor_yoff(1.0f);
+	redraw();
+}
+
+void pdfview::page_top() {
+	yoff = 0.0f;
+	redraw();
+}
+
+void pdfview::page_bottom() {
+	yoff = maxyoff();
+	redraw();
 }
 
 int pdfview::handle(int e) {
@@ -288,127 +600,30 @@ int pdfview::handle(int e) {
 	if (!file->cache)
 		return Fl_Widget::handle(e);
 
-	const float move = 0.05f;
+	float zoom;
+	u32 line_width, line_height;
+	zoom = line_zoom_factor(yoff, line_width, line_height);
+
 	static int lasty, lastx;
+	const float move = 0.05f;
 
 	switch (e) {
 		case FL_RELEASE:
 			// Was this a dragging text selection?
 			if (selecting->value() && Fl::event_button() == FL_LEFT_MOUSE &&
 				selx && sely && selx2 && sely2 && selx != selx2 &&
-				sely != sely2) {
+				sely != sely2)
 
-				const u32 zoomedmargin = MARGIN * file->zoom;
-				const u32 zoomedmarginhalf = zoomedmargin / 2;
+				end_of_selection();
 
-				// Which page is selx,sely on?
-				u32 page = yoff;
-				const float floored = yoff - floorf(yoff);
-				const float visible = 1 - floored;
-				u32 zoomedh = fullh(page) * visible * file->zoom;
-				const u32 ratiominus = hasmargins(page) ? zoomedmargin : 0;
-				const float ratio = w() / (float) fullw(page);
-				const float ratiox = (w() - ratiominus) / (float) fullw(page);
-				if (file->mode != Z_CUSTOM && file->mode != Z_PAGE) {
-					zoomedh = fullh(page) * visible * ratio;
-				}
-
-				if (y() + zoomedh < sely)
-					page++;
-
-				// We assume nobody selects text with a tiny zoom.
-				u32 X, Y, W, H;
-				if (selx < selx2) {
-					X = selx;
-					W = selx2 - X;
-				} else {
-					X = selx2;
-					W = selx - X;
-				}
-
-				if (sely < sely2) {
-					Y = sely;
-					H = sely2 - Y;
-				} else {
-					Y = sely2;
-					H = sely - Y;
-				}
-
-				// Convert to widget coords
-				X -= x();
-				Y -= y();
-
-				// Offset
-				switch (file->mode) {
-					case Z_TRIM:
-						// X and Y start in widget space, 0 to w/h.
-						Y += floored * (fullh(page) * ratiox +
-								zoomedmargin + ratiominus);
-						Y -= zoomedmarginhalf; // Grey margin
-
-						if (hasmargins(page)) {
-							X -= zoomedmarginhalf;
-							Y -= zoomedmarginhalf;
-						}
-
-						// Now page's area.
-
-						X += file->cache[page].left * ratiox;
-						Y += file->cache[page].top * ratiox;
-
-						X /= ratiox;
-						Y /= ratiox;
-						W /= ratiox;
-						H /= ratiox;
-					break;
-					case Z_WIDTH:
-						// X and Y start in widget space, 0 to w/h.
-						Y += floored * (fullh(page) * ratio +
-								zoomedmargin);
-						Y -= zoomedmarginhalf; // Grey margin
-
-						X /= ratio;
-						Y /= ratio;
-						W /= ratio;
-						H /= ratio;
-					break;
-					case Z_PAGE:
-					case Z_CUSTOM:
-						// X and Y start in widget space, 0 to w/h.
-						Y += floored * (fullh(page) * file->zoom +
-								zoomedmargin);
-						Y -= zoomedmarginhalf; // Grey margin
-
-						X -= (w() - (fullw(page) * file->zoom)) / 2 +
-							xoff * (fullw(page) * file->zoom);
-
-						X /= file->zoom;
-						Y /= file->zoom;
-						W /= file->zoom;
-						H /= file->zoom;
-					break;
-				}
-
-				TextOutputDev * const dev = new TextOutputDev(NULL, true,
-								0, false, false);
-				file->pdf->displayPage(dev, page + 1, 144, 144, 0,
-								true, false, false);
-				GooString *str = dev->getText(X, Y, X + W, Y + H);
-				const char * const cstr = str->getCString();
-
-				// Put it to clipboard
-				Fl::copy(cstr, strlen(cstr));
-
-				delete str;
-				delete dev;
-			}
-		break;
+			break;
+			
 		case FL_PUSH:
 			take_focus();
 			lasty = Fl::event_y();
 			lastx = Fl::event_x();
 
-			resetselection();
+			reset_selection();
 			if (selecting->value() && Fl::event_button() == FL_LEFT_MOUSE) {
 				selx = lastx;
 				sely = lasty;
@@ -419,232 +634,183 @@ int pdfview::handle(int e) {
 		case FL_FOCUS:
 		case FL_ENTER:
 			return 1;
-		break;
-		case FL_DRAG: {
-			const int my = Fl::event_y();
-			const int mx = Fl::event_x();
-			const int movedy = my - lasty;
-			const int movedx = mx - lastx;
+			break;
+		
+		case FL_DRAG:
+			{
+				const int my = Fl::event_y();
+				const int mx = Fl::event_x();
+				const int movedy = my - lasty;
+				const int movedx = mx - lastx;
 
-			if (selecting->value() && Fl::event_button() == FL_LEFT_MOUSE) {
-				selx2 = mx;
-				sely2 = my;
-				redraw();
-				return 1;
-			}
+				if (selecting->value() && Fl::event_button() == FL_LEFT_MOUSE) {
+					selx2 = mx;
+					sely2 = my;
+					redraw();
+					return 1;
+				}
 
-			fl_cursor(FL_CURSOR_MOVE);
+				fl_cursor(FL_CURSOR_MOVE);
 
-			if (file->maxh) {
-				if (file->mode != Z_TRIM)
-					yoff -= (movedy / file->zoom) / fullh(0);
+				// I don't understand this...
+				if (file->maxh)
+					adjust_yoff(-((movedy / zoom) / file->maxh));
 				else
-					yoff -= (movedy / file->zoom) / file->maxh;
-			} else {
-				yoff -= (movedy / (float) h()) / file->zoom;
+					adjust_yoff(-((movedy / (float) screen_height) / zoom));
+
+				if (file->mode == Z_CUSTOM) {
+					xoff += ((float) movedx / zoom) / line_width;
+					float maxchg = (((((float)screen_width / zoom) + line_width) / 2) / line_width) - 0.1f;
+					if (xoff < -maxchg)
+						xoff = -maxchg;
+					if (xoff > maxchg)
+						xoff = maxchg;
+				}
+
+				lasty = my;
+				lastx = mx;
 			}
-
-			xoff += (movedx / file->zoom) / fullw(0);
-
-			if (yoff < 0)
-				yoff = 0;
-			if (yoff >= maxyoff())
-				yoff = maxyoff();
-
-			if (xoff < -1)
-				xoff = -1;
-			if (xoff > 1)
-				xoff = 1;
-			if (file->mode != Z_CUSTOM)
-				xoff = 0;
-
-			lasty = my;
-			lastx = mx;
-
-			if (file->cache)
-				updatevisible(yoff, w(), h(), false);
 			redraw();
-		}
-		break;
+			break;
+			
 		case FL_MOUSEWHEEL:
-			if (Fl::event_ctrl()) {
+			if (Fl::event_ctrl())
 				if (Fl::event_dy() > 0)
 					cb_Zoomout(NULL, NULL);
 				else
 					cb_Zoomin(NULL, NULL);
-			} else {
-				yoff += move * Fl::event_dy();
-				if (yoff < 0)
-					yoff = 0;
-				if (yoff >= maxyoff())
-					yoff = maxyoff();
-			}
+			else
+				adjust_yoff(move * Fl::event_dy());
 
-			resetselection();
-			if (file->cache)
-				updatevisible(yoff, w(), h(), false);
+			reset_selection();
 			redraw();
-		break;
+			break;
+			
 		case FL_KEYDOWN:
 		case FL_SHORTCUT:
-			resetselection();
+			reset_selection();
 			switch (Fl::event_key()) {
 				case 'k':
-					if (Fl::event_ctrl()) {
+					if (Fl::event_ctrl())
 						yoff = 0;
-					} else {
-						const u32 page = yoff;
-						s32 sh = pxrel(page);
-						s32 shp = sh;
-						if (page > 0)
-							shp = pxrel(page - 1);
-						if (h() + 2 * MARGIN * file->zoom >= sh) {
-							/* scroll up like Page_Up */
-							if (floorf(yoff) + MARGIN * file->zoom / (float) sh >= yoff) {
-								yoff = floorf(yoff - 1) + MARGIN * file->zoom / 2 / (float) shp;
-							} else {
-								yoff = floorf(yoff) + MARGIN * file->zoom / 2 / (float) sh;
-							}
-						} else {
-							/* scroll up less than one page height */
-							float d = (h() - MARGIN) / (float) sh;
-							if (((u32) yoff) == ((u32) (yoff - d))) {
-								/* not scrolling over page border */
-								yoff -= d;
-							} else {
-								/* scrolling over page border */
-								d -= (yoff - floorf(yoff));
-								yoff = floorf(yoff);
-								/* ratio of prev page can be different */
-								d = d * (float) sh / (float) shp;
-								yoff -= d;
-							}
-						}
-						if (yoff < 0)
-							yoff = 0;
-						if (yoff >= maxyoff())
-							yoff = maxyoff();
-					}
-					redraw();
-				break;
-				case 'j':
-					if (Fl::event_ctrl()) {
-						yoff = maxyoff();
-					} else {
-						const u32 page = yoff;
-						s32 sh = pxrel(page);
-						s32 shn = sh;
-						if (page + 1 <= file->pages - 1)
-							shn = pxrel(page + 1);
-						if (h() + 2 * MARGIN * file->zoom >= sh) {
-							/* scroll down like Page_Down */
-							yoff = floorf(yoff + 1) + MARGIN * file->zoom / 2 / (float) shn;
-						} else {
-							/* scroll down less than one page height */
-							float d = (h() - MARGIN) / (float) sh;
-							if (((u32) yoff) == ((u32) (yoff + d))) {
-								/* not scrolling over page border */
-								yoff += d;
-							} else {
-								/* scrolling over page border */
-								d -= (ceilf(yoff) - yoff);
-								yoff = ceilf(yoff);
-								/* ratio of next page can be different */
-								d = d * (float) sh / (float) shn;
-								yoff += d;
-							}
-						}
-						if (yoff < 0)
-							yoff = 0;
-						if (yoff >= maxyoff())
-							yoff = maxyoff();
-					}
-					redraw();
-				break;
-				case FL_Up:
-					yoff -= move;
-					if (yoff < 0)
-						yoff = 0;
-					redraw();
-				break;
-				case FL_Down:
-					yoff += move;
-					if (yoff >= maxyoff())
-						yoff = maxyoff();
-					redraw();
-				break;
-				case FL_Page_Up:
-				{
-					const u32 page = yoff;
-					s32 sh = pxrel(page);
-					s32 shp = sh;
-					if (page)
-						shp = pxrel(page - 1);
-					if (floorf(yoff) + MARGIN * file->zoom / (float) sh >= yoff) {
-						yoff = floorf(yoff - 1) + MARGIN * file->zoom / 2 / (float) shp;
-					}
 					else {
-						yoff = floorf(yoff) + MARGIN * file->zoom / 2 / (float) sh;
+						const s32 page = yoff;
+						s32 sh;
+						s32 shp = sh = pxrel(page);
+						if (page >= columns)
+							shp = pxrel(page - columns);
+						if (screen_height >= sh) {
+							/* scroll up like Page_Up */
+							if (floorf(yoff) >= yoff)
+								adjust_floor_yoff(-1.0f);
+							else
+								adjust_floor_yoff(0.0f);
+						} 
+						else {
+							/* scroll up a bit less than one screen height */
+							float d = (screen_height - 2 * MARGIN) / (float) sh;
+							if (((u32) yoff) != ((u32) (yoff - d))) {
+							 	/* scrolling over page border */
+							 	d -= (yoff - floorf(yoff));
+							 	yoff = floorf(yoff);
+							 	/* ratio of prev page can be different */
+							 	d = d * (float) sh / (float) shp;
+							}
+							adjust_yoff(-d);
+						}
 					}
-					if (yoff < 0)
-						yoff = 0;
 					redraw();
-				}
-				break;
+					break;
+					
+				case 'j':
+					if (Fl::event_ctrl())
+						yoff = maxyoff();
+					else {
+						const s32 page = yoff;
+						s32 sh;
+						s32 shn = sh = pxrel(page);
+						if (page + columns <= (s32)(file->pages - 1))
+							shn = pxrel(page + columns);
+						if (screen_height >= sh)
+							/* scroll down like Page_Down */
+							adjust_floor_yoff(1.0f);
+						else {
+							/* scroll down a bit less than one screen height */
+							float d = (screen_height - 2 * MARGIN) / (float) sh;
+							if (((u32) yoff) != ((u32) (yoff + d))) {
+							 	/* scrolling over page border */
+							 	d -= (ceilf(yoff) - yoff);
+							 	yoff = floorf(yoff) + columns;
+							 	/* ratio of next page can be different */
+							 	d = d * (float) sh / (float) shn;
+							}
+							adjust_yoff(d);
+						}
+					}
+					redraw();
+					break;
+					
+				case FL_Up:
+					adjust_yoff(-move);
+					redraw();
+					break;
+					
+				case FL_Down:
+					adjust_yoff(move);
+					redraw();
+					break;
+					
+				case FL_Page_Up:
+					page_up();
+					break;
+					
 				case FL_Page_Down:
-				{
-					u32 page = floorf(yoff);
-					s32 shn = pxrel(page);
-					if (page + 1 <= file->pages - 1)
-						shn = pxrel(page + 1);
-					yoff = floorf(yoff + 1) + MARGIN * file->zoom / 2 / (float) shn;
-					if (yoff >= maxyoff())
-						yoff = maxyoff();
-					redraw();
-				}
-				break;
+					page_down();
+					break;
+					
 				case FL_Home:
-					if (Fl::event_ctrl()) {
+					if (Fl::event_ctrl())
 						yoff = 0;
-					} else {
+					else
 						yoff = floorf(yoff);
-					}
 					redraw();
-				break;
+					break;
+					
 				case FL_End:
-					if (Fl::event_ctrl()) {
+					if (Fl::event_ctrl())
 						yoff = maxyoff();
-					} else {
+					else {
 						u32 page = yoff;
-						s32 sh = pxrel(page);
+						s32 sh = line_height * zoom;
 
 						if (file->cache[page].ready) {
-							const s32 hidden = sh - h();
+							const s32 hidden = sh - screen_height;
 							float tmp = floorf(yoff) + hidden / (float) sh;
 							if (tmp > yoff)
 								yoff = tmp;
-							if (yoff < 0)
-								yoff = 0;
-							if (yoff >= maxyoff())
-								yoff = maxyoff();
-						} else {
-							yoff = ceilf(yoff) - 0.4f;
+							adjust_yoff(0);
 						}
+						else
+							yoff = ceilf(yoff) - 0.4f;
 					}
 					redraw();
-				break;
+					break;
+					
 				case FL_F + 8:
-					cb_hide(NULL, NULL);
-				break;
+					cb_hide(NULL, NULL); // Hide toolbar
+					break;
+					
 				default:
 					return 0;
-			}
+					
+			} // switch (Fl::event_key())
 
 			if (file->cache)
-				updatevisible(yoff, w(), h(), false);
+				update_visible(false);
 
 			return 1;
-		break;
+			break;
+			
 		case FL_MOVE:
 			// Set the cursor appropriately
 			if (!file->maxw)
@@ -659,7 +825,48 @@ int pdfview::handle(int e) {
 	return Fl_Widget::handle(e);
 }
 
+void pdfview::adjust_yoff(float offset) {
+
+	if (offset != 0.0f) {
+		float y = floorf(yoff); 
+		yoff += offset;
+		float diff = floorf(yoff) - y;
+		yoff = yoff + (diff * columns) - diff; 
+	}
+
+	if (yoff < 0.0f)
+		yoff = 0.0f;
+	else {
+		float y = maxyoff();
+
+		if (yoff > y)
+			yoff = y;
+	}
+}
+
+void pdfview::adjust_floor_yoff(float offset) {
+
+	if (offset != 0.0f) {
+		float y = floorf(yoff); 
+		yoff = y + offset;
+		float diff = floorf(yoff) - y;
+		yoff = yoff + (diff * columns) - diff; 
+	}
+	else
+		yoff = floorf(yoff);
+
+	if (yoff < 0.0f)
+		yoff = 0.0f;
+	else {
+		float max = maxyoff();
+
+		if (yoff > max)
+			yoff = max;
+	}
+}
+
 u8 pdfview::iscached(const u32 page) const {
+
 	u32 i;
 	for (i = 0; i < CACHE_MAX; i++) {
 		if (cachedpage[i] == page)
@@ -723,14 +930,7 @@ void pdfview::docache(const u32 page) {
 	XDestroyImage(xi);
 }
 
-void pdfview::go(const u32 page) {
-	yoff = page;
-	resetselection();
-	redraw();
-}
-
-void pdfview::content(const u32 page, const s32 X, const s32 Y,
-			const u32 W, const u32 H) {
+void pdfview::content(const u32 page, const s32 X, const s32 Y, const u32 W, const u32 H) {
 
 	// Do a gpu-accelerated bilinear blit
 	u8 c = iscached(page);
@@ -773,7 +973,8 @@ void pdfview::content(const u32 page, const s32 X, const s32 Y,
 		if (selx < selx2) {
 			x = selx;
 			w = selx2 - x;
-		} else {
+		} 
+		else {
 			x = selx2;
 			w = selx - x;
 		}
@@ -781,13 +982,13 @@ void pdfview::content(const u32 page, const s32 X, const s32 Y,
 		if (sely < sely2) {
 			y = sely;
 			h = sely2 - y;
-		} else {
+		} 
+		else {
 			y = sely2;
 			h = sely - y;
 		}
 
-		XRenderFillRectangle(fl_display, PictOpOver, dst, &col,
-					x, y, w, h);
+		XRenderFillRectangle(fl_display, PictOpOver, dst, &col, x, y, w, h);
 	}
 
 	XRenderFreePicture(fl_display, src);

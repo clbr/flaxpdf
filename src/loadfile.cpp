@@ -181,6 +181,8 @@ static bool notdone(const bool arr[], const u32 num) {
 	return false;
 }
 
+static bool aborting = false;
+
 static void *renderer(void *) {
 
 	// Optional timing
@@ -207,6 +209,8 @@ static void *renderer(void *) {
 
 		while (notdone(done, chunks)) {
 			for (c = 0; c < chunks; c++) {
+
+				if (aborting) return NULL;
 
 				// Did the user skip around?
 				const u32 first = __sync_fetch_and_add(&file->first_visible, 0);
@@ -267,18 +271,29 @@ static void *renderer(void *) {
 	return NULL;
 }
 
-void loadfile(const char *file) {
+bool loadfile(const char *file, recent_file_struct *recent_files) {
+
+	bool recent = false;
+
+	if (!file) {
+		if (!recent_files) {
+			file = fl_file_chooser(_("Open PDF"), "*.pdf", NULL, 0);
+		}
+		else {
+			file = recent_files->filename.c_str();
+			recent = true;
+		}
+	}
 
 	if (!file)
-		file = fl_file_chooser(_("Open PDF"), "*.pdf", NULL, 0);
-	if (!file)
-		return;
+		return false;
 
 	// Refresh window
 	Fl::check();
 
 	// Parse info
 	GooString gooname(file);
+
 	PDFDoc *pdf = new PDFDoc(&gooname);
 	if (!pdf->isOk()) {
 		const int err = pdf->getErrorCode();
@@ -298,12 +313,13 @@ void loadfile(const char *file) {
 
 		fl_alert(_("Error %d, %s"), err, msg);
 
-		return;
+		return false;
 	}
 
 	if (::file->cache) {
 		// Free the old one
-		pthread_cancel(::file->tid);
+		//pthread_cancel(::file->tid);
+		aborting = true;
 		pthread_join(::file->tid, NULL);
 
 		u32 i;
@@ -316,6 +332,10 @@ void loadfile(const char *file) {
 		::file->cache = NULL;
 	}
 
+	if (::file->filename) free(::file->filename);
+	if (::file->pdf) free(::file->pdf);
+	::file->filename = (char *) xmalloc(strlen(file) + 1);
+	strcpy(::file->filename,  file);
 	::file->pdf = pdf;
 	::file->pages = pdf->getNumPages();
 	::file->maxw = ::file->maxh = ::file->first_visible = ::file->last_visible = 0;
@@ -323,7 +343,7 @@ void loadfile(const char *file) {
 	// Start threaded magic
 	if (::file->pages < 1) {
 		fl_alert(_("Couldn't open %s, perhaps it's corrupted?"), file);
-		return;
+		return false;
 	}
 
 	fl_cursor(FL_CURSOR_WAIT);
@@ -340,6 +360,7 @@ void loadfile(const char *file) {
 	const struct sched_param nice = { 15 };
 	pthread_attr_setschedparam(&attr, &nice);
 
+	aborting = false;
 	pthread_create(&::file->tid, &attr, renderer, NULL);
 
 	// Update title
@@ -360,5 +381,12 @@ void loadfile(const char *file) {
 	sprintf(tmp, "/ %u", ::file->pages);
 	pagectr->copy_label(tmp);
 	pagebox->value("1");
+	if (recent) {
+		::file->zoom = recent_files->zoom;
+		::file->mode = (zoommode)recent_files->zoom_mode;
+	}
+
 	view->reset();
+
+	return recent;
 }
