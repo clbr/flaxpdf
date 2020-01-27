@@ -16,6 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "view.h"
 #include <TextOutputDev.h>
+#include <glib/poppler-features.h>
 
 // Quarter inch in double resolution
 #define MARGIN 36
@@ -394,7 +395,12 @@ int pdfview::handle(int e) {
 				file->pdf->displayPage(dev, page + 1, 144, 144, 0,
 								true, false, false);
 				GooString *str = dev->getText(X, Y, X + W, Y + H);
-				const char * const cstr = str->getCString();
+				const char * const cstr =
+#if POPPLER_CHECK_VERSION(0, 72, 0)
+					str->c_str();
+#else
+					str->getCString();
+#endif
 
 				// Put it to clipboard
 				Fl::copy(cstr, strlen(cstr));
